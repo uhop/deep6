@@ -1,18 +1,16 @@
-/* UMD.define */ (typeof define=="function"&&define||function(d,f,m){m={module:module,require:require};module.exports=f.apply(null,d.map(function(n){return m[n]||require(n)}))})
-(["../main"], function(unify){
-	"use strict";
+import unify from '../main.js';
 
-	function MatchTypeOf(types){
-		this.types = types instanceof Array ? types : [types];
-	}
+class MatchTypeOf extends unify.Unifier {
+  constructor(types) {
+    super();
+    this.types = types instanceof Array ? types : [types];
+  }
 
-	MatchTypeOf.prototype = Object.create(unify.Unifier.prototype);
+  unify(val, ls, rs) {
+    return !unify.isVariable(val) && this.types.indexOf(typeof val) >= 0;
+  }
+}
 
-	MatchTypeOf.prototype.unify = function(val, ls, rs){
-		return !unify.isVariable(val) && this.types.indexOf(typeof val) >= 0;
-	};
+const matchTypeOf = types => new MatchTypeOf(types);
 
-	return function matchTypeOf(types){
-		return new MatchTypeOf(types);
-	};
-});
+export default matchTypeOf;

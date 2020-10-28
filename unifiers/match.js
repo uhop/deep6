@@ -1,18 +1,16 @@
-/* UMD.define */ (typeof define=="function"&&define||function(d,f,m){m={module:module,require:require};module.exports=f.apply(null,d.map(function(n){return m[n]||require(n)}))})
-(["../main"], function(unify){
-	"use strict";
+import unify from '../main.js';
 
-	function Match(f){
-		this.f = f;
-	}
+class Match extends unify.Unifier {
+  constructor(f) {
+    super();
+    this.f = f;
+  }
 
-	Match.prototype = Object.create(unify.Unifier.prototype);
+  unify(val, ls, rs, env) {
+    return this.f(val, ls, rs, env);
+  }
+}
 
-	Match.prototype.unify = function(val, ls, rs, env){
-		return this.f(val, ls, rs, env);
-	};
+const match = f => new Match(f);
 
-	return function match(f){
-		return new Match(f);
-	};
-});
+export default match;
