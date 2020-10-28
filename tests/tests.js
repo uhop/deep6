@@ -1,15 +1,15 @@
 import unify from '../main.js';
-// import preprocess from '../utils/preprocess.js';
+import preprocess from '../utils/preprocess.js';
 import matchString from '../unifiers/matchString.js';
 import matchTypeOf from '../unifiers/matchTypeOf.js';
 import matchInstanceOf from '../unifiers/matchInstanceOf.js';
 import match from '../unifiers/match.js';
 import ref from '../unifiers/ref.js';
-// import walk from '../utils/walk.js';
-// import clone from '../utils/clone.js';
-// import assemble from '../utils/assemble.js';
-// import deref from '../utils/deref.js';
-// import replace from '../utils/replace.js';
+import walk from '../utils/walk.js';
+import clone from '../utils/clone.js';
+import assemble from '../utils/assemble.js';
+import deref from '../utils/deref.js';
+import replace from '../utils/replace.js';
 
 // test harness
 
@@ -228,37 +228,37 @@ const tests = [
     eval(TEST('x.get(result) === 0'));
     eval(TEST('unify(y.get(result), {value: 3})'));
   },
-  // function test_preprocess() {
-  //   const l = {
-  //       x: 5,
-  //       y: {
-  //         a: 42,
-  //         b: {},
-  //         c: [1, 2, 3]
-  //       },
-  //       z: 'ah!'
-  //     },
-  //     r = {
-  //       y: {
-  //         b: {}
-  //       },
-  //       z: 'ah!'
-  //     };
-  //   let result = unify(l, r);
-  //   eval(TEST('!result'));
-  //   result = unify(l, preprocess(r));
-  //   eval(TEST('!result'));
-  //   result = unify(l, preprocess(r, true));
-  //   eval(TEST('result'));
-  //   result = unify(l.y, {c: [1, 2]});
-  //   eval(TEST('!result'));
-  //   result = unify(l.y, preprocess({c: [1, 2]}));
-  //   eval(TEST('!result'));
-  //   result = unify(l.y, preprocess({c: [1, 2]}, false, true));
-  //   eval(TEST('!result'));
-  //   result = unify(l.y, preprocess({c: [1, 2]}, true, true));
-  //   eval(TEST('result'));
-  // },
+  function test_preprocess() {
+    const l = {
+        x: 5,
+        y: {
+          a: 42,
+          b: {},
+          c: [1, 2, 3]
+        },
+        z: 'ah!'
+      },
+      r = {
+        y: {
+          b: {}
+        },
+        z: 'ah!'
+      };
+    let result = unify(l, r);
+    eval(TEST('!result'));
+    result = unify(l, preprocess(r));
+    eval(TEST('!result'));
+    result = unify(l, preprocess(r, true));
+    eval(TEST('result'));
+    result = unify(l.y, {c: [1, 2]});
+    eval(TEST('!result'));
+    result = unify(l.y, preprocess({c: [1, 2]}));
+    eval(TEST('!result'));
+    result = unify(l.y, preprocess({c: [1, 2]}, false, true));
+    eval(TEST('!result'));
+    result = unify(l.y, preprocess({c: [1, 2]}, true, true));
+    eval(TEST('result'));
+  },
   function test_matchString() {
     let result = unify('12345', matchString(/1(2)3/));
     eval(TEST('result'));
@@ -416,123 +416,123 @@ const tests = [
     result = unify('5', smallNumber);
     eval(TEST('!result'));
   },
-  // function test_walk() {
-  //   const result = {};
-  //   walk(
-  //     {
-  //       a: [1, true, [0, NaN, Infinity, Math.sin]],
-  //       b: ['hello!', new Date(), /\d+/, {g: undefined}],
-  //       c: null,
-  //       d: {
-  //         e: [],
-  //         f: {}
-  //       }
-  //     },
-  //     {
-  //       processOther: function (s) {
-  //         const t = typeof s;
-  //         if (typeof result[t] != 'number') {
-  //           result[t] = 0;
-  //         }
-  //         ++result[t];
-  //       }
-  //     }
-  //   );
-  //   const expected = {
-  //     boolean: 1,
-  //     number: 4,
-  //     string: 1,
-  //     function: 1,
-  //     object: 1,
-  //     undefined: 1
-  //   };
-  //   eval(TEST('unify(result, expected)'));
-  // },
-  // function test_clone() {
-  //   const source = {
-  //     a: [1, true, [0, NaN, Infinity, Math.sin]],
-  //     b: ['hello!', new Date(), /\d+/, {g: undefined}],
-  //     c: null,
-  //     d: {
-  //       e: [],
-  //       f: {}
-  //     }
-  //   };
-  //   let result = clone(source);
-  //   eval(TEST('result !== source'));
-  //   eval(TEST('unify(result, source)'));
-  //   const left = v('left'),
-  //     right = v('right');
-  //   const env = unify(
-  //     {left: left, right: right},
-  //     {
-  //       left: {left: 1, right: 2},
-  //       right: {left: 8, right: 9}
-  //     }
-  //   );
-  //   result = clone(
-  //     {
-  //       left: {
-  //         left: left,
-  //         right: {left: 3, right: 4}
-  //       },
-  //       right: {
-  //         left: {left: 6, right: 7},
-  //         right: right
-  //       }
-  //     },
-  //     env
-  //   );
-  //   const expected = {
-  //     left: {
-  //       left: {left: 1, right: 2},
-  //       right: {left: 3, right: 4}
-  //     },
-  //     right: {
-  //       left: {left: 6, right: 7},
-  //       right: {left: 8, right: 9}
-  //     }
-  //   };
-  //   eval(TEST('unify(result, expected)'));
-  // },
-  // function test_assemble() {
-  //   let source = {
-  //     a: [1, , null],
-  //     b: {c: 'hey'}
-  //   };
-  //   let result = assemble(source);
-  //   eval(TEST('result === source'));
-  //   eval(TEST('unify(result, source)'));
-  //   source = {x: [{y: false}]};
-  //   const env = unify(v('x'), source);
-  //   eval(TEST("v('x').bound(env)"));
-  //   eval(TEST("v('x').get(env) === source"));
-  //   eval(TEST("unify(v('x').get(env), source)"));
-  //   source = {z: v('x')};
-  //   result = assemble(source, env);
-  //   eval(TEST('result !== source'));
-  //   eval(TEST('unify(result, source, env)'));
-  //   eval(TEST('unify(result, {z: {x: [{y: false}]}})'));
-  // },
-  // function test_deref() {
-  //   let source = {
-  //     a: [1, , null],
-  //     b: {c: 'hey'}
-  //   };
-  //   let result = deref(source);
-  //   eval(TEST('result === source'));
-  //   eval(TEST('unify(result, source)'));
-  //   source = {x: [{y: false}]};
-  //   const env = unify(v('x'), source);
-  //   eval(TEST("v('x').bound(env)"));
-  //   eval(TEST("v('x').get(env) === source"));
-  //   eval(TEST("unify(v('x').get(env), source)"));
-  //   source = {z: v('x')};
-  //   result = deref(source, env);
-  //   eval(TEST('result === source'));
-  //   eval(TEST('unify(result, source, env)'));
-  //   eval(TEST('unify(result, {z: {x: [{y: false}]}})'));
-  // },
+  function test_walk() {
+    const result = {};
+    walk(
+      {
+        a: [1, true, [0, NaN, Infinity, Math.sin]],
+        b: ['hello!', new Date(), /\d+/, {g: undefined}],
+        c: null,
+        d: {
+          e: [],
+          f: {}
+        }
+      },
+      {
+        processOther: function (s) {
+          const t = typeof s;
+          if (typeof result[t] != 'number') {
+            result[t] = 0;
+          }
+          ++result[t];
+        }
+      }
+    );
+    const expected = {
+      boolean: 1,
+      number: 4,
+      string: 1,
+      function: 1,
+      object: 1,
+      undefined: 1
+    };
+    eval(TEST('unify(result, expected)'));
+  },
+  function test_clone() {
+    const source = {
+      a: [1, true, [0, NaN, Infinity, Math.sin]],
+      b: ['hello!', new Date(), /\d+/, {g: undefined}],
+      c: null,
+      d: {
+        e: [],
+        f: {}
+      }
+    };
+    let result = clone(source);
+    eval(TEST('result !== source'));
+    eval(TEST('unify(result, source)'));
+    const left = v('left'),
+      right = v('right');
+    const env = unify(
+      {left: left, right: right},
+      {
+        left: {left: 1, right: 2},
+        right: {left: 8, right: 9}
+      }
+    );
+    result = clone(
+      {
+        left: {
+          left: left,
+          right: {left: 3, right: 4}
+        },
+        right: {
+          left: {left: 6, right: 7},
+          right: right
+        }
+      },
+      env
+    );
+    const expected = {
+      left: {
+        left: {left: 1, right: 2},
+        right: {left: 3, right: 4}
+      },
+      right: {
+        left: {left: 6, right: 7},
+        right: {left: 8, right: 9}
+      }
+    };
+    eval(TEST('unify(result, expected)'));
+  },
+  function test_assemble() {
+    let source = {
+      a: [1, , null],
+      b: {c: 'hey'}
+    };
+    let result = assemble(source);
+    eval(TEST('result === source'));
+    eval(TEST('unify(result, source)'));
+    source = {x: [{y: false}]};
+    const env = unify(v('x'), source);
+    eval(TEST("v('x').bound(env)"));
+    eval(TEST("v('x').get(env) === source"));
+    eval(TEST("unify(v('x').get(env), source)"));
+    source = {z: v('x')};
+    result = assemble(source, env);
+    eval(TEST('result !== source'));
+    eval(TEST('unify(result, source, env)'));
+    eval(TEST('unify(result, {z: {x: [{y: false}]}})'));
+  },
+  function test_deref() {
+    let source = {
+      a: [1, , null],
+      b: {c: 'hey'}
+    };
+    let result = deref(source);
+    eval(TEST('result === source'));
+    eval(TEST('unify(result, source)'));
+    source = {x: [{y: false}]};
+    const env = unify(v('x'), source);
+    eval(TEST("v('x').bound(env)"));
+    eval(TEST("v('x').get(env) === source"));
+    eval(TEST("unify(v('x').get(env), source)"));
+    source = {z: v('x')};
+    result = deref(source, env);
+    eval(TEST('result === source'));
+    eval(TEST('unify(result, source, env)'));
+    eval(TEST('unify(result, {z: {x: [{y: false}]}})'));
+  },
   function test_ref() {
     const source = {
         left: {left: 1, right: 2},
@@ -615,29 +615,29 @@ const tests = [
     unify.registry.pop();
     unify.registry.pop();
   },
-  // function test_replace() {
-  //   const x = v('x'),
-  //     y = v('y'),
-  //     val = v('val'),
-  //     env = unify(
-  //       {
-  //         val: 3,
-  //         pos: [1, 2]
-  //       },
-  //       {
-  //         val: val,
-  //         pos: [x, y]
-  //       }
-  //     );
-  //   eval(TEST('env'));
-  //   eval(TEST('x.bound(env)'));
-  //   eval(TEST('unify(x, 1, env)'));
-  //   eval(TEST('y.bound(env)'));
-  //   eval(TEST('unify(y, 2, env)'));
-  //   eval(TEST('val.bound(env)'));
-  //   eval(TEST('unify(val, 3, env)'));
-  //   eval(TEST("replace('${x} + ${y} = ${val}', env) === '1 + 2 = 3'"));
-  // },
+  function test_replace() {
+    const x = v('x'),
+      y = v('y'),
+      val = v('val'),
+      env = unify(
+        {
+          val: 3,
+          pos: [1, 2]
+        },
+        {
+          val: val,
+          pos: [x, y]
+        }
+      );
+    eval(TEST('env'));
+    eval(TEST('x.bound(env)'));
+    eval(TEST('unify(x, 1, env)'));
+    eval(TEST('y.bound(env)'));
+    eval(TEST('unify(y, 2, env)'));
+    eval(TEST('val.bound(env)'));
+    eval(TEST('unify(val, 3, env)'));
+    eval(TEST("replace('${x} + ${y} = ${val}', env) === '1 + 2 = 3'"));
+  },
   function test_nullProto() {
     const x = Object.create(null),
       y = Object.create(null),
@@ -670,15 +670,12 @@ const runTests = () => {
       tests[i]();
     } catch (e) {
       exceptionFlag = true;
-      if (typeof console != 'undefined') {
-        // IE < 9 :-(
-        console.log('Unhandled exception in test #' + i + ' (' + tests[i].name + '): ' + e.message);
-        if (e.stack) {
-          console.log('Stack: ', e.stack);
-        }
-        if (SHOW_FAILED_TEST_CODE) {
-          console.log('Code: ', tests[i].toString());
-        }
+      console.log('Unhandled exception in test #' + i + ' (' + tests[i].name + '): ' + e.message);
+      if (e.stack) {
+        console.log('Stack: ', e.stack);
+      }
+      if (SHOW_FAILED_TEST_CODE) {
+        console.log('Code: ', tests[i].toString());
       }
     }
   }
