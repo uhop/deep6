@@ -40,7 +40,7 @@ const processObject = (val, context) => {
   }
 };
 
-var registry = [
+const registry = [
     walk.Command,
     function processCommand(val, context) {
       val.f(context);

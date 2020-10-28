@@ -43,7 +43,7 @@ function postObject(context) {
         if (typeof t == 'number' && isNaN(t) ? typeof s[k] == 'number' && !isNaN(s[k]) : s[k] !== t) break main;
       }
     }
-    var l = stackOut.length - 1 - j;
+    const l = stackOut.length - 1 - j;
     if (l) {
       stackOut.splice(-l, l, s);
     } else {
@@ -76,7 +76,7 @@ const processObject = (val, context) => {
 
 const processOther = (val, context) => context.stackOut.push(val);
 
-var registry = [
+const registry = [
     walk.Command,
     function processCommand(val, context) {
       val.f(context);

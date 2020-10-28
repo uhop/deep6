@@ -1,7 +1,7 @@
 import unify from '../main.js';
 import walk from './walk.js';
 
-var empty = {};
+const empty = {};
 
 function postArray(context) {
   const stackOut = context.stackOut,
@@ -22,7 +22,7 @@ function postArray(context) {
 }
 
 function postObject(context) {
-  var stackOut = context.stackOut,
+  const stackOut = context.stackOut,
     s = this.s;
   let j = stackOut.length - 1;
   for (let k in s) {
@@ -54,7 +54,7 @@ const processObject = (val, context) => {
 
 const processOther = (val, context) => context.stackOut.push(val);
 
-var registry = [
+const registry = [
     walk.Command,
     function processCommand(val, context) {
       val.f(context);
