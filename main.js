@@ -79,6 +79,7 @@ let unique = 0;
 
 class Var extends Unifier {
   constructor(name) {
+    super();
     this.name = name || 'var' + unique++;
   }
   bound(env) {
@@ -124,6 +125,7 @@ const variable = name => new Var(name);
 
 class Wrap extends Unifier {
   constructor(type, o) {
+    super();
     this.type = type;
     this.object = o;
   }
@@ -513,10 +515,10 @@ const unify = (l, r, env) => {
       }
     }
     // process registered filters
-    registry = unify.filters;
-    for (let i = 0, len = registry.length; i < len; i += 2) {
-      if (registry[i](l, r)) {
-        if (registry[i + 1](l, r, ls, rs, env)) continue main;
+    const filters = unify.filters;
+    for (let i = 0, len = filters.length; i < len; i += 2) {
+      if (filters[i](l, r)) {
+        if (filters[i + 1](l, r, ls, rs, env)) continue main;
         return null;
       }
     }
