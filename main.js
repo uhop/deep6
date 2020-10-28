@@ -5,9 +5,10 @@ const _ = {};
 // Env
 
 class Env {
-  constructor() {
+  constructor({objectType} = {}) {
     this.variables = {};
     this.values = {};
+    this.objectType = objectType;
   }
   bindVar(name1, name2) {
     const vars = this.variables;
