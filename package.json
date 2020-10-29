@@ -5,7 +5,8 @@
   "type": "module",
   "main": "main.js",
   "scripts": {
-    "test": "node tests/tests.js"
+    "test": "node tests/tests.js",
+    "debug": "node --inspect-brk tests/tests.js"
   },
   "repository": {
     "type": "git",
