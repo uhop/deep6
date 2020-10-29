@@ -1,6 +1,6 @@
 import unify from '../main.js';
 
-class Match extends unify.Unifier {
+class MatchCondition extends unify.Unifier {
   constructor(f) {
     super();
     this.f = f;
@@ -11,6 +11,6 @@ class Match extends unify.Unifier {
   }
 }
 
-const match = f => new Match(f);
+const matchCondition = f => new MatchCondition(f);
 
-export default match;
+export default matchCondition;

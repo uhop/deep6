@@ -3,7 +3,7 @@ import preprocess from '../utils/preprocess.js';
 import matchString from '../unifiers/matchString.js';
 import matchTypeOf from '../unifiers/matchTypeOf.js';
 import matchInstanceOf from '../unifiers/matchInstanceOf.js';
-import match from '../unifiers/match.js';
+import matchCondition from '../unifiers/matchCondition.js';
 import ref from '../unifiers/ref.js';
 import walk from '../utils/walk.js';
 import clone from '../utils/clone.js';
@@ -480,10 +480,8 @@ const tests = [
     result = unify({}, matchInstanceOf(Array));
     eval(TEST('!result'));
   },
-  function test_match() {
-    const smallNumber = match(function (val) {
-      return typeof val == 'number' && 0 < val && val < 10;
-    });
+  function test_matchCondition() {
+    const smallNumber = matchCondition(val => typeof val == 'number' && 0 < val && val < 10);
 
     let result = unify(5, smallNumber);
     eval(TEST('result'));
