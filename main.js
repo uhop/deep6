@@ -122,11 +122,11 @@ class Wrap extends Unifier {
       if (!val) return false;
       if (val instanceof Array) {
         // with a naked array
-        return unifyArrays(this.object, this.type, this, val, env.openArrays ? 'open' : 'exact', null, ls, rs, env);
+        return unifyObjects(this.object, this.type, this, val, env.openArrays ? 'open' : 'exact', null, ls, rs, env);
       }
       if (val instanceof Wrap) {
         // with a wrapped array
-        return val.object instanceof Array && unifyArrays(this.object, this.type, this, val.object, val.type, val, ls, rs, env);
+        return val.object instanceof Array && unifyObjects(this.object, this.type, this, val.object, val.type, val, ls, rs, env);
       }
       return false;
     }
@@ -149,90 +149,17 @@ const isOpen = o => o && o instanceof Wrap && o.type === 'open';
 const soft = o => new Wrap('soft', o);
 const isSoft = o => o && o instanceof Wrap && o.type === 'soft';
 
-// well-known constructors
-const unifyArray = (l, r, ls, rs, env) => {
-  if (!r || !(r instanceof Array) || (!env.openArrays && l.length != r.length)) return false;
-  const n = Math.min(l.length, r.length);
-  for (let i = 0; i < n; ++i) {
-    ls.push(l[i]);
-    rs.push(r[i]);
-  }
-  return true;
-};
 const unifyDate = (l, r, ls, rs, env) => r && r instanceof Date && l.getTime() == r.getTime();
 const unifyRegExp = (l, r, ls, rs, env) =>
   r && r instanceof RegExp && l.source == r.source && l.global == r.global && l.multiline == r.multiline && l.ignoreCase == r.ignoreCase;
 
 // registry of well-known constructors
-const registry = [Array, unifyArray, Date, unifyDate, RegExp, unifyRegExp];
+const registry = [Date, unifyDate, RegExp, unifyRegExp];
 const filters = [];
 
-// unification of arrays
-
-const arrayOps = {
-  exact: {
-    exact: {
-      precheck: (l, r) => l.length == r.length
-    },
-    open: {
-      precheck: (l, r) => l.length >= r.length
-    },
-    soft: {
-      precheck: (l, r) => l.length >= r.length,
-      fix: function () {
-        this.l.type = 'exact';
-      }
-    }
-  },
-  open: {
-    open: {},
-    soft: {}
-  },
-  soft: {
-    soft: {
-      update: function () {
-        if (this.l.length > this.r.length) {
-          this.r.push.apply(this.r, this.l.slice(this.r.length));
-        } else if (this.l.length < this.r.length) {
-          this.l.push.apply(this.l, this.r.slice(this.l.length));
-        }
-      }
-    }
-  }
-};
-arrayOps.exact.exact.compare = arrayOps.exact.open.compare = arrayOps.exact.soft.compare = (l, r, ls, rs) => {
-  for (let i = 0, n = r.length; i < n; ++i) {
-    ls.push(l[i]);
-    rs.push(r[i]);
-  }
-};
-arrayOps.open.open.compare = arrayOps.open.soft.compare = arrayOps.soft.soft.compare = (l, r, ls, rs) => {
-  for (let i = 0, n = Math.min(l.length, r.length); i < n; ++i) {
-    ls.push(l[i]);
-    rs.push(r[i]);
-  }
-};
-arrayOps.exact.soft.update = arrayOps.open.soft.update = function () {
-  if (this.l.length > this.r.length) {
-    this.r.push.apply(this.r, this.l.slice(this.r.length));
-  }
-};
-
-const unifyArrays = (l, lt, lm, r, rt, rm, ls, rs, env) => {
-  if (lt > rt) {
-    ([l, r] = [r, l]), ([lm, rm] = [rm, lm]), ([lt, rt] = [rt, lt]);
-  }
-  const ops = arrayOps[lt][rt];
-  if (ops.precheck && !ops.precheck(l, r)) return false;
-  if (ops.fix && rm) ls.push(new Command(ops.fix, rm));
-  if (ops.update && l.length != r.length) ls.push(new Command(ops.update, l, r));
-  ops.compare(l, r, ls, rs, env);
-  return true;
-};
+const hasOwnProperty = Object.prototype.hasOwnProperty;
 
 // unification of objects
-
-const hasOwnProperty = Object.prototype.hasOwnProperty;
 
 const objectOps = {
   exact: {
@@ -352,7 +279,7 @@ const unify = (l, r, env, options) => {
         return null;
       }
     }
-    // process naked objects
+    // process naked objects and arrays
     const objectType = env.openObjects ? 'open' : 'exact';
     if (!unifyObjects(l, objectType, null, r, objectType, null, ls, rs, env)) return null;
   }
