@@ -1,4 +1,4 @@
-import unify from '../main.js';
+import unify from '../unify.js';
 
 class Ref extends unify.Variable {
   constructor(variable, value) {

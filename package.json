@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Micro library for advanced deep equivalence algorithms.",
   "type": "module",
-  "main": "main.js",
+  "main": "src/unify.js",
   "scripts": {
     "test": "node tests/tests.js",
     "debug": "node --inspect-brk tests/tests.js"

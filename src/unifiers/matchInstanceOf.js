@@ -1,4 +1,4 @@
-import unify from '../main.js';
+import unify from '../unify.js';
 
 class MatchInstanceOf extends unify.Unifier {
   constructor(types) {

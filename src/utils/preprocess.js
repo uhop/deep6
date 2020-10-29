@@ -1,4 +1,4 @@
-import unify from '../main.js';
+import unify from '../unify.js';
 import walk from './walk.js';
 
 const empty = {};

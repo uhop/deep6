@@ -1,15 +1,15 @@
-import unify from '../main.js';
-import preprocess from '../utils/preprocess.js';
-import matchString from '../unifiers/matchString.js';
-import matchTypeOf from '../unifiers/matchTypeOf.js';
-import matchInstanceOf from '../unifiers/matchInstanceOf.js';
-import matchCondition from '../unifiers/matchCondition.js';
-import ref from '../unifiers/ref.js';
-import walk from '../utils/walk.js';
-import clone from '../utils/clone.js';
-import assemble from '../utils/assemble.js';
-import deref from '../utils/deref.js';
-import replace from '../utils/replace.js';
+import unify from '../src/unify.js';
+import preprocess from '../src/utils/preprocess.js';
+import matchString from '../src/unifiers/matchString.js';
+import matchTypeOf from '../src/unifiers/matchTypeOf.js';
+import matchInstanceOf from '../src/unifiers/matchInstanceOf.js';
+import matchCondition from '../src/unifiers/matchCondition.js';
+import ref from '../src/unifiers/ref.js';
+import walk from '../src/utils/walk.js';
+import clone from '../src/utils/clone.js';
+import assemble from '../src/utils/assemble.js';
+import deref from '../src/utils/deref.js';
+import replace from '../src/utils/replace.js';
 
 // test harness
 

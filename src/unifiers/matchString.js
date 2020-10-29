@@ -1,4 +1,4 @@
-import unify from '../main.js';
+import unify from '../unify.js';
 
 class MatchString extends unify.Unifier {
   constructor(regexp, matches, props) {

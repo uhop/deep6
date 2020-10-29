@@ -1,43 +1,31 @@
-import unify from '../main.js';
+import unify from '../unify.js';
 import walk from './walk.js';
 
 const empty = {};
 
-const postProcess = init =>
-  function (context) {
-    const stackOut = context.stackOut,
-      s = this.s;
-    let j = stackOut.length - 1;
-    main: {
-      const result = Object.keys(s).some(k => {
-        const t = stackOut[j--];
-        return typeof t == 'number' && isNaN(t) ? typeof s[k] == 'number' && !isNaN(s[k]) : s[k] !== t;
-      });
-      if (result) break main;
-      const l = stackOut.length - 1 - j;
-      if (l) {
-        stackOut.splice(-l, l, s);
-      } else {
-        stackOut.push(s);
-      }
-      return;
-    }
-    const t = init;
-    Object.keys(s).forEach(k => (t[k] = stackOut.pop()));
-    stackOut.push(t);
-  };
+function postProcess(context) {
+  const stackOut = context.stackOut,
+    s = this.s;
+  let j = stackOut.length - 1;
+  Object.keys(s).forEach(k => (s[k] = stackOut[j--]));
+  const l = stackOut.length - 1 - j;
+  if (l) {
+    stackOut.splice(-l, l, s);
+  } else {
+    stackOut.push(s);
+  }
+}
 
 const processObject = (val, context) => {
   if (val === unify._) {
     context.stackOut.push(val);
   } else {
     const stack = context.stack;
-    stack.push(new walk.Command(postProcess({}), val));
+    stack.push(new walk.Command(postProcess, val));
     Object.keys(val).forEach(k => stack.push(val[k]));
   }
 };
 
-// no processing, use as a reference
 const processOther = (val, context) => context.stackOut.push(val);
 
 const registry = [
@@ -51,7 +39,7 @@ const registry = [
         context.stackOut.push(val);
       } else {
         const stack = context.stack;
-        stack.push(new walk.Command(postProcess([]), val));
+        stack.push(new walk.Command(postProcess, val));
         Object.keys(val).forEach(k => stack.push(val[k]));
       }
     },
@@ -73,7 +61,7 @@ const registry = [
   ],
   filters = [];
 
-const assemble = (source, env, options) => {
+const deref = (source, env, options) => {
   options = options || empty;
 
   const context = options.context || {},
@@ -84,15 +72,15 @@ const assemble = (source, env, options) => {
   walk(source, {
     processObject: options.processObject || processObject,
     processOther: options.processOther || processOther,
-    registry: options.registry || assemble.registry,
-    filters: options.filters || assemble.filters,
+    registry: options.registry || deref.registry,
+    filters: options.filters || deref.filters,
     context: context
   });
 
   // ice.assert(stackOut.length == 1);
   return stackOut[0];
 };
-assemble.registry = registry;
-assemble.filters = filters;
+deref.registry = registry;
+deref.filters = filters;
 
-export default assemble;
+export default deref;
