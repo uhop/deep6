@@ -6,57 +6,64 @@ export class Env {
   constructor() {
     this.variables = Object.create(null);
     this.values = Object.create(null);
-    this.depth = 0;
+    this.depth = this.variables[keyDepth] = this.values[keyDepth] = 0;
   }
   push() {
-    this.variables = Object.create(this.variables);
-    this.values = Object.create(this.values);
     ++this.depth;
   }
   pop() {
     if (this.depth < 1) throw new Error('attempt to pop a frame with empty stack');
-    this.variables = Object.getPrototypeOf(this.variables);
-    this.values = Object.getPrototypeOf(this.values);
+    --this.depth;
+    if (this.variables[keyDepth] > this.depth) this.variables = Object.getPrototypeOf(this.variables);
+    if (this.values[keyDepth] > this.depth) this.values = Object.getPrototypeOf(this.values);
   }
   bindVar(name1, name2) {
-    const vars = this.variables,
-      depth = this.depth;
-    let u = vars[name1];
-    if (u) {
-      if (u[keyDepth] !== depth) {
-        u = Object.create(u);
-        u[keyDepth] = depth;
+    const depth = this.depth;
+    let vars = this.variables,
+      u1 = vars[name1],
+      u2 = vars[name2];
+    if (vars[keyDepth] !== depth) {
+      this.variables = vars = Object.create(vars);
+      vars[keyDepth] = depth;
+    }
+    if (u1) {
+      if (u1[keyDepth] !== depth) {
+        u1 = Object.create(u1);
+        u1[keyDepth] = depth;
       }
-      if (name2 in vars) {
-        Object.keys(vars[name2]).forEach(k => ((vars[k] = u), (u[k] = 1)));
+      if (u2) {
+        Object.keys(u2).forEach(k => ((vars[k] = u), (u1[k] = 1)));
       } else {
-        vars[name2] = u;
-        u[name2] = 1;
+        vars[name2] = u1;
+        u1[name2] = 1;
       }
     } else {
-      u = vars[name2];
-      if (u) {
-        if (u[keyDepth] !== depth) {
-          u = Object.create(u);
-          u[keyDepth] = depth;
+      if (u2) {
+        if (u2[keyDepth] !== depth) {
+          u2 = Object.create(u);
+          u2[keyDepth] = depth;
         }
-        vars[name1] = u;
-        u[name1] = 1;
+        vars[name1] = u2;
+        u2[name1] = 1;
       } else {
-        u = Object.create(null);
-        u[keyDepth] = depth;
-        vars[name1] = vars[name2] = u;
-        u[name1] = u[name2] = 1;
+        u2 = Object.create(null);
+        u2[keyDepth] = depth;
+        vars[name1] = vars[name2] = u2;
+        u2[name1] = u2[name2] = 1;
       }
     }
   }
   bindVal(name, val) {
+    let values = this.values;
+    if (values[keyDepth] !== this.depth) {
+      this.values = values = Object.create(values);
+      values[keyDepth] = this.depth;
+    }
     if (name in this.variables) {
-      const vars = this.variables,
-        values = this.values;
+      const vars = this.variables;
       Object.keys(vars[name]).forEach(k => ((values[k] = val), (vars[k] = null)));
     } else {
-      this.values[name] = val;
+      values[name] = val;
     }
   }
   // helpers
@@ -96,7 +103,7 @@ export const any = _;
 export class Var extends Unifier {
   constructor(name) {
     super();
-    this.name = name || 'var_' + Var.counter++;
+    this.name = name || Symbol();
   }
   isBound(env) {
     return this.name in env.values;
@@ -130,7 +137,6 @@ export class Var extends Unifier {
     return true;
   }
 }
-Var.counter = 0;
 
 export const isVariable = x => x instanceof Var;
 
