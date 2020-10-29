@@ -276,6 +276,7 @@ const unify = (l, r, env, options) => {
   if (options) {
     env.openObjects = options.openObjects;
     env.openArrays = options.openArrays;
+    env.loose = options.loose;
   }
   const ls = [l],
     rs = [r];
@@ -287,7 +288,7 @@ const unify = (l, r, env, options) => {
       continue;
     }
     r = rs.pop();
-    // direct unity or anyvar
+    // direct equality or anyvar
     if (l === r || l === _ || r === _) continue;
     // process variables (variables have priority)
     if (l instanceof Var) {
@@ -307,12 +308,16 @@ const unify = (l, r, env, options) => {
       if (r.unify(l, ls, rs, env)) continue;
       return null;
     }
+    // reject unequal functions
+    if (typeof l == 'function' || typeof r == 'function') return null;
+    // process loose equality for non-objects and nulls
+    if (env.loose && !(l && r && typeof l == 'object' && typeof r == 'object') && l == r) continue main;
     // check rough types
     if (typeof l != typeof r) return null;
     // special case: NaN
     if (typeof l == 'number' && isNaN(l) && isNaN(r)) continue;
     // cut off impossible combinations
-    if ((typeof l != 'object' && typeof l != 'function') || !l || !r) return null;
+    if (typeof l != 'object' || !l || !r) return null;
     // process registered constructors
     {
       let typeName = getTypeName(l),

@@ -245,6 +245,10 @@ const tests = [
 
     eval(TEST('unify(map1, map2)'));
   },
+  function test_loose() {
+    eval(TEST('!unify([42], ["42"])'));
+    eval(TEST('unify([42], ["42"], null, {loose: true})'));
+  },
   function test_soft_structures() {
     const x = v('x');
     let result = unify([soft({a: 1}), soft({b: 2})], soft([x, x]));
