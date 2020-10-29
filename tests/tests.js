@@ -165,6 +165,40 @@ const tests = [
     eval(TEST('!unify(new Date(2013, 6, 4), new Date(2013, 6, 4, 6))'));
     eval(TEST('unify(new Date(2013, 6, 4, 6), new Date(2013, 6, 4, 6))'));
   },
+  function test_typedArrays() {
+    if (typeof ArrayBuffer != 'function' || typeof DataView != 'function') return;
+    const buffer = new ArrayBuffer(256),
+      view = new DataView(buffer);
+
+    const pattern = [1, -1, 42, 1, -1];
+    const testTypedArray = (Type, name, conversion = Number) => {
+      for (let i = 0; i < pattern.length; ++i) {
+        view['set' + name](i * Type.BYTES_PER_ELEMENT, conversion(pattern[i]));
+      }
+      eval(TEST(`unify(new ${Type.name}(buffer, ${0 * Type.BYTES_PER_ELEMENT}, 2), open(new ${Type.name}(buffer, ${3 * Type.BYTES_PER_ELEMENT}, 2)))`));
+      eval(TEST(`!unify(new ${Type.name}(buffer, ${0 * Type.BYTES_PER_ELEMENT}, 2), open(new ${Type.name}(buffer, ${2 * Type.BYTES_PER_ELEMENT}, 2)))`));
+    };
+
+    typeof Int8Array == 'function' && testTypedArray(Int8Array, 'Int8');
+    typeof Uint8Array == 'function' && testTypedArray(Uint8Array, 'Uint8');
+    typeof Uint8ClampedArray == 'function' && testTypedArray(Uint8ClampedArray, 'Uint8');
+    typeof Int16Array == 'function' && testTypedArray(Int16Array, 'Int16');
+    typeof Uint16Array == 'function' && testTypedArray(Uint16Array, 'Uint16');
+    typeof Int32Array == 'function' && testTypedArray(Int32Array, 'Int32');
+    typeof Uint32Array == 'function' && testTypedArray(Uint32Array, 'Uint32');
+    typeof Float32Array == 'function' && testTypedArray(Float32Array, 'Float32');
+    typeof Float64Array == 'function' && testTypedArray(Float64Array, 'Float64');
+    typeof BigInt == 'function' && typeof BigInt64Array == 'function' && testTypedArray(BigInt64Array, 'BigInt64', BigInt);
+    typeof BigInt == 'function' && typeof BigUint64Array == 'function' && testTypedArray(BigUint64Array, 'BigUint64', BigInt);
+
+    const view2 = new DataView(buffer);
+    eval(TEST(`unify(view, view)`));
+    eval(TEST(`unify(view, view2)`));
+
+    const buffer2 = buffer.slice(0);
+    eval(TEST(`unify(buffer, buffer)`));
+    eval(TEST(`unify(buffer, buffer2)`));
+  },
   function test_open_structures() {
     eval(TEST('unify({a: 1, b: 2, c: 3}, open({a: 1}))'));
     eval(TEST('unify(open({a: 1}), {a: 1, b: 2, c: 3})'));
@@ -598,7 +632,7 @@ const tests = [
     // no custom filters
     eval(TEST('!unify(l, r)'));
     // instanceof-based custom unifier
-    unify.registry.push(Foo, function unify(l, r, ls, rs, env) {
+    unify.registry.Foo = function unify(l, r, ls, rs, env) {
       if (typeof r == 'string') {
         ls.push(l.name);
         rs.push(r);
@@ -610,10 +644,9 @@ const tests = [
       ls.push(l.name);
       rs.push(r.name);
       return true;
-    });
+    };
     eval(TEST('unify(l, r)'));
-    unify.registry.pop();
-    unify.registry.pop();
+    delete unify.registry.Foo;
   },
   function test_replace() {
     const x = v('x'),
