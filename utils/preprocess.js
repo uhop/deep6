@@ -3,44 +3,23 @@ import walk from './walk.js';
 
 const empty = {};
 
-function postArray(context) {
-  const stackOut = context.stackOut,
-    wrapArray = context.wrapArray,
-    s = this.s,
-    l = s.length,
-    t = [];
-  for (let i = 0; i < l; ++i) {
-    if (s.hasOwnProperty(i)) {
-      t[i] = stackOut.pop();
-    }
-  }
-  stackOut.push(wrapArray ? wrapArray(t) : t);
-}
-
-function postObject(context) {
-  const stackOut = context.stackOut,
-    wrapObject = context.wrapObject,
-    t = {},
-    s = this.s;
-  for (let k in s) {
-    if (s.hasOwnProperty(k)) {
-      t[k] = stackOut.pop();
-    }
-  }
-  stackOut.push(wrapObject ? wrapObject(t) : t);
-}
+const postProcess = (init, wrapper) =>
+  function (context) {
+    const stackOut = context.stackOut,
+      wrap = context[wrapper],
+      s = this.s,
+      t = init;
+    Object.keys(s).forEach(k => (t[k] = stackOut.pop()));
+    stackOut.push(wrap ? wrap(t) : t);
+  };
 
 const processObject = (val, context) => {
   if (val === unify._) {
     context.stackOut.push(val);
   } else {
     const stack = context.stack;
-    stack.push(new walk.Command(postObject, val));
-    for (let k in val) {
-      if (val.hasOwnProperty(k)) {
-        stack.push(val[k]);
-      }
-    }
+    stack.push(new walk.Command(postProcess({}, 'wrapObject'), val));
+    Object.keys(val).forEach(k => stack.push(val[k]));
   }
 };
 
@@ -53,13 +32,12 @@ const registry = [
     },
     Array,
     function processArray(val, context) {
-      const stack = context.stack,
-        l = val.length;
-      stack.push(new walk.Command(postArray, val));
-      for (let i = 0; i < l; ++i) {
-        if (val.hasOwnProperty(i)) {
-          stack.push(val[i]);
-        }
+      if (val === unify._) {
+        context.stackOut.push(val);
+      } else {
+        const stack = context.stack;
+        stack.push(new walk.Command(postProcess([], 'wrapArray'), val));
+        Object.keys(val).forEach(k => stack.push(val[k]));
       }
     },
     unify.Variable,

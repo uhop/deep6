@@ -13,23 +13,10 @@ const processCommand = (val, context) => val.f(context);
 
 const processObject = (val, context) => {
   const stack = context.stack;
-  for (let k in val) {
-    if (val.hasOwnProperty(k)) {
-      stack.push(val[k]);
-    }
-  }
+  Object.keys(val).forEach(k => stack.push(val[k]));
 };
 
-const processArray = (val, context) => {
-  const stack = context.stack;
-  for (let i = 0, l = val.length; i < l; ++i) {
-    if (val.hasOwnProperty(i)) {
-      stack.push(val[i]);
-    }
-  }
-};
-
-const defaultRegistry = [Command, processCommand, Array, processArray, Date, nop, RegExp, nop],
+const defaultRegistry = [Command, processCommand, Array, processObject, Date, nop, RegExp, nop],
   defaultFilters = [];
 
 const walk = (o, options) => {
