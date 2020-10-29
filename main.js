@@ -139,14 +139,14 @@ const getTypeName = object =>
 
 // registry of well-known constructors and filters
 
-const registry = Object.create(null);
-const filters = [];
-
-// well-known constructors
-
-registry.Date = (l, r) => l instanceof Date && r instanceof Date && l.getTime() == r.getTime();
-registry.RegExp = (l, r) =>
-  l instanceof RegExp && r instanceof RegExp && l.source == r.source && l.global == r.global && l.multiline == r.multiline && l.ignoreCase == r.ignoreCase;
+const registry = [
+    Date,
+    (l, r) => l instanceof Date && r instanceof Date && l.getTime() == r.getTime(),
+    RegExp,
+    (l, r) =>
+      l instanceof RegExp && r instanceof RegExp && l.source == r.source && l.global == r.global && l.multiline == r.multiline && l.ignoreCase == r.ignoreCase
+  ],
+  filters = [];
 
 // possible well-known constructors
 
@@ -158,7 +158,7 @@ const unifyTypedArrays = Type => (l, r, ls, rs, env) => {
   return true;
 };
 
-const addTypedArray = Type => typeof Type == 'function' && (registry[Type.name] = unifyTypedArrays(Type));
+const addTypedArray = Type => typeof Type == 'function' && registry.push(Type, unifyTypedArrays(Type));
 
 addTypedArray(Int8Array);
 addTypedArray(Uint8Array);
@@ -179,13 +179,13 @@ const unifyDataView = (l, r, ls, rs, env) => {
   }
   return true;
 };
-typeof DataView == 'function' && (registry.DataView = unifyDataView);
+typeof DataView == 'function' && registry.push(DataView, unifyDataView);
 
 const unifyArrayBuffer = (l, r, ls, rs, env) => {
   if (!(l instanceof ArrayBuffer) || !(r instanceof ArrayBuffer) || l.byteLength != r.byteLength) return false;
   return unifyTypedArrays(Uint8Array)(new Uint8Array(l), new Uint8Array(r), ls, rs, env);
 };
-typeof ArrayBuffer == 'function' && typeof Uint8Array == 'function' && (registry.ArrayBuffer = unifyArrayBuffer);
+typeof ArrayBuffer == 'function' && typeof Uint8Array == 'function' && registry.push(ArrayBuffer, unifyArrayBuffer);
 
 const unifySet = (l, r, ls, rs, env) => {
   if (!(l instanceof Set) || !(r instanceof Set) || l.size != r.size) return false;
@@ -194,7 +194,7 @@ const unifySet = (l, r, ls, rs, env) => {
   }
   return true;
 };
-typeof Set == 'function' && (registry.Set = unifySet);
+typeof Set == 'function' && registry.push(Set, unifySet);
 
 const unifyMap = (l, r, ls, rs, env) => {
   if (!(l instanceof Map) || !(r instanceof Map) || l.size != r.size) return false;
@@ -205,7 +205,7 @@ const unifyMap = (l, r, ls, rs, env) => {
   }
   return true;
 };
-typeof Map == 'function' && (registry.Map = unifyMap);
+typeof Map == 'function' && registry.push(Map, unifyMap);
 
 // unification of objects
 
@@ -319,17 +319,10 @@ const unify = (l, r, env, options) => {
     // cut off impossible combinations
     if (typeof l != 'object' || !l || !r) return null;
     // process registered constructors
-    {
-      let typeName = getTypeName(l),
-        unifier = typeName && unify.registry[typeName];
-      if (typeof unifier == 'function') {
-        if (unifier(l, r, ls, rs, env)) continue main;
-        return null;
-      }
-      typeName = getTypeName(r);
-      unifier = typeName && unify.registry[typeName];
-      if (typeof unifier == 'function') {
-        if (unifier(l, r, ls, rs, env)) continue main;
+    const registry = unify.registry;
+    for (let i = 0; i < registry.length; i += 2) {
+      if (l instanceof registry[i] || r instanceof registry[i]) {
+        if (registry[i + 1](l, r, ls, rs, env)) continue main;
         return null;
       }
     }

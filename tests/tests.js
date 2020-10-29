@@ -674,7 +674,7 @@ const tests = [
     // no custom filters
     eval(TEST('!unify(l, r)'));
     // instanceof-based custom unifier
-    unify.registry.Foo = function unify(l, r, ls, rs, env) {
+    unify.registry.push(Foo, function unify(l, r, ls, rs, env) {
       if (typeof r == 'string') {
         ls.push(l.name);
         rs.push(r);
@@ -686,9 +686,10 @@ const tests = [
       ls.push(l.name);
       rs.push(r.name);
       return true;
-    };
+    });
     eval(TEST('unify(l, r)'));
-    delete unify.registry.Foo;
+    unify.registry.pop();
+    unify.registry.pop();
   },
   function test_replace() {
     const x = v('x'),
