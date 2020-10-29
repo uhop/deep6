@@ -732,6 +732,28 @@ const tests = [
     eval(TEST('!env'));
     env = unify(x, {c: null, b: [], a: 2});
     eval(TEST('!env'));
+  },
+  function test_generations() {
+    const x = {a: 1, b: 2},
+      y = {a: 1, c: 3},
+      z = {a: 1, d: 4},
+      va = v(),
+      vd = v();
+    let env = unify(x, {a: va, b: 2});
+    eval(TEST('env'));
+    eval(TEST('va.isBound(env)'));
+    eval(TEST('va.get(env) === 1'));
+    env.push();
+    const nextEnv = unify(y, {a: va, d: vd}, env);
+    eval(TEST('!nextEnv'));
+    env.pop();
+    env.push();
+    env = unify(z, {a: va, d: vd}, env);
+    eval(TEST('env'));
+    eval(TEST('va.isBound(env)'));
+    eval(TEST('va.get(env) === 1'));
+    eval(TEST('vd.isBound(env)'));
+    eval(TEST('vd.get(env) === 4'));
   }
 ];
 
