@@ -97,6 +97,8 @@ const tests = [
     eval(TEST('unify([_,_,3], [1,_,_])'));
     eval(TEST('unify([[]], [[]])'));
     eval(TEST('unify([[], []], [[], []])'));
+    eval(TEST('unify([1,,3], [1,,3])'));
+    eval(TEST('!unify([1,,3], [1,2,3])'));
   },
   function test_exact_objects() {
     eval(TEST('unify({}, {})'));
