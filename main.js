@@ -5,13 +5,9 @@ const _ = {};
 // Env
 
 class Env {
-  constructor(options) {
+  constructor() {
     this.variables = {};
     this.values = {};
-    if (options) {
-      this.objectType = options.objectType;
-      this.arrayType = options.arrayType;
-    }
   }
   bindVar(name1, name2) {
     const vars = this.variables;
@@ -94,9 +90,7 @@ class Var extends Unifier {
     }
     // the next case is taken care of in unify() directly
     // the case of unbound variable
-    //if(val === _ || val === this){
-    //	return true;
-    //}
+    //if (val === _ || val === this) return true;
     if (val instanceof Var) {
       if (val.bound(env)) {
         env.bindVal(this.name, val.get(env));
@@ -156,18 +150,16 @@ const soft = o => new Wrap('soft', o);
 const isSoft = o => o && o instanceof Wrap && o.type === 'soft';
 
 // well-known constructors
-
 const unifyArray = (l, r, ls, rs, env) => {
   if (!r || !(r instanceof Array) || (!env.arrayType && l.length != r.length)) return false;
-  for (let i = 0, n = Math.min(l.length, r.length); i < n; ++i) {
+  const n = Math.min(l.length, r.length);
+  for (let i = 0; i < n; ++i) {
     ls.push(l[i]);
     rs.push(r[i]);
   }
   return true;
 };
-
 const unifyDate = (l, r, ls, rs, env) => r && r instanceof Date && l.getTime() == r.getTime();
-
 const unifyRegExp = (l, r, ls, rs, env) =>
   r && r instanceof RegExp && l.source == r.source && l.global == r.global && l.multiline == r.multiline && l.ignoreCase == r.ignoreCase;
 
@@ -245,30 +237,7 @@ const hasOwnProperty = Object.prototype.hasOwnProperty;
 const objectOps = {
   exact: {
     exact: {
-      precheck: (l, r) => {
-        if (typeof l.hasOwnProperty == 'function') {
-          if (typeof r.hasOwnProperty == 'function') {
-            for (let k in l) {
-              if (l.hasOwnProperty(k) && !r.hasOwnProperty(k)) return false;
-            }
-          } else {
-            for (let k in l) {
-              if (l.hasOwnProperty(k) && !hasOwnProperty.call(r, k)) return false;
-            }
-          }
-        } else {
-          if (typeof r.hasOwnProperty == 'function') {
-            for (let k in l) {
-              if (hasOwnProperty.call(l, k) && !r.hasOwnProperty(k)) return false;
-            }
-          } else {
-            for (let k in l) {
-              if (hasOwnProperty.call(l, k) && !hasOwnProperty.call(r, k)) return false;
-            }
-          }
-        }
-        return true;
-      }
+      precheck: (l, r) => Object.keys(l).every(k => hasOwnProperty.call(r, k))
     },
     open: {},
     soft: {
@@ -284,167 +253,32 @@ const objectOps = {
   soft: {
     soft: {
       update: function () {
-        if (typeof this.l.hasOwnProperty == 'function') {
-          if (typeof this.r.hasOwnProperty == 'function') {
-            for (let k in this.l) {
-              if (this.l.hasOwnProperty(k) && !this.r.hasOwnProperty(k)) {
-                this.r[k] = this.l[k];
-              }
-            }
-            for (let k in this.r) {
-              if (this.r.hasOwnProperty(k) && !this.l.hasOwnProperty(k)) {
-                this.l[k] = this.r[k];
-              }
-            }
-          } else {
-            for (let k in this.l) {
-              if (this.l.hasOwnProperty(k) && !hasOwnProperty.call(this.r, k)) {
-                this.r[k] = this.l[k];
-              }
-            }
-            for (let k in this.r) {
-              if (this.r.hasOwnProperty(k) && !hasOwnProperty.call(this.l, k)) {
-                this.l[k] = this.r[k];
-              }
-            }
-          }
-        } else {
-          if (typeof this.r.hasOwnProperty == 'function') {
-            for (let k in this.l) {
-              if (hasOwnProperty.call(this.l, k) && !this.r.hasOwnProperty(k)) {
-                this.r[k] = this.l[k];
-              }
-            }
-            for (let k in this.r) {
-              if (hasOwnProperty.call(this.rk) && !this.l.hasOwnProperty(k)) {
-                this.l[k] = this.r[k];
-              }
-            }
-          } else {
-            if (typeof this.r.hasOwnProperty == 'function') {
-              for (let k in this.l) {
-                if (hasOwnProperty.call(this.l, k) && !hasOwnProperty.call(this.r, k)) {
-                  this.r[k] = this.l[k];
-                }
-              }
-              for (let k in this.r) {
-                if (hasOwnProperty.call(this.rk) && !hasOwnProperty.call(this.l, k)) {
-                  this.l[k] = this.r[k];
-                }
-              }
-            }
-          }
-        }
+        Object.keys(this.l).forEach(k => !hasOwnProperty.call(this.r, k) && (this.r[k] = this.l[k]));
+        Object.keys(this.r).forEach(k => !hasOwnProperty.call(this.l, k) && (this.l[k] = this.r[k]));
       }
     }
   }
 };
-objectOps.exact.exact.compare = objectOps.exact.open.compare = objectOps.exact.soft.compare = (l, r, ls, rs) => {
-  if (typeof l.hasOwnProperty == 'function') {
-    if (typeof r.hasOwnProperty == 'function') {
-      for (let k in r) {
-        if (r.hasOwnProperty(k)) {
-          if (!l.hasOwnProperty(k)) return false;
-          ls.push(l[k]);
-          rs.push(r[k]);
-        }
-      }
-    } else {
-      for (let k in r) {
-        if (hasOwnProperty.call(r, k)) {
-          if (!l.hasOwnProperty(k)) return false;
-          ls.push(l[k]);
-          rs.push(r[k]);
-        }
-      }
+objectOps.exact.exact.compare = objectOps.exact.open.compare = objectOps.exact.soft.compare = (l, r, ls, rs) =>
+  Object.keys(r).every(k => {
+    if (hasOwnProperty.call(l, k)) {
+      ls.push(l[k]);
+      rs.push(r[k]);
+      return true;
     }
-  } else {
-    if (typeof r.hasOwnProperty == 'function') {
-      for (let k in r) {
-        if (r.hasOwnProperty(k)) {
-          if (!hasOwnProperty.call(l, k)) return false;
-          ls.push(l[k]);
-          rs.push(r[k]);
-        }
-      }
-    } else {
-      for (let k in r) {
-        if (hasOwnProperty.call(r, k)) {
-          if (!hasOwnProperty.call(l, k)) return false;
-          ls.push(l[k]);
-          rs.push(r[k]);
-        }
-      }
-    }
-  }
-  return true;
-};
+    return false;
+  });
 objectOps.open.open.compare = objectOps.open.soft.compare = objectOps.soft.soft.compare = (l, r, ls, rs) => {
-  if (typeof l.hasOwnProperty == 'function') {
-    if (typeof r.hasOwnProperty == 'function') {
-      for (let k in r) {
-        if (r.hasOwnProperty(k) && l.hasOwnProperty(k)) {
-          ls.push(l[k]);
-          rs.push(r[k]);
-        }
-      }
-    } else {
-      for (let k in r) {
-        if (hasOwnProperty.call(r, k) && l.hasOwnProperty(k)) {
-          ls.push(l[k]);
-          rs.push(r[k]);
-        }
-      }
+  Object.keys(r).forEach(k => {
+    if (hasOwnProperty.call(l, k)) {
+      ls.push(l[k]);
+      rs.push(r[k]);
     }
-  } else {
-    if (typeof r.hasOwnProperty == 'function') {
-      for (let k in r) {
-        if (r.hasOwnProperty(k) && hasOwnProperty.call(l, k)) {
-          ls.push(l[k]);
-          rs.push(r[k]);
-        }
-      }
-    } else {
-      for (let k in r) {
-        if (hasOwnProperty.call(r, k) && hasOwnProperty.call(l, k)) {
-          ls.push(l[k]);
-          rs.push(r[k]);
-        }
-      }
-    }
-  }
+  });
   return true;
 };
 objectOps.exact.soft.update = objectOps.open.soft.update = function () {
-  if (typeof this.l.hasOwnProperty == 'function') {
-    if (typeof this.r.hasOwnProperty == 'function') {
-      for (let k in this.l) {
-        if (this.l.hasOwnProperty(k) && !this.r.hasOwnProperty(k)) {
-          this.r[k] = this.l[k];
-        }
-      }
-    } else {
-      for (let k in this.l) {
-        if (this.l.hasOwnProperty(k) && !hasOwnProperty.call(this.r, k)) {
-          this.r[k] = this.l[k];
-        }
-      }
-    }
-  } else {
-    if (typeof this.r.hasOwnProperty == 'function') {
-      for (let k in this.l) {
-        if (hasOwnProperty.call(this.l, k) && !this.r.hasOwnProperty(k)) {
-          this.r[k] = this.l[k];
-        }
-      }
-    } else {
-      for (let k in this.l) {
-        if (hasOwnProperty.call(this.l, k) && !hasOwnProperty.call(this.r, k)) {
-          this.r[k] = this.l[k];
-        }
-      }
-    }
-  }
+  Object.keys(this.l).forEach(k => !hasOwnProperty.call(this.r, k) && (this.r[k] = this.l[k]));
 };
 
 const unifyObjects = (l, lt, lm, r, rt, rm, ls, rs, env) => {
@@ -460,11 +294,14 @@ const unifyObjects = (l, lt, lm, r, rt, rm, ls, rs, env) => {
 
 // unification
 
-const unify = (l, r, env) => {
+const unify = (l, r, env, options) => {
   env = env || new Env();
+  if (options) {
+    env.objectType = options.objectType;
+    env.arrayType = options.arrayType;
+  }
   const ls = [l],
-    rs = [r],
-    objectType = env.objectType ? 'open' : 'exact';
+    rs = [r];
   main: while (ls.length) {
     // perform a command, or extract a pair
     l = ls.pop();
@@ -501,7 +338,7 @@ const unify = (l, r, env) => {
     if ((typeof l != 'object' && typeof l != 'function') || !l || !r) return null;
     // process registered constructors
     const registry = unify.registry;
-    for (let i = 0, len = registry.length; i < len; i += 2) {
+    for (let i = 0; i < registry.length; i += 2) {
       if (l instanceof registry[i] || r instanceof registry[i]) {
         if (registry[i + 1](l, r, ls, rs, env)) continue main;
         return null;
@@ -509,13 +346,14 @@ const unify = (l, r, env) => {
     }
     // process registered filters
     const filters = unify.filters;
-    for (let i = 0, len = filters.length; i < len; i += 2) {
+    for (let i = 0; i < filters.length; i += 2) {
       if (filters[i](l, r)) {
         if (filters[i + 1](l, r, ls, rs, env)) continue main;
         return null;
       }
     }
     // process naked objects
+    const objectType = env.objectType ? 'open' : 'exact';
     if (!unifyObjects(l, objectType, null, r, objectType, null, ls, rs, env)) return null;
   }
   return env;
