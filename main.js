@@ -5,23 +5,20 @@ const _ = {};
 // Env
 
 class Env {
-  constructor({objectType} = {}) {
+  constructor(options) {
     this.variables = {};
     this.values = {};
-    this.objectType = objectType;
+    if (options) {
+      this.objectType = options.objectType;
+      this.arrayType = options.arrayType;
+    }
   }
   bindVar(name1, name2) {
     const vars = this.variables;
     if (vars.hasOwnProperty(name1)) {
       const u = vars[name1];
       if (vars.hasOwnProperty(name2)) {
-        const t = vars[name2];
-        for (let k in t) {
-          if (t.hasOwnProperty(k)) {
-            vars[k] = u;
-            u[k] = 1;
-          }
-        }
+        Object.keys(vars[name2]).forEach(k => ((vars[k] = u), (u[k] = 1)));
       } else {
         vars[name2] = u;
         u[name2] = 1;
@@ -38,12 +35,7 @@ class Env {
   }
   bindVal(name, val) {
     if (this.variables.hasOwnProperty(name)) {
-      const names = this.variables[name];
-      for (let k in names) {
-        if (names.hasOwnProperty(k)) {
-          this.values[k] = val;
-        }
-      }
+      Object.keys(this.variables[name]).forEach(k => (this.values[k] = val));
     } else {
       this.values[name] = val;
     }
