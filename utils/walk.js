@@ -32,14 +32,14 @@ const processArray = (val, context) => {
 const defaultRegistry = [Command, processCommand, Array, processArray, Date, nop, RegExp, nop],
   defaultFilters = [];
 
-const walk = (o, opt) => {
+const walk = (o, options) => {
   // non-recursive stack-based walk about an object tree
-  opt = opt || empty;
-  const doObject = opt.processObject || processObject,
-    doOther = opt.processOther || nop,
-    registry = opt.registry || defaultRegistry,
-    filters = opt.filters || defaultFilters,
-    context = opt.context || {},
+  options = options || empty;
+  const doObject = options.processObject || processObject,
+    doOther = options.processOther || nop,
+    registry = options.registry || defaultRegistry,
+    filters = options.filters || defaultFilters,
+    context = options.context || {},
     stack = [o];
   context.stack = stack;
   main: while (stack.length) {

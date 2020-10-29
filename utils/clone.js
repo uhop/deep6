@@ -81,19 +81,19 @@ const registry = [
 
 const processOther = (val, context) => context.stackOut.push(val);
 
-const clone = (source, env, opt) => {
-  opt = opt || empty;
+const clone = (source, env, options) => {
+  options = options || empty;
 
-  const context = opt.context || {},
+  const context = options.context || {},
     stackOut = [];
   context.stackOut = stackOut;
   context.env = env;
 
   walk(source, {
-    processObject: opt.processObject || processObject,
-    processOther: opt.processOther || processOther,
-    registry: opt.registry || clone.registry,
-    filters: opt.filters || clone.filters,
+    processObject: options.processObject || processObject,
+    processOther: options.processOther || processOther,
+    registry: options.registry || clone.registry,
+    filters: options.filters || clone.filters,
     context: context
   });
 

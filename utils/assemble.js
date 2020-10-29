@@ -109,19 +109,19 @@ const registry = [
   ],
   filters = [];
 
-const assemble = (source, env, opt) => {
-  opt = opt || empty;
+const assemble = (source, env, options) => {
+  options = options || empty;
 
-  const context = opt.context || {},
+  const context = options.context || {},
     stackOut = [];
   context.stackOut = stackOut;
   context.env = env;
 
   walk(source, {
-    processObject: opt.processObject || processObject,
-    processOther: opt.processOther || processOther,
-    registry: opt.registry || assemble.registry,
-    filters: opt.filters || assemble.filters,
+    processObject: options.processObject || processObject,
+    processOther: options.processOther || processOther,
+    registry: options.registry || assemble.registry,
+    filters: options.filters || assemble.filters,
     context: context
   });
 

@@ -87,19 +87,19 @@ const registry = [
   ],
   filters = [];
 
-const deref = (source, env, opt) => {
-  opt = opt || empty;
+const deref = (source, env, options) => {
+  options = options || empty;
 
-  const context = opt.context || {},
+  const context = options.context || {},
     stackOut = [];
   context.stackOut = stackOut;
   context.env = env;
 
   walk(source, {
-    processObject: opt.processObject || processObject,
-    processOther: opt.processOther || processOther,
-    registry: opt.registry || deref.registry,
-    filters: opt.filters || deref.filters,
+    processObject: options.processObject || processObject,
+    processOther: options.processOther || processOther,
+    registry: options.registry || deref.registry,
+    filters: options.filters || deref.filters,
     context: context
   });
 
