@@ -73,20 +73,20 @@ const registry = [
   ],
   filters = [];
 
-const preprocess = (source, nonExactObjects, nonExactArrays, opt) => {
-  opt = opt || empty;
+const preprocess = (source, options) => {
+  options = options || empty;
 
-  const context = opt.context || {},
+  const context = options.context || {},
     stackOut = [];
   context.stackOut = stackOut;
-  context.wrapObject = nonExactObjects && unify.open;
-  context.wrapArray = nonExactArrays && unify.open;
+  context.wrapObject = options.openObjects && unify.open;
+  context.wrapArray = options.openArrays && unify.open;
 
   walk(source, {
-    processObject: opt.processObject || processObject,
-    processOther: opt.processOther || processOther,
-    registry: opt.registry || preprocess.registry,
-    filters: opt.filters || preprocess.filters,
+    processObject: options.processObject || processObject,
+    processOther: options.processOther || processOther,
+    registry: options.registry || preprocess.registry,
+    filters: options.filters || preprocess.filters,
     context: context
   });
 
