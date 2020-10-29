@@ -134,9 +134,6 @@ const isOpen = o => o instanceof Wrap && o.type === 'open';
 const soft = o => new Wrap('soft', o);
 const isSoft = o => o instanceof Wrap && o.type === 'soft';
 
-const getTypeName = object =>
-  object && typeof object == 'object' && object.constructor && typeof object.constructor.name == 'string' && object.constructor.name;
-
 // registry of well-known constructors and filters
 
 const registry = [
