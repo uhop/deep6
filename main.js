@@ -117,27 +117,12 @@ class Wrap extends Unifier {
     this.object = o;
   }
   unify(val, ls, rs, env) {
-    if (this.object instanceof Array) {
-      // unify arrays
-      if (!val) return false;
-      if (val instanceof Array) {
-        // with a naked array
-        return unifyObjects(this.object, this.type, this, val, env.openArrays ? 'open' : 'exact', null, ls, rs, env);
-      }
-      if (val instanceof Wrap) {
-        // with a wrapped array
-        return val.object instanceof Array && unifyObjects(this.object, this.type, this, val.object, val.type, val, ls, rs, env);
-      }
-      return false;
-    }
-    // unify objects
-    if (!val || val instanceof Array) return false;
-    if (val instanceof Wrap) {
-      // with a wrapped object
-      return !(val.object instanceof Array) && unifyObjects(this.object, this.type, this, val.object, val.type, val, ls, rs, env);
-    }
-    // with a naked object
-    return typeof val == 'object' && unifyObjects(this.object, this.type, this, val, env.openObjects ? 'open' : 'exact', null, ls, rs, env);
+    const isWrapped = val instanceof Wrap,
+      value = isWrapped ? val.object : val;
+    if (!value || typeof value != 'object' || Array.isArray(this.object) !== Array.isArray(value)) return false;
+    return isWrapped
+      ? unifyObjects(this.object, this.type, this, val.object, val.type, val, ls, rs, env)
+      : unifyObjects(this.object, this.type, this, val, env.openObjects ? 'open' : 'exact', null, ls, rs, env);
   }
 }
 
