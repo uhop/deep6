@@ -6,25 +6,26 @@ export class Env {
   constructor() {
     this.variables = Object.create(null);
     this.values = Object.create(null);
-    this.stack = [];
+    this.depth = 0;
   }
   push() {
-    this.stack.push(this.variables, this.values);
     this.variables = Object.create(this.variables);
     this.values = Object.create(this.values);
+    ++this.depth;
   }
   pop() {
-    if (this.stack.length < 2) throw new Error('attempt to pop a frame with empty stack');
-    this.values = this.stack.pop();
-    this.variables = this.stack.pop();
+    if (this.depth < 1) throw new Error('attempt to pop a frame with empty stack');
+    this.variables = Object.getPrototypeOf(this.variables);
+    this.values = Object.getPrototypeOf(this.values);
   }
   bindVar(name1, name2) {
-    const vars = this.variables;
-    if (name1 in vars) {
-      let u = vars[name1];
-      if (u[keyDepth] !== this.stack.length) {
+    const vars = this.variables,
+      depth = this.depth;
+    let u = vars[name1];
+    if (u) {
+      if (u[keyDepth] !== depth) {
         u = Object.create(u);
-        u[keyDepth] = this.stack.length;
+        u[keyDepth] = depth;
       }
       if (name2 in vars) {
         Object.keys(vars[name2]).forEach(k => ((vars[k] = u), (u[k] = 1)));
@@ -33,17 +34,17 @@ export class Env {
         u[name2] = 1;
       }
     } else {
-      if (name2 in vars) {
-        let u = vars[name2];
-        if (u[keyDepth] !== this.stack.length) {
+      u = vars[name2];
+      if (u) {
+        if (u[keyDepth] !== depth) {
           u = Object.create(u);
-          u[keyDepth] = this.stack.length;
+          u[keyDepth] = depth;
         }
         vars[name1] = u;
         u[name1] = 1;
       } else {
-        const u = Object.create(null);
-        u[keyDepth] = this.stack.length;
+        u = Object.create(null);
+        u[keyDepth] = depth;
         vars[name1] = vars[name2] = u;
         u[name1] = u[name2] = 1;
       }
@@ -51,7 +52,9 @@ export class Env {
   }
   bindVal(name, val) {
     if (name in this.variables) {
-      Object.keys(this.variables[name]).forEach(k => (this.values[k] = val));
+      const vars = this.variables,
+        values = this.values;
+      Object.keys(vars[name]).forEach(k => ((values[k] = val), (vars[k] = null)));
     } else {
       this.values[name] = val;
     }
@@ -107,14 +110,16 @@ export class Var extends Unifier {
   }
 
   unify(val, ls, rs, env) {
-    if (this.name in env.values) { // isBound
+    if (this.name in env.values) {
+      // isBound
       ls.push(env.values[this.name]);
       rs.push(val);
       return true;
     }
     if (val === _ || val === this) return true;
     if (val instanceof Var) {
-      if (val.name in env.values) { // isBound
+      if (val.name in env.values) {
+        // isBound
         env.bindVal(this.name, env.values[val.name]);
         return true;
       }
