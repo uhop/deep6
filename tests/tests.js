@@ -120,33 +120,33 @@ const tests = [
     result = unify(1, v('x'));
     eval(TEST('result'));
     eval(TEST('unify(result.values, {x: 1})'));
-    eval(TEST("v('x').bound(result)"));
+    eval(TEST("v('x').isBound(result)"));
     eval(TEST("v('x').get(result) === 1"));
     result = unify(v('y'), v('x'));
     eval(TEST('result'));
     eval(TEST('unify(result.values, {})'));
     eval(TEST('unify(result.variables, {x: {x: 1, y: 1}, y: {x: 1, y: 1}})'));
-    eval(TEST("!v('x').bound(result)"));
-    eval(TEST("!v('y').bound(result)"));
-    eval(TEST("v('x').alias('y', result)"));
-    eval(TEST("v('y').alias('x', result)"));
-    eval(TEST("!v('x').alias('z', result)"));
-    eval(TEST("!v('y').alias('z', result)"));
+    eval(TEST("!v('x').isBound(result)"));
+    eval(TEST("!v('y').isBound(result)"));
+    eval(TEST("v('x').isAlias('y', result)"));
+    eval(TEST("v('y').isAlias('x', result)"));
+    eval(TEST("!v('x').isAlias('z', result)"));
+    eval(TEST("!v('y').isAlias('z', result)"));
     result = unify(v('y'), _);
     eval(TEST('result && unify(result.values, {})'));
     result = unify([1, v('x')], [v('y'), 2]);
     eval(TEST('result'));
     eval(TEST('unify(result.values, {x: 2, y: 1})'));
-    eval(TEST("v('x').bound(result)"));
+    eval(TEST("v('x').isBound(result)"));
     eval(TEST("v('x').get(result) === 2"));
-    eval(TEST("v('y').bound(result)"));
+    eval(TEST("v('y').isBound(result)"));
     eval(TEST("v('y').get(result) === 1"));
     result = unify({a: 1, b: v('x')}, {a: v('y'), b: 2});
     eval(TEST('result'));
     eval(TEST('unify(result.values, {x: 2, y: 1})'));
-    eval(TEST("v('x').bound(result)"));
+    eval(TEST("v('x').isBound(result)"));
     eval(TEST("v('x').get(result) === 2"));
-    eval(TEST("v('y').bound(result)"));
+    eval(TEST("v('y').isBound(result)"));
     eval(TEST("v('y').get(result) === 1"));
     result = unify({a: 1, b: v('x')}, {a: v('y'), c: 2});
     eval(TEST('!result'));
@@ -581,7 +581,7 @@ const tests = [
     eval(TEST('unify(result, source)'));
     source = {x: [{y: false}]};
     const env = unify(v('x'), source);
-    eval(TEST("v('x').bound(env)"));
+    eval(TEST("v('x').isBound(env)"));
     eval(TEST("v('x').get(env) === source"));
     eval(TEST("unify(v('x').get(env), source)"));
     source = {z: v('x')};
@@ -600,7 +600,7 @@ const tests = [
     eval(TEST('unify(result, source)'));
     source = {x: [{y: false}]};
     const env = unify(v('x'), source);
-    eval(TEST("v('x').bound(env)"));
+    eval(TEST("v('x').isBound(env)"));
     eval(TEST("v('x').get(env) === source"));
     eval(TEST("unify(v('x').get(env), source)"));
     source = {z: v('x')};
@@ -620,13 +620,13 @@ const tests = [
       };
     const env = unify(pattern, source);
     eval(TEST('env'));
-    eval(TEST("v('left').bound(env)"));
+    eval(TEST("v('left').isBound(env)"));
     eval(TEST("v('left').get(env) === 3"));
-    eval(TEST("v('right').bound(env)"));
+    eval(TEST("v('right').isBound(env)"));
     eval(TEST("v('right').get(env) === 2"));
-    eval(TEST("v('lnode').bound(env)"));
+    eval(TEST("v('lnode').isBound(env)"));
     eval(TEST("unify(v('lnode'), {left: 1, right: 2}, env)"));
-    eval(TEST("v('rnode').bound(env)"));
+    eval(TEST("v('rnode').isBound(env)"));
     eval(TEST("unify(v('rnode'), {left: 3, right: 4}, env)"));
   },
   function test_filters() {
@@ -706,11 +706,11 @@ const tests = [
         }
       );
     eval(TEST('env'));
-    eval(TEST('x.bound(env)'));
+    eval(TEST('x.isBound(env)'));
     eval(TEST('unify(x, 1, env)'));
-    eval(TEST('y.bound(env)'));
+    eval(TEST('y.isBound(env)'));
     eval(TEST('unify(y, 2, env)'));
-    eval(TEST('val.bound(env)'));
+    eval(TEST('val.isBound(env)'));
     eval(TEST('unify(val, 3, env)'));
     eval(TEST("replace('${x} + ${y} = ${val}', env) === '1 + 2 = 3'"));
   },

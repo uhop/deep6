@@ -1,42 +1,104 @@
-// AnyVar
+import {_, Env, Var, variable, isVariable, Unifier, isUnifier} from './env.js';
 
-const _ = {};
+// // AnyVar
 
-// Env
+// const _ = {};
 
-class Env {
-  constructor() {
-    this.variables = {};
-    this.values = {};
-  }
-  bindVar(name1, name2) {
-    const vars = this.variables;
-    if (vars.hasOwnProperty(name1)) {
-      const u = vars[name1];
-      if (vars.hasOwnProperty(name2)) {
-        Object.keys(vars[name2]).forEach(k => ((vars[k] = u), (u[k] = 1)));
-      } else {
-        vars[name2] = u;
-        u[name2] = 1;
-      }
-    } else {
-      if (vars.hasOwnProperty(name2)) {
-        const u = (vars[name1] = vars[name2]);
-        u[name1] = 1;
-      } else {
-        const u = (vars[name1] = vars[name2] = {});
-        u[name1] = u[name2] = 1;
-      }
-    }
-  }
-  bindVal(name, val) {
-    if (this.variables.hasOwnProperty(name)) {
-      Object.keys(this.variables[name]).forEach(k => (this.values[k] = val));
-    } else {
-      this.values[name] = val;
-    }
-  }
-}
+// // Env
+
+// class Env {
+//   constructor() {
+//     this.variables = {};
+//     this.values = {};
+//   }
+//   bindVar(name1, name2) {
+//     const vars = this.variables;
+//     if (vars.hasOwnProperty(name1)) {
+//       const u = vars[name1];
+//       if (vars.hasOwnProperty(name2)) {
+//         Object.keys(vars[name2]).forEach(k => ((vars[k] = u), (u[k] = 1)));
+//       } else {
+//         vars[name2] = u;
+//         u[name2] = 1;
+//       }
+//     } else {
+//       if (vars.hasOwnProperty(name2)) {
+//         const u = (vars[name1] = vars[name2]);
+//         u[name1] = 1;
+//       } else {
+//         const u = (vars[name1] = vars[name2] = {});
+//         u[name1] = u[name2] = 1;
+//       }
+//     }
+//   }
+//   bindVal(name, val) {
+//     if (this.variables.hasOwnProperty(name)) {
+//       Object.keys(this.variables[name]).forEach(k => (this.values[k] = val));
+//     } else {
+//       this.values[name] = val;
+//     }
+//   }
+// }
+
+// // Custom unifier
+
+// class Unifier {}
+
+// const isUnifier = x => x instanceof Unifier;
+
+// // Unifier should define a method:
+// // unify(val, ls, rs, env):
+// // val is a value we are unifying with
+// // ls is a stack of left arguments
+// // rs is a stack of right arguments corresponding to ls
+// // env is an environment
+// // the result should be true/false for success/failure
+
+// // Var
+
+// let unique = 0;
+
+// class Var extends Unifier {
+//   constructor(name) {
+//     super();
+//     this.name = name || 'var' + unique++;
+//   }
+//   bound(env) {
+//     return env.values.hasOwnProperty(this.name);
+//   }
+//   alias(name, env) {
+//     const t = env.variables[this.name];
+//     return t && t[name];
+//   }
+//   get(env) {
+//     return env.values[this.name];
+//   }
+
+//   unify(val, ls, rs, env) {
+//     if (this.bound(env)) {
+//       ls.push(this.get(env));
+//       rs.push(val);
+//       return true;
+//     }
+//     // the next case is taken care of in unify() directly
+//     // the case of unbound variable
+//     //if (val === _ || val === this) return true;
+//     if (val instanceof Var) {
+//       if (val.bound(env)) {
+//         env.bindVal(this.name, val.get(env));
+//       } else {
+//         env.bindVar(this.name, val.name);
+//       }
+//       return true;
+//     }
+//     env.bindVal(this.name, val);
+//     return true;
+//   }
+// }
+
+// const isVariable = x => x instanceof Var;
+
+// const variable = name => new Var(name);
 
 // Command
 
@@ -47,66 +109,6 @@ class Command {
     this.r = r;
   }
 }
-
-// Custom unifier
-
-class Unifier {}
-
-const isUnifier = x => x instanceof Unifier;
-
-// Unifier should define a method:
-// unify(val, ls, rs, env):
-// val is a value we are unifying with
-// ls is a stack of left arguments
-// rs is a stack of right arguments corresponding to ls
-// env is an environment
-// the result should be true/false for success/failure
-
-// Var
-
-let unique = 0;
-
-class Var extends Unifier {
-  constructor(name) {
-    super();
-    this.name = name || 'var' + unique++;
-  }
-  bound(env) {
-    return env.values.hasOwnProperty(this.name);
-  }
-  alias(name, env) {
-    const t = env.variables[this.name];
-    return t && t[name];
-  }
-  get(env) {
-    return env.values[this.name];
-  }
-
-  unify(val, ls, rs, env) {
-    if (this.bound(env)) {
-      ls.push(this.get(env));
-      rs.push(val);
-      return true;
-    }
-    // the next case is taken care of in unify() directly
-    // the case of unbound variable
-    //if (val === _ || val === this) return true;
-    if (val instanceof Var) {
-      if (val.bound(env)) {
-        env.bindVal(this.name, val.get(env));
-      } else {
-        env.bindVar(this.name, val.name);
-      }
-      return true;
-    }
-    env.bindVal(this.name, val);
-    return true;
-  }
-}
-
-const isVariable = x => x instanceof Var;
-
-const variable = name => new Var(name);
 
 // type wrapper
 

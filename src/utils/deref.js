@@ -46,7 +46,7 @@ const registry = [
     unify.Variable,
     function processVariable(val, context) {
       const env = context.env;
-      if (val.bound(env)) {
+      if (val.isBound(env)) {
         context.stack.push(val.get(env));
       } else {
         context.stackOut.push(val);
