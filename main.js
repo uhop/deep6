@@ -122,7 +122,7 @@ class Wrap extends Unifier {
       if (!val) return false;
       if (val instanceof Array) {
         // with a naked array
-        return unifyArrays(this.object, this.type, this, val, env.arrayType ? 'open' : 'exact', null, ls, rs, env);
+        return unifyArrays(this.object, this.type, this, val, env.openArrays ? 'open' : 'exact', null, ls, rs, env);
       }
       if (val instanceof Wrap) {
         // with a wrapped array
@@ -137,7 +137,7 @@ class Wrap extends Unifier {
       return !(val.object instanceof Array) && unifyObjects(this.object, this.type, this, val.object, val.type, val, ls, rs, env);
     }
     // with a naked object
-    return typeof val == 'object' && unifyObjects(this.object, this.type, this, val, env.objectType ? 'open' : 'exact', null, ls, rs, env);
+    return typeof val == 'object' && unifyObjects(this.object, this.type, this, val, env.openObjects ? 'open' : 'exact', null, ls, rs, env);
   }
 }
 
@@ -151,7 +151,7 @@ const isSoft = o => o && o instanceof Wrap && o.type === 'soft';
 
 // well-known constructors
 const unifyArray = (l, r, ls, rs, env) => {
-  if (!r || !(r instanceof Array) || (!env.arrayType && l.length != r.length)) return false;
+  if (!r || !(r instanceof Array) || (!env.openArrays && l.length != r.length)) return false;
   const n = Math.min(l.length, r.length);
   for (let i = 0; i < n; ++i) {
     ls.push(l[i]);
@@ -297,8 +297,8 @@ const unifyObjects = (l, lt, lm, r, rt, rm, ls, rs, env) => {
 const unify = (l, r, env, options) => {
   env = env || new Env();
   if (options) {
-    env.objectType = options.objectType;
-    env.arrayType = options.arrayType;
+    env.openObjects = options.openObjects;
+    env.openArrays = options.openArrays;
   }
   const ls = [l],
     rs = [r];
@@ -353,7 +353,7 @@ const unify = (l, r, env, options) => {
       }
     }
     // process naked objects
-    const objectType = env.objectType ? 'open' : 'exact';
+    const objectType = env.openObjects ? 'open' : 'exact';
     if (!unifyObjects(l, objectType, null, r, objectType, null, ls, rs, env)) return null;
   }
   return env;
