@@ -52,7 +52,7 @@ class Command {
 
 class Unifier {}
 
-const isUnifier = x => x && x instanceof Unifier;
+const isUnifier = x => x instanceof Unifier;
 
 // Unifier should define a method:
 // unify(val, ls, rs, env):
@@ -104,7 +104,7 @@ class Var extends Unifier {
   }
 }
 
-const isVariable = x => x && x instanceof Var;
+const isVariable = x => x instanceof Var;
 
 const variable = name => new Var(name);
 
@@ -126,13 +126,13 @@ class Wrap extends Unifier {
   }
 }
 
-const isWrapped = o => o && o instanceof Wrap;
+const isWrapped = o => o instanceof Wrap;
 
 const open = o => new Wrap('open', o);
-const isOpen = o => o && o instanceof Wrap && o.type === 'open';
+const isOpen = o => o instanceof Wrap && o.type === 'open';
 
 const soft = o => new Wrap('soft', o);
-const isSoft = o => o && o instanceof Wrap && o.type === 'soft';
+const isSoft = o => o instanceof Wrap && o.type === 'soft';
 
 const getTypeName = object =>
   object && typeof object == 'object' && object.constructor && typeof object.constructor.name == 'string' && object.constructor.name;
@@ -144,9 +144,9 @@ const filters = [];
 
 // well-known constructors
 
-registry.Date = (l, r) => r && r instanceof Date && l.getTime() == r.getTime();
+registry.Date = (l, r) => l instanceof Date && r instanceof Date && l.getTime() == r.getTime();
 registry.RegExp = (l, r) =>
-  r && r instanceof RegExp && l.source == r.source && l.global == r.global && l.multiline == r.multiline && l.ignoreCase == r.ignoreCase;
+  l instanceof RegExp && r instanceof RegExp && l.source == r.source && l.global == r.global && l.multiline == r.multiline && l.ignoreCase == r.ignoreCase;
 
 // possible well-known constructors
 
@@ -179,15 +179,33 @@ const unifyDataView = (l, r, ls, rs, env) => {
   }
   return true;
 };
-
 typeof DataView == 'function' && (registry.DataView = unifyDataView);
 
 const unifyArrayBuffer = (l, r, ls, rs, env) => {
   if (!(l instanceof ArrayBuffer) || !(r instanceof ArrayBuffer) || l.byteLength != r.byteLength) return false;
   return unifyTypedArrays(Uint8Array)(new Uint8Array(l), new Uint8Array(r), ls, rs, env);
 };
-
 typeof ArrayBuffer == 'function' && typeof Uint8Array == 'function' && (registry.ArrayBuffer = unifyArrayBuffer);
+
+const unifySet = (l, r, ls, rs, env) => {
+  if (!(l instanceof Set) || !(r instanceof Set) || l.size != r.size) return false;
+  for (const item of l) {
+    if (!r.has(item)) return false;
+  }
+  return true;
+};
+typeof Set == 'function' && (registry.Set = unifySet);
+
+const unifyMap = (l, r, ls, rs, env) => {
+  if (!(l instanceof Map) || !(r instanceof Map) || l.size != r.size) return false;
+  for (const [key, value] of l) {
+    if (!r.has(key)) return false;
+    ls.push(value);
+    rs.push(r.get(key));
+  }
+  return true;
+};
+typeof Map == 'function' && (registry.Map = unifyMap);
 
 // unification of objects
 
@@ -264,7 +282,7 @@ const unify = (l, r, env, options) => {
   main: while (ls.length) {
     // perform a command, or extract a pair
     l = ls.pop();
-    if (l && l instanceof Command) {
+    if (l instanceof Command) {
       l.f();
       continue;
     }

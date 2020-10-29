@@ -165,7 +165,7 @@ const tests = [
     eval(TEST('!unify(new Date(2013, 6, 4), new Date(2013, 6, 4, 6))'));
     eval(TEST('unify(new Date(2013, 6, 4, 6), new Date(2013, 6, 4, 6))'));
   },
-  function test_typedArrays() {
+  function test_typed_arrays() {
     if (typeof ArrayBuffer != 'function' || typeof DataView != 'function') return;
     const buffer = new ArrayBuffer(256),
       view = new DataView(buffer);
@@ -206,6 +206,44 @@ const tests = [
     eval(TEST('unify(open([1, 2]), [1, 2, 3])'));
     eval(TEST('unify(open({a: 1}), open({b: 2}))'));
     eval(TEST('unify(open([1]), open([1, 2]))'));
+  },
+  function test_sets() {
+    if (typeof Set != 'function') return;
+    const set1 = new Set(),
+      set2 = new Set();
+
+    eval(TEST('unify(set1, set1)'));
+    eval(TEST('unify(set2, set2)'));
+
+    eval(TEST('unify(set1, set2)'));
+
+    set1.add(1).add(2).add(3);
+    set2.add(1).add(2);
+
+    eval(TEST('!unify(set1, set2)'));
+
+    set2.add(3);
+
+    eval(TEST('unify(set1, set2)'));
+  },
+  function test_maps() {
+    if (typeof Map != 'function') return;
+    const map1 = new Map(),
+      map2 = new Map();
+
+    eval(TEST('unify(map1, map1)'));
+    eval(TEST('unify(map2, map2)'));
+
+    eval(TEST('unify(map1, map2)'));
+
+    map1.set(1, {value: 42}).set(2, [42]).set(3, null);
+    map2.set(1, {value: 42}).set(2, [42]);
+
+    eval(TEST('!unify(map1, map2)'));
+
+    map2.set(3, null);
+
+    eval(TEST('unify(map1, map2)'));
   },
   function test_soft_structures() {
     const x = v('x');
