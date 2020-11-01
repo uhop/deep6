@@ -2,6 +2,25 @@
 
 const keyDepth = Symbol('depth');
 
+const collectSymbols = object => {
+  const symbols = new Set();
+  while (object && typeof object == 'object') {
+    Object.getOwnPropertySymbols(object).forEach(symbol => symbols.add(symbol));
+    object = Object.getPrototypeOf(object);
+  }
+  symbols.delete(keyDepth);
+  return Array.from(symbols);
+};
+
+const ensure = (object, depth) => {
+  while (object[keyDepth] > depth) object = object.getPrototypeOf(object);
+  if (object[keyDepth] < depth) {
+    object = Object.create(object);
+    object[keyDepth] = depth;
+  }
+  return object;
+};
+
 export class Env {
   constructor() {
     this.variables = Object.create(null);
@@ -12,37 +31,37 @@ export class Env {
     ++this.depth;
   }
   pop() {
-    if (this.depth < 1) throw new Error('attempt to pop a frame with empty stack');
+    if (this.depth < 1) throw new Error('attempt to pop a frame with an empty stack');
     --this.depth;
     if (this.variables[keyDepth] > this.depth) this.variables = Object.getPrototypeOf(this.variables);
     if (this.values[keyDepth] > this.depth) this.values = Object.getPrototypeOf(this.values);
   }
+  revert(depth) {
+    if (this.depth < depth) throw new Error('attempt to revert a stack to a higher depth');
+    while (this.variables[keyDepth] > depth) this.variables = Object.getPrototypeOf(this.variables);
+    while (this.values[keyDepth] > depth) this.values = Object.getPrototypeOf(this.values);
+    this.depth = depth;
+  }
   bindVar(name1, name2) {
-    const depth = this.depth;
-    let vars = this.variables,
-      u1 = vars[name1],
+    const depth = this.depth,
+      vars = (this.variables = ensure(this.variables, depth));
+    let u1 = vars[name1],
       u2 = vars[name2];
-    if (vars[keyDepth] !== depth) {
-      this.variables = vars = Object.create(vars);
-      vars[keyDepth] = depth;
-    }
+    u1 && (u1 = vars[name1] = ensure(u1));
+    u2 && (u2 = vars[name2] = ensure(u2));
     if (u1) {
-      if (u1[keyDepth] !== depth) {
-        u1 = Object.create(u1);
-        u1[keyDepth] = depth;
-      }
       if (u2) {
-        Object.keys(u2).forEach(k => ((vars[k] = u), (u1[k] = 1)));
+        for (const k in u2) {
+          vars[k] = u1;
+          u1[k] = 1;
+        }
+        collectSymbols(u2).forEach(k => ((vars[k] = u1), (u1[k] = 1)));
       } else {
         vars[name2] = u1;
         u1[name2] = 1;
       }
     } else {
       if (u2) {
-        if (u2[keyDepth] !== depth) {
-          u2 = Object.create(u);
-          u2[keyDepth] = depth;
-        }
         vars[name1] = u2;
         u2[name1] = 1;
       } else {
@@ -54,14 +73,17 @@ export class Env {
     }
   }
   bindVal(name, val) {
-    let values = this.values;
-    if (values[keyDepth] !== this.depth) {
-      this.values = values = Object.create(values);
-      values[keyDepth] = this.depth;
-    }
-    if (name in this.variables) {
-      const vars = this.variables;
-      Object.keys(vars[name]).forEach(k => ((values[k] = val), (vars[k] = null)));
+    const depth = this.depth,
+      values = (this.values = ensure(this.values, depth)),
+      vars = (this.variables = ensure(this.variables, depth));
+    let u = vars[name];
+    u && (u = vars[name] = ensure(u));
+    if (u) {
+      for (const k in u) {
+        values[k] = val;
+        vars[k] = null;
+      }
+      collectSymbols(u).forEach(k => ((values[k] = val), (vars[k] = null)));
     } else {
       values[name] = val;
     }
@@ -76,6 +98,15 @@ export class Env {
   }
   get(name) {
     return env.values[name];
+  }
+  // debugging
+  getAllValues() {
+    const values = this.values,
+      result = collectSymbols(values).map(k => ({name: k, value: values[k]}));
+    for (const k in values) {
+      result.push({name: k, value: values[k]});
+    }
+    return result;
   }
 }
 
