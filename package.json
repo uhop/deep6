@@ -1,7 +1,7 @@
 {
-  "name": "deep-eq-adv",
+  "name": "yopl",
   "version": "1.0.0",
-  "description": "Micro library for advanced deep equivalence algorithms.",
+  "description": "No dependency mini-library: unification, deep equivalence, logical solver.",
   "type": "module",
   "main": "src/unify.js",
   "scripts": {
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/uhop/deep-eq-adv.git"
+    "url": "git://github.com/uhop/yopl.git"
   },
   "keywords": [
     "deep",
