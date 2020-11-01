@@ -12,9 +12,9 @@ const collectSymbols = object => {
   return Array.from(symbols);
 };
 
-const ensure = (object, depth, readOnly) => {
+const ensure = (object, depth) => {
   while (object[keyDepth] > depth) object = object.getPrototypeOf(object);
-  if (!readOnly && object[keyDepth] < depth) {
+  if (object[keyDepth] < depth) {
     object = Object.create(object);
     object[keyDepth] = depth;
   }
@@ -141,12 +141,11 @@ class Variable extends Unifier {
   }
   isAlias(name, env) {
     const u = env.variables[this.name];
-    return u && u[name] === 1;
+    return u && u[name instanceof Variable ? name.name : name] === 1;
   }
   get(env) {
     return env.values[this.name];
   }
-
   unify(val, ls, rs, env) {
     if (this.name in env.values) {
       // isBound
