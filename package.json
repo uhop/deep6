@@ -6,7 +6,11 @@
   "main": "src/unify.js",
   "scripts": {
     "test": "node tests/tests.js",
-    "debug": "node --inspect-brk tests/tests.js"
+    "debug": "node --inspect-brk tests/tests.js",
+    "prepareDist": "node scripts/prepareDist.js",
+    "babel": "babel src --out-dir cjs",
+    "build": "npm run prepareDist && npm run babel",
+    "prepublishOnly": "npm run build"
   },
   "repository": {
     "type": "git",
@@ -23,5 +27,26 @@
     "logic solver"
   ],
   "author": "Eugene Lazutkin <eugene.lazutkin@gmail.com> (https://www.lazutkin.com/)",
-  "license": "BSD-3-Clause"
+  "license": "BSD-3-Clause",
+  "devDependencies": {
+    "@babel/cli": "^7.12.1",
+    "@babel/core": "^7.12.3",
+    "@babel/preset-env": "^7.12.1"
+  },
+  "files": [
+    "/src",
+    "/cjs"
+  ],
+  "babel": {
+    "presets": [
+      [
+        "@babel/preset-env",
+        {
+          "targets": {
+            "node": "current"
+          }
+        }
+      ]
+    ]
+  }
 }
