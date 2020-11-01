@@ -1,6 +1,6 @@
 import {variable} from '../src/unify.js';
 import assemble from '../src/utils/assemble.js';
-import solve from '../src/yopl.js';
+import solve from '../src/solve.js';
 
 // const printEnv = env => {
 //   const list = ['env values:'];
