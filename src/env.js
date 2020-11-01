@@ -12,9 +12,9 @@ const collectSymbols = object => {
   return Array.from(symbols);
 };
 
-const ensure = (object, depth) => {
+const ensure = (object, depth, readOnly) => {
   while (object[keyDepth] > depth) object = object.getPrototypeOf(object);
-  if (object[keyDepth] < depth) {
+  if (!readOnly && object[keyDepth] < depth) {
     object = Object.create(object);
     object[keyDepth] = depth;
   }
@@ -33,8 +33,8 @@ export class Env {
   pop() {
     if (this.depth < 1) throw new Error('attempt to pop a frame with an empty stack');
     --this.depth;
-    if (this.variables[keyDepth] > this.depth) this.variables = Object.getPrototypeOf(this.variables);
-    if (this.values[keyDepth] > this.depth) this.values = Object.getPrototypeOf(this.values);
+    while (this.variables[keyDepth] > this.depth) this.variables = Object.getPrototypeOf(this.variables);
+    while (this.values[keyDepth] > this.depth) this.values = Object.getPrototypeOf(this.values);
   }
   revert(depth) {
     if (this.depth < depth) throw new Error('attempt to revert a stack to a higher depth');
@@ -47,8 +47,8 @@ export class Env {
       vars = (this.variables = ensure(this.variables, depth));
     let u1 = vars[name1],
       u2 = vars[name2];
-    u1 && (u1 = vars[name1] = ensure(u1));
-    u2 && (u2 = vars[name2] = ensure(u2));
+    u1 && (u1 = vars[name1] = ensure(u1, depth));
+    u2 && (u2 = vars[name2] = ensure(u2, depth));
     if (u1) {
       if (u2) {
         for (const k in u2) {
@@ -77,7 +77,7 @@ export class Env {
       values = (this.values = ensure(this.values, depth)),
       vars = (this.variables = ensure(this.variables, depth));
     let u = vars[name];
-    u && (u = vars[name] = ensure(u));
+    u && (u = vars[name] = ensure(u, depth));
     if (u) {
       for (const k in u) {
         values[k] = val;
