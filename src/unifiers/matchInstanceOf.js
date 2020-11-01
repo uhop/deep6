@@ -1,13 +1,13 @@
-import unify from '../unify.js';
+import {Unifier, isVariable} from '../env.js';
 
-class MatchInstanceOf extends unify.Unifier {
+class MatchInstanceOf extends Unifier {
   constructor(types) {
     super();
     this.types = types instanceof Array ? types : [types];
   }
 
   unify(val, ls, rs) {
-    return val && !unify.isVariable(val) && this.types.some(type => val instanceof type);
+    return val && !isVariable(val) && this.types.some(type => val instanceof type);
   }
 }
 

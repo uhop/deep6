@@ -1,4 +1,4 @@
-import {_, Env, Var, variable, isVariable, Unifier, isUnifier} from './env.js';
+import {_, Env, Variable, variable, isVariable, Unifier, isUnifier} from './env.js';
 
 // Command
 
@@ -190,11 +190,11 @@ const unify = (l, r, env, options) => {
     // direct equality or anyvar
     if (l === r || l === _ || r === _) continue;
     // process variables (variables have priority)
-    if (l instanceof Var) {
+    if (l instanceof Variable) {
       if (l.unify(r, ls, rs, env)) continue;
       return null;
     }
-    if (r instanceof Var) {
+    if (r instanceof Variable) {
       if (r.unify(l, ls, rs, env)) continue;
       return null;
     }
@@ -242,19 +242,8 @@ const unify = (l, r, env, options) => {
 
 // exports
 
-unify._ = unify.any = _;
 unify.registry = registry;
 unify.filters = filters;
-unify.Env = Env;
-unify.Unifier = Unifier;
-unify.Variable = Var;
-unify.variable = variable;
-unify.open = open;
-unify.soft = soft;
-unify.isUnifier = isUnifier;
-unify.isVariable = isVariable;
-unify.isWrapped = isWrapped;
-unify.isOpen = isOpen;
-unify.isSoft = isSoft;
 
+export {_, Env, Unifier, isUnifier, Variable, variable, isVariable, _ as any, open, soft, isOpen, isSoft, isWrapped};
 export default unify;

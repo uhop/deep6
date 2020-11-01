@@ -1,4 +1,4 @@
-import unify from '../unify.js';
+import {Unifier, Variable, _, open} from '../unify.js';
 import walk from './walk.js';
 
 const empty = {};
@@ -14,7 +14,7 @@ const postProcess = (init, wrapper) =>
   };
 
 const processObject = (val, context) => {
-  if (val === unify._) {
+  if (val === _) {
     context.stackOut.push(val);
   } else {
     const stack = context.stack;
@@ -32,7 +32,7 @@ const registry = [
     },
     Array,
     function processArray(val, context) {
-      if (val === unify._) {
+      if (val === _) {
         context.stackOut.push(val);
       } else {
         const stack = context.stack;
@@ -40,9 +40,9 @@ const registry = [
         Object.keys(val).forEach(k => stack.push(val[k]));
       }
     },
-    unify.Variable,
+    Variable,
     processOther,
-    unify.Unifier,
+    Unifier,
     processOther,
     Date,
     processOther,
@@ -57,8 +57,8 @@ const preprocess = (source, options) => {
   const context = options.context || {},
     stackOut = [];
   context.stackOut = stackOut;
-  context.wrapObject = options.openObjects && unify.open;
-  context.wrapArray = options.openArrays && unify.open;
+  context.wrapObject = options.openObjects && open;
+  context.wrapArray = options.openArrays && open;
 
   walk(source, {
     processObject: options.processObject || processObject,

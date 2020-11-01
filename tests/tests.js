@@ -1,4 +1,4 @@
-import unify from '../src/unify.js';
+import unify, {_, variable as v, open, soft, isOpen, isSoft} from '../src/unify.js';
 import preprocess from '../src/utils/preprocess.js';
 import matchString from '../src/unifiers/matchString.js';
 import matchTypeOf from '../src/unifiers/matchTypeOf.js';
@@ -43,13 +43,6 @@ const quoteString = text => text.replace(/['"\\]/g, '\\$&');
 const TEST = condition => "submit('" + quoteString(condition) + "', (" + condition + '))';
 
 // setup
-
-const _ = unify._,
-  v = unify.variable,
-  open = unify.open,
-  soft = unify.soft,
-  isOpen = unify.isOpen,
-  isSoft = unify.isSoft;
 
 // tests
 
@@ -775,6 +768,7 @@ const runTests = () => {
       if (SHOW_FAILED_TEST_CODE) {
         console.log('Code: ', tests[i].toString());
       }
+      process.exit(1);
     }
   }
   out(_errors ? 'Failed ' + _errors + ' out of ' + _total + ' tests.' : 'Finished ' + _total + ' tests.');

@@ -1,6 +1,6 @@
-import unify from '../unify.js';
+import {Unifier} from '../env.js';
 
-class MatchCondition extends unify.Unifier {
+class MatchCondition extends Unifier {
   constructor(f) {
     super();
     this.f = f;

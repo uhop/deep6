@@ -1,6 +1,6 @@
-import unify from '../unify.js';
+import {Unifier, isVariable} from '../env.js';
 
-class MatchString extends unify.Unifier {
+class MatchString extends Unifier {
   constructor(regexp, matches, props) {
     super();
     this.regexp = regexp;
@@ -9,7 +9,7 @@ class MatchString extends unify.Unifier {
   }
 
   unify(val, ls, rs) {
-    if (unify.isVariable(val)) {
+    if (isVariable(val)) {
       // cannot match with an unbound variable
       return false;
     }

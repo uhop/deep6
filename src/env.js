@@ -21,7 +21,7 @@ const ensure = (object, depth, readOnly) => {
   return object;
 };
 
-export class Env {
+class Env {
   constructor() {
     this.variables = Object.create(null);
     this.values = Object.create(null);
@@ -112,9 +112,9 @@ export class Env {
 
 // Custom unifier
 
-export class Unifier {}
+class Unifier {}
 
-export const isUnifier = x => x instanceof Unifier;
+const isUnifier = x => x instanceof Unifier;
 
 // Unifier should define a method:
 // unify(val, ls, rs, env):
@@ -126,12 +126,12 @@ export const isUnifier = x => x instanceof Unifier;
 
 // AnyVar
 
-export const _ = {};
-export const any = _;
+const _ = {},
+  any = _;
 
-// Var
+// Variable
 
-export class Var extends Unifier {
+class Variable extends Unifier {
   constructor(name) {
     super();
     this.name = name || Symbol();
@@ -155,7 +155,7 @@ export class Var extends Unifier {
       return true;
     }
     if (val === _ || val === this) return true;
-    if (val instanceof Var) {
+    if (val instanceof Variable) {
       if (val.name in env.values) {
         // isBound
         env.bindVal(this.name, env.values[val.name]);
@@ -169,6 +169,7 @@ export class Var extends Unifier {
   }
 }
 
-export const isVariable = x => x instanceof Var;
+const isVariable = x => x instanceof Variable,
+  variable = name => new Variable(name);
 
-export const variable = name => new Var(name);
+export {Env, Unifier, isUnifier, Variable, variable, isVariable, _, any};

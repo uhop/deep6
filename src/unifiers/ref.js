@@ -1,8 +1,8 @@
-import unify from '../unify.js';
+import {Variable} from '../env.js';
 
-class Ref extends unify.Variable {
+class Ref extends Variable {
   constructor(variable, value) {
-    const v = typeof variable == 'string' ? new unify.Variable(variable) : variable;
+    const v = typeof variable == 'string' ? new Variable(variable) : variable;
     super(v.name);
     this.variable = v;
     this.value = value;
