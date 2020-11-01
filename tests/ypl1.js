@@ -22,12 +22,7 @@ const proveGoals = (goals, env) => {
   let ruleList = rules[goal.name];
   !Array.isArray(ruleList) && (ruleList = [ruleList]);
   for (const rule of ruleList) {
-    let terms;
-    if (typeof rule == 'function') {
-      terms = rule(...generateVariables(rule.length));
-    } else {
-      terms = rule.goals(...generateVariables(rule.varNames));
-    }
+    const terms = (typeof rule == 'function' ? rule : rule.goals)(...generateVariables(rule.length));
     env.push();
     if (unify(terms[0].args, goal.args, env)) {
       proveGoals(terms.slice(1).concat(rest), env);
