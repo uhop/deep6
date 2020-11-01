@@ -1,4 +1,4 @@
-import unify, {_, variable as v, open, soft, isOpen, isSoft} from '../src/unify.js';
+import unify, {Env, _, variable as v, open, soft, isSoft} from '../src/unify.js';
 import preprocess from '../src/utils/preprocess.js';
 import matchString from '../src/unifiers/matchString.js';
 import matchTypeOf from '../src/unifiers/matchTypeOf.js';
@@ -10,6 +10,7 @@ import clone from '../src/utils/clone.js';
 import assemble from '../src/utils/assemble.js';
 import deref from '../src/utils/deref.js';
 import replace from '../src/utils/replace.js';
+import solve from '../src/solve.js';
 
 // test harness
 
@@ -47,6 +48,160 @@ const TEST = condition => "submit('" + quoteString(condition) + "', (" + conditi
 // tests
 
 const tests = [
+  function test_env() {
+    const env = new Env(),
+      x = v(),
+      y = v(),
+      z = v();
+
+    eval(TEST('!x.isBound(env)'));
+    eval(TEST('!y.isBound(env)'));
+    eval(TEST('!z.isBound(env)'));
+    eval(TEST('x.get(env) === undefined'));
+    eval(TEST('y.get(env) === undefined'));
+    eval(TEST('z.get(env) === undefined'));
+    eval(TEST('!x.isAlias(y, env)'));
+    eval(TEST('!x.isAlias(z, env)'));
+    eval(TEST('!y.isAlias(x, env)'));
+    eval(TEST('!y.isAlias(z, env)'));
+    eval(TEST('!z.isAlias(x, env)'));
+    eval(TEST('!z.isAlias(y, env)'));
+
+    env.push();
+
+    eval(TEST('!x.isBound(env)'));
+    eval(TEST('!y.isBound(env)'));
+    eval(TEST('!z.isBound(env)'));
+    eval(TEST('x.get(env) === undefined'));
+    eval(TEST('y.get(env) === undefined'));
+    eval(TEST('z.get(env) === undefined'));
+    eval(TEST('!x.isAlias(y, env)'));
+    eval(TEST('!x.isAlias(z, env)'));
+    eval(TEST('!y.isAlias(x, env)'));
+    eval(TEST('!y.isAlias(z, env)'));
+    eval(TEST('!z.isAlias(x, env)'));
+    eval(TEST('!z.isAlias(y, env)'));
+
+    env.bindVar(x.name, y.name);
+
+    eval(TEST('!x.isBound(env)'));
+    eval(TEST('!y.isBound(env)'));
+    eval(TEST('!z.isBound(env)'));
+    eval(TEST('x.get(env) === undefined'));
+    eval(TEST('y.get(env) === undefined'));
+    eval(TEST('z.get(env) === undefined'));
+    eval(TEST('x.isAlias(y, env)'));
+    eval(TEST('!x.isAlias(z, env)'));
+    eval(TEST('y.isAlias(x, env)'));
+    eval(TEST('!y.isAlias(z, env)'));
+    eval(TEST('!z.isAlias(x, env)'));
+    eval(TEST('!z.isAlias(y, env)'));
+
+    env.push();
+
+    eval(TEST('!x.isBound(env)'));
+    eval(TEST('!y.isBound(env)'));
+    eval(TEST('!z.isBound(env)'));
+    eval(TEST('x.get(env) === undefined'));
+    eval(TEST('y.get(env) === undefined'));
+    eval(TEST('z.get(env) === undefined'));
+    eval(TEST('x.isAlias(y, env)'));
+    eval(TEST('!x.isAlias(z, env)'));
+    eval(TEST('y.isAlias(x, env)'));
+    eval(TEST('!y.isAlias(z, env)'));
+    eval(TEST('!z.isAlias(x, env)'));
+    eval(TEST('!z.isAlias(y, env)'));
+
+    env.bindVal(z.name, 'z');
+
+    eval(TEST('!x.isBound(env)'));
+    eval(TEST('!y.isBound(env)'));
+    eval(TEST('z.isBound(env)'));
+    eval(TEST('x.get(env) === undefined'));
+    eval(TEST('y.get(env) === undefined'));
+    eval(TEST('z.get(env) === "z"'));
+    eval(TEST('x.isAlias(y, env)'));
+    eval(TEST('!x.isAlias(z, env)'));
+    eval(TEST('y.isAlias(x, env)'));
+    eval(TEST('!y.isAlias(z, env)'));
+    eval(TEST('!z.isAlias(x, env)'));
+    eval(TEST('!z.isAlias(y, env)'));
+
+    env.push();
+
+    eval(TEST('!x.isBound(env)'));
+    eval(TEST('!y.isBound(env)'));
+    eval(TEST('z.isBound(env)'));
+    eval(TEST('x.get(env) === undefined'));
+    eval(TEST('y.get(env) === undefined'));
+    eval(TEST('z.get(env) === "z"'));
+    eval(TEST('x.isAlias(y, env)'));
+    eval(TEST('!x.isAlias(z, env)'));
+    eval(TEST('y.isAlias(x, env)'));
+    eval(TEST('!y.isAlias(z, env)'));
+    eval(TEST('!z.isAlias(x, env)'));
+    eval(TEST('!z.isAlias(y, env)'));
+
+    env.bindVal(y.name, 'y');
+
+    eval(TEST('x.isBound(env)'));
+    eval(TEST('y.isBound(env)'));
+    eval(TEST('z.isBound(env)'));
+    eval(TEST('x.get(env) === "y"'));
+    eval(TEST('y.get(env) === "y"'));
+    eval(TEST('z.get(env) === "z"'));
+    eval(TEST('!x.isAlias(y, env)'));
+    eval(TEST('!x.isAlias(z, env)'));
+    eval(TEST('!y.isAlias(x, env)'));
+    eval(TEST('!y.isAlias(z, env)'));
+    eval(TEST('!z.isAlias(x, env)'));
+    eval(TEST('!z.isAlias(y, env)'));
+
+    env.pop();
+
+    eval(TEST('!x.isBound(env)'));
+    eval(TEST('!y.isBound(env)'));
+    eval(TEST('z.isBound(env)'));
+    eval(TEST('x.get(env) === undefined'));
+    eval(TEST('y.get(env) === undefined'));
+    eval(TEST('z.get(env) === "z"'));
+    eval(TEST('x.isAlias(y, env)'));
+    eval(TEST('!x.isAlias(z, env)'));
+    eval(TEST('y.isAlias(x, env)'));
+    eval(TEST('!y.isAlias(z, env)'));
+    eval(TEST('!z.isAlias(x, env)'));
+    eval(TEST('!z.isAlias(y, env)'));
+
+    env.pop();
+
+    eval(TEST('!x.isBound(env)'));
+    eval(TEST('!y.isBound(env)'));
+    eval(TEST('!z.isBound(env)'));
+    eval(TEST('x.get(env) === undefined'));
+    eval(TEST('y.get(env) === undefined'));
+    eval(TEST('z.get(env) === undefined'));
+    eval(TEST('x.isAlias(y, env)'));
+    eval(TEST('!x.isAlias(z, env)'));
+    eval(TEST('y.isAlias(x, env)'));
+    eval(TEST('!y.isAlias(z, env)'));
+    eval(TEST('!z.isAlias(x, env)'));
+    eval(TEST('!z.isAlias(y, env)'));
+
+    env.pop();
+
+    eval(TEST('!x.isBound(env)'));
+    eval(TEST('!y.isBound(env)'));
+    eval(TEST('!z.isBound(env)'));
+    eval(TEST('x.get(env) === undefined'));
+    eval(TEST('y.get(env) === undefined'));
+    eval(TEST('z.get(env) === undefined'));
+    eval(TEST('!x.isAlias(y, env)'));
+    eval(TEST('!x.isAlias(z, env)'));
+    eval(TEST('!y.isAlias(x, env)'));
+    eval(TEST('!y.isAlias(z, env)'));
+    eval(TEST('!z.isAlias(x, env)'));
+    eval(TEST('!z.isAlias(y, env)'));
+  },
   function test_constants() {
     eval(TEST('unify(1, 1)'));
     eval(TEST('unify(0, 0)'));
@@ -747,6 +902,106 @@ const tests = [
     eval(TEST('va.get(env) === 1'));
     eval(TEST('vd.isBound(env)'));
     eval(TEST('vd.get(env) === 4'));
+  },
+  function test_solve_one() {
+    const rules = {
+        'one/1': () => [{args: [1]}]
+      },
+      X = v('X'),
+      result = [];
+    solve(rules, 'one/1', [X], env => result.push(assemble(X, env)));
+    eval(TEST('unify(result, [1])'));
+  },
+  function test_solve_last() {
+    const rules = {
+        'notNull/1': X => [{args: [X]}, env => X.isBound(env) && X.get(env) !== null],
+        'last/2': [
+          () => [{args: [null, undefined]}],
+          X => [{args: [{value: X, next: null}, X]}],
+          (X, Y) => [{args: [{next: X}, Y]}, {name: 'notNull/1', args: [X]}, {name: 'last/2', args: [X, Y]}]
+        ]
+      },
+      X = v('X');
+    let result = [];
+    solve(rules, 'last/2', [null, X], env => result.push(assemble(X, env)));
+    eval(TEST('unify(result, [undefined])'));
+    result = [];
+    solve(rules, 'last/2', [{value: 1, next: null}, X], env => result.push(assemble(X, env)));
+    eval(TEST('unify(result, [1])'));
+    result = [];
+    solve(rules, 'last/2', [{value: 1, next: {value: 2, next: null}}, X], env => result.push(assemble(X, env)));
+    eval(TEST('unify(result, [2])'));
+  },
+  function test_solve_member() {
+    const rules = {
+        'member/2': [(V, X) => [{args: [{value: V, next: X}, V]}], (V, X) => [{args: [{next: X}, V]}, {name: 'member/2', args: [X, V]}]]
+      },
+      X = v('X');
+    let result = [];
+    solve(rules, 'member/2', [{value: 1, next: {value: 2, next: {value: 3, next: null}}}, 1], env => result.push(true));
+    eval(TEST('unify(result, [true])'));
+    result = [];
+    solve(rules, 'member/2', [{value: 1, next: {value: 2, next: {value: 3, next: null}}}, 2], env => result.push(true));
+    eval(TEST('unify(result, [true])'));
+    result = [];
+    solve(rules, 'member/2', [{value: 1, next: {value: 2, next: {value: 3, next: null}}}, 3], env => result.push(true));
+    eval(TEST('unify(result, [true])'));
+    result = [];
+    solve(rules, 'member/2', [{value: 1, next: {value: 2, next: {value: 3, next: null}}}, 5], env => result.push(true));
+    eval(TEST('unify(result, [])'));
+    result = [];
+    solve(rules, 'member/2', [{value: 1, next: {value: X, next: {value: 3, next: null}}}, 2], env => result.push(assemble(X, env)));
+    eval(TEST('unify(result, [2])'));
+    result = [];
+    solve(rules, 'member/2', [{value: 1, next: {value: 2, next: {value: 3, next: null}}}, X], env => result.push(assemble(X, env)));
+    eval(TEST('unify(result, [1, 2, 3])'));
+  },
+  function test_solve_append() {
+    const rules = {
+        'append/3': [Y => [{args: [null, Y, Y]}], (X, Y, Z, V) => [{args: [{value: V, next: X}, Y, {value: V, next: Z}]}, {name: 'append/3', args: [X, Y, Z]}]]
+      },
+      X = v('X'),
+      Y = v('Y');
+    let result = [];
+    solve(rules, 'append/3', [null, null, X], env => result.push(assemble(X, env)));
+    eval(TEST('unify(result, [null])'));
+    result = [];
+    solve(rules, 'append/3', [null, {value: 1, next: null}, X], env => result.push(assemble(X, env)));
+    eval(TEST('unify(result, [{value: 1, next: null}])'));
+    result = [];
+    solve(rules, 'append/3', [{value: 1, next: null}, null, X], env => result.push(assemble(X, env)));
+    eval(TEST('unify(result, [{value: 1, next: null}])'));
+
+    const makeList = (array, rest = null) => {
+      if (!array.length) return null;
+      const items = array.map(value => ({value}));
+      items.forEach((item, index) => (item.next = index + 1 < items.length ? items[index + 1] : rest));
+      return items[0];
+    };
+
+    result = [];
+    solve(rules, 'append/3', [makeList([1, 2]), makeList([3, 4]), X], env => result.push(assemble(X, env)));
+    eval(TEST('unify(result, [makeList([1, 2, 3, 4])])'));
+    result = [];
+    solve(rules, 'append/3', [makeList([1, 2]), makeList([3, 4]), makeList([1, 2, 3], X)], env => result.push(assemble(X, env)));
+    eval(TEST('unify(result, [makeList([4])])'));
+
+    result = [];
+    solve(rules, 'append/3', [X, Y, makeList([1, 2, 3])], env => {
+      result.push(assemble(X, env));
+      result.push(assemble(Y, env));
+    });
+    const expected = [
+      null,
+      makeList([1, 2, 3]),
+      makeList([1]),
+      makeList([2, 3]),
+      makeList([1, 2]),
+      makeList([3]),
+      makeList([1, 2, 3]),
+      null
+    ];
+    eval(TEST('unify(result, expected)'));
   }
 ];
 
@@ -768,7 +1023,6 @@ const runTests = () => {
       if (SHOW_FAILED_TEST_CODE) {
         console.log('Code: ', tests[i].toString());
       }
-      process.exit(1);
     }
   }
   out(_errors ? 'Failed ' + _errors + ' out of ' + _total + ' tests.' : 'Finished ' + _total + ' tests.');
