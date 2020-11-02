@@ -1066,7 +1066,7 @@ const tests = [
   }
 ];
 
-const runTests = () => {
+const runTests = async () => {
   _total = _errors = 0;
   let exceptionFlag = false;
   out('Starting tests...');
@@ -1074,7 +1074,7 @@ const runTests = () => {
     _current = tests[i].name;
     _local = 0;
     try {
-      tests[i]();
+      await tests[i]();
     } catch (e) {
       exceptionFlag = true;
       console.log('Unhandled exception in test #' + i + ' (' + tests[i].name + '): ' + e.message);
