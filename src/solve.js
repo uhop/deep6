@@ -18,11 +18,13 @@ const prove = (rules, goals, env) => {
       }
       while (frame.index < frame.ruleList.length) {
         const rule = frame.ruleList[frame.index++],
-          terms = (typeof rule == 'function' ? rule : rule.goals)(...generateVariables(rule.length));
+          vars = generateVariables(rule.length + 1),
+          terms = (typeof rule == 'function' ? rule : rule.goals)(...vars);
         env.push();
         if (unify(terms[0].args, frame.args, env)) {
           const newGoals = {terms, index: 1, next: frame.goals};
           stack.push(frame, {command: 1}, {goals: newGoals});
+          env.bindVal(vars[vars.length - 1].name, frame);
           continue main;
         }
         env.pop();
@@ -37,7 +39,7 @@ const prove = (rules, goals, env) => {
     const goal = goals.terms[goals.index++];
     if (typeof goal == 'function') {
       env.push();
-      if (goal(env)) {
+      if (goal(env, stack, goals)) {
         stack.push({command: 1}, {goals});
         continue main;
       }
@@ -47,7 +49,7 @@ const prove = (rules, goals, env) => {
     }
     let ruleList = rules[goal.name];
     !Array.isArray(ruleList) && (ruleList = [ruleList]);
-    stack.push({command: 42, ruleList, index: 0, goals, args: goal.args});
+    stack.push({command: 2, ruleList, index: 0, goals, args: goal.args});
   }
 };
 
