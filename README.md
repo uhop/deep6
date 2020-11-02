@@ -9,6 +9,8 @@
   * Extensible to accommodate custom objects.
 * Unification.
   * Identifying and capturing object fragments.
+* Traversing objects.
+  * Extensible deep cloning.
 * Logic solvers.
   * Rule-based, logic programming style.
   * Both callback and generator styles are supported.

@@ -119,6 +119,10 @@
     "equivalence",
     "comparison",
     "deep equivalence",
+    "clone",
+    "deep clone",
+    "deep cloning",
+    "traversing",
     "logic programming",
     "solver",
     "logic solver"
