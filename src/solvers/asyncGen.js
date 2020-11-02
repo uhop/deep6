@@ -1,4 +1,4 @@
-import unify, {Env, variable} from './unify.js';
+import unify, {Env, variable} from '../unify.js';
 
 let counter = 0;
 const generateVariables = count => {
@@ -7,7 +7,7 @@ const generateVariables = count => {
   return t.map(name => variable(Symbol(name)));
 };
 
-function* prove(rules, goals, env) {
+async function* prove(rules, goals, env) {
   const stack = [{goals}];
   main: while (stack.length) {
     const frame = stack.pop();
@@ -40,7 +40,7 @@ function* prove(rules, goals, env) {
     const goal = goals.terms[goals.index++];
     if (typeof goal == 'function') {
       env.push();
-      if (goal(env)) {
+      if (await goal(env)) {
         stack.push({command: 1}, {goals});
         continue main;
       }
@@ -54,7 +54,7 @@ function* prove(rules, goals, env) {
   }
 };
 
-function* generate(rules, name, args) {
+async function* generate(rules, name, args) {
   const env = new Env();
   env.openObjects = true;
   const goals = {terms: [{name, args}], index: 0, next: null};

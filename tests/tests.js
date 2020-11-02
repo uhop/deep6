@@ -11,7 +11,7 @@ import assemble from '../src/utils/assemble.js';
 import deref from '../src/utils/deref.js';
 import replace from '../src/utils/replace.js';
 import solve from '../src/solve.js';
-import generate from '../src/generate.js';
+import gen from '../src/solvers/gen.js';
 
 // test harness
 
@@ -995,54 +995,54 @@ const tests = [
     const expected = [null, makeList([1, 2, 3]), makeList([1]), makeList([2, 3]), makeList([1, 2]), makeList([3]), makeList([1, 2, 3]), null];
     eval(TEST('unify(result, expected)'));
   },
-  function test_generate_one() {
+  function test_gen_one() {
     const rules = {
         'one/1': () => [{args: [1]}]
       },
       X = v('X'),
       result = [];
-    for (const env of generate(rules, 'one/1', [X])) {
+    for (const env of gen(rules, 'one/1', [X])) {
       result.push(assemble(X, env));
     }
     eval(TEST('unify(result, [1])'));
   },
-  function test_generate_member() {
+  function test_gen_member() {
     const rules = {
         'member/2': [(V, X) => [{args: [{value: V, next: X}, V]}], (V, X) => [{args: [{next: X}, V]}, {name: 'member/2', args: [X, V]}]]
       },
       X = v('X');
     let result = [];
-    for (const env of generate(rules, 'member/2', [{value: 1, next: {value: 2, next: {value: 3, next: null}}}, 1])) {
+    for (const env of gen(rules, 'member/2', [{value: 1, next: {value: 2, next: {value: 3, next: null}}}, 1])) {
       result.push(true)
     }
     eval(TEST('unify(result, [true])'));
     result = [];
-    for (const env of generate(rules, 'member/2', [{value: 1, next: {value: 2, next: {value: 3, next: null}}}, 2])) {
+    for (const env of gen(rules, 'member/2', [{value: 1, next: {value: 2, next: {value: 3, next: null}}}, 2])) {
       result.push(true)
     }
     eval(TEST('unify(result, [true])'));
     result = [];
-    for (const env of generate(rules, 'member/2', [{value: 1, next: {value: 2, next: {value: 3, next: null}}}, 3])) {
+    for (const env of gen(rules, 'member/2', [{value: 1, next: {value: 2, next: {value: 3, next: null}}}, 3])) {
       result.push(true)
     }
     eval(TEST('unify(result, [true])'));
     result = [];
-    for (const env of generate(rules, 'member/2', [{value: 1, next: {value: 2, next: {value: 3, next: null}}}, 4])) {
+    for (const env of gen(rules, 'member/2', [{value: 1, next: {value: 2, next: {value: 3, next: null}}}, 4])) {
       result.push(true)
     }
     eval(TEST('unify(result, [])'));
     result = [];
-    for (const env of generate(rules, 'member/2', [{value: 1, next: {value: X, next: {value: 3, next: null}}}, 5])) {
+    for (const env of gen(rules, 'member/2', [{value: 1, next: {value: X, next: {value: 3, next: null}}}, 5])) {
       result.push(assemble(X, env));
     }
     eval(TEST('unify(result, [5])'));
     result = [];
-    for (const env of generate(rules, 'member/2', [{value: 1, next: {value: 2, next: {value: 3, next: null}}}, X])) {
+    for (const env of gen(rules, 'member/2', [{value: 1, next: {value: 2, next: {value: 3, next: null}}}, X])) {
       result.push(assemble(X, env));
     }
     eval(TEST('unify(result, [1, 2, 3])'));
   },
-  function test_generate_append() {
+  function test_gen_append() {
     const rules = {
         'append/3': [Y => [{args: [null, Y, Y]}], (X, Y, Z, V) => [{args: [{value: V, next: X}, Y, {value: V, next: Z}]}, {name: 'append/3', args: [X, Y, Z]}]]
       },
@@ -1057,7 +1057,7 @@ const tests = [
     };
 
     const result = [];
-    for (const env of generate(rules, 'append/3', [X, Y, makeList([1, 2, 3])])) {
+    for (const env of gen(rules, 'append/3', [X, Y, makeList([1, 2, 3])])) {
       result.push(assemble(X, env));
       result.push(assemble(Y, env));
     }
