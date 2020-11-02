@@ -7,7 +7,7 @@
   "main": "cjs/unify.js",
   "exports": {
     ".": {
-      "require": "./src/unify.js",
+      "import": "./src/unify.js",
       "default": "./cjs/unify.js"
     },
     "./*.js": {
