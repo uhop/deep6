@@ -7,13 +7,99 @@
   "main": "cjs/unify.js",
   "exports": {
     ".": {
-      "import": "./src/unify.js",
-      "default": "./cjs/unify.js"
+      "require": "./cjs/unify.js",
+      "default": "./src/unify.js"
     },
-    "./*.js": {
-      "import": "./src/*.js",
-      "default": "./cjs/*.js"
-    }
+    "./*": {
+      "require": "./cjs/*",
+      "default": "./src/*"
+    },
+    "./env.js": {
+      "require": "./cjs/env.js",
+      "default": "./src/env.js"
+    },
+    "./unify.js": {
+      "require": "./cjs/unify.js",
+      "default": "./src/unify.js"
+    },
+    "./solve.js": {
+      "require": "./cjs/solve.js",
+      "default": "./src/solve.js"
+    },
+    "./solvers/async.js": {
+      "require": "./cjs/solvers/async.js",
+      "default": "./src/solvers/async.js"
+    },
+    "./solvers/asyncGen.js": {
+      "require": "./cjs/solvers/asyncGen.js",
+      "default": "./src/solvers/asyncGen.js"
+    },
+    "./solvers/gen.js": {
+      "require": "./cjs/solvers/gen.js",
+      "default": "./src/solvers/gen.js"
+    },
+    "./unifiers/matchConditions.js": {
+      "require": "./cjs/unifiers/matchConditions.js",
+      "default": "./src/unifiers/matchConditions.js"
+    },
+    "./unifiers/matchInstanceOf.js": {
+      "require": "./cjs/unifiers/matchInstanceOf.js",
+      "default": "./src/unifiers/matchInstanceOf.js"
+    },
+    "./unifiers/matchString.js": {
+      "require": "./cjs/unifiers/matchString.js",
+      "default": "./src/unifiers/matchString.js"
+    },
+    "./unifiers/matchTypeOf.js": {
+      "require": "./cjs/unifiers/matchTypeOf.js",
+      "default": "./src/unifiers/matchTypeOf.js"
+    },
+    "./unifiers/ref.js": {
+      "require": "./cjs/unifiers/ref.js",
+      "default": "./src/unifiers/ref.js"
+    },
+    "./utils/assemble.js": {
+      "require": "./cjs/utils/assemble.js",
+      "default": "./src/utils/assemble.js"
+    },
+    "./utils/clone.js": {
+      "require": "./cjs/utils/clone.js",
+      "default": "./src/utils/clone.js"
+    },
+    "./utils/deref.js": {
+      "require": "./cjs/utils/deref.js",
+      "default": "./src/utils/deref.js"
+    },
+    "./utils/preprocess.js": {
+      "require": "./cjs/utils/preprocess.js",
+      "default": "./src/utils/preprocess.js"
+    },
+    "./utils/replace.js": {
+      "require": "./cjs/utils/replace.js",
+      "default": "./src/utils/replace.js"
+    },
+    "./utils/walk.js": {
+      "require": "./cjs/utils/walk.js",
+      "default": "./src/utils/walk.js"
+    },
+    "./cjs/*": "./cjs/*",
+    "./cjs/env.js": "./cjs/env.js",
+    "./cjs/unify.js": "./cjs/unify.js",
+    "./cjs/solve.js": "./cjs/solve.js",
+    "./cjs/solvers/async.js": "./cjs/solvers/async.js",
+    "./cjs/solvers/asyncGen.js": "./cjs/solvers/asyncGen.js",
+    "./cjs/solvers/gen.js": "./cjs/solvers/gen.js",
+    "./cjs/unifiers/matchConditions.js": "./cjs/unifiers/matchConditions.js",
+    "./cjs/unifiers/matchInstanceOf.js": "./cjs/unifiers/matchInstanceOf.js",
+    "./cjs/unifiers/matchString.js": "./cjs/unifiers/matchString.js",
+    "./cjs/unifiers/matchTypeOf.js": "./cjs/unifiers/matchTypeOf.js",
+    "./cjs/unifiers/ref.js": "./cjs/unifiers/ref.js",
+    "./cjs/utils/assemble.js": "./cjs/utils/assemble.js",
+    "./cjs/utils/clone.js": "./cjs/utils/clone.js",
+    "./cjs/utils/deref.js": "./cjs/utils/deref.js",
+    "./cjs/utils/preprocess.js": "./cjs/utils/preprocess.js",
+    "./cjs/utils/replace.js": "./cjs/utils/replace.js",
+    "./cjs/utils/walk.js": "./cjs/utils/walk.js"
   },
   "scripts": {
     "test": "node tests/tests.js",
