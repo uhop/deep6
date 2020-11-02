@@ -1,7 +1,7 @@
 {
   "name": "yopl",
   "version": "1.0.1",
-  "description": "No dependency mini-library: unification, deep equivalence, logical solver.",
+  "description": "No dependency mini-library: unification, deep equivalence, deep cloning, logical solver.",
   "type": "module",
   "module": "src/unify.js",
   "main": "cjs/unify.js",
