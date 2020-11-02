@@ -25,4 +25,5 @@ npm install --save yopl
 
 ## Release History
 
+- 1.0.1 *added the exports statement.*
 - 1.0.0 *the first 1.0 release.*

@@ -1,9 +1,20 @@
 {
   "name": "yopl",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "No dependency mini-library: unification, deep equivalence, logical solver.",
   "type": "module",
-  "main": "src/unify.js",
+  "module": "src/unify.js",
+  "main": "cjs/unify.js",
+  "exports": {
+    ".": {
+      "require": "./src/unify.js",
+      "default": "./cjs/unify.js"
+    },
+    "./*.js": {
+      "import": "./src/*.js",
+      "default": "./cjs/*.js"
+    }
+  },
   "scripts": {
     "test": "node tests/tests.js",
     "debug": "node --inspect-brk tests/tests.js",
