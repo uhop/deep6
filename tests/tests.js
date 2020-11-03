@@ -12,6 +12,8 @@ import deref from '../src/utils/deref.js';
 import replace from '../src/utils/replace.js';
 import solve from '../src/solve.js';
 import gen from '../src/solvers/gen.js';
+import asyncSolve from '../src/solvers/async.js';
+import asyncGen from '../src/solvers/asyncGen.js';
 
 // test harness
 
@@ -45,6 +47,8 @@ const quoteString = text => text.replace(/['"\\]/g, '\\$&');
 const TEST = condition => "submit('" + quoteString(condition) + "', (" + condition + '))';
 
 // setup
+
+const timeout = async ms => new Promise(resolve => setTimeout(resolve, ms));
 
 // tests
 
@@ -1063,6 +1067,27 @@ const tests = [
     }
     const expected = [null, makeList([1, 2, 3]), makeList([1]), makeList([2, 3]), makeList([1, 2]), makeList([3]), makeList([1, 2, 3]), null];
     eval(TEST('unify(result, expected)'));
+  },
+  async function test_asyncSolve_one() {
+    const rules = {
+        'one/1': () => [{args: [1]}]
+      },
+      X = v('X'),
+      result = [];
+    await asyncSolve(rules, 'one/1', [X], async env => (result.push(assemble(X, env)), await timeout(5)));
+    eval(TEST('unify(result, [1])'));
+  },
+  async function test_asyncGen_one() {
+    const rules = {
+        'one/1': () => [{args: [1]}]
+      },
+      X = v('X'),
+      result = [];
+    for await (const env of asyncGen(rules, 'one/1', [X])) {
+      result.push(assemble(X, env));
+      await timeout(5);
+    }
+    eval(TEST('unify(result, [1])'));
   }
 ];
 
