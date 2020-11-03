@@ -919,7 +919,7 @@ const tests = [
   },
   function test_solve_last() {
     const rules = {
-        'notNull/1': X => [{args: [X]}, env => X.isBound(env) && X.get(env) !== null],
+        'notNull/1': X => [{args: [X]}, (_, env) => X.isBound(env) && X.get(env) !== null],
         'last/2': [
           () => [{args: [null, undefined]}],
           X => [{args: [{value: X, next: null}, X]}],

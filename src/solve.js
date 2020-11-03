@@ -39,8 +39,10 @@ const prove = (rules, goals, env) => {
     let goal = goals.terms[goals.index++];
     if (typeof goal == 'function') {
       env.push();
-      if (goal(env, stack, goals)) {
-        stack.push({command: 1}, {goals});
+      let newGoals = goal(goals, env, stack);
+      if (newGoals || newGoals === null) {
+        (newGoals && !newGoals.terms) && (newGoals = goals);
+        stack.push({command: 1}, {goals: newGoals});
         continue main;
       }
       --goals.index;
@@ -59,7 +61,7 @@ const prove = (rules, goals, env) => {
 const solve = (rules, name, args, callback) => {
   const env = new Env();
   env.openObjects = true;
-  const goals = {terms: [{name, args}, env => (callback(env), false)], index: 0, next: null};
+  const goals = {terms: [{name, args}, (_, env) => (callback(env), false)], index: 0, next: null};
   prove(rules, goals, env);
 };
 
