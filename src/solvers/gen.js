@@ -42,7 +42,7 @@ function* prove(rules, goals, env) {
     let goal = goals.terms[goals.index++];
     if (typeof goal == 'function') {
       env.push();
-      let newGoals = goal(goals, env, stack);
+      let newGoals = goal(env, goals, stack);
       if (newGoals || newGoals === null) {
         (newGoals && !newGoals.terms) && (newGoals = goals);
         stack.push({command: 1}, {goals: newGoals});
