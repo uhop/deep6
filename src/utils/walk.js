@@ -18,8 +18,37 @@ const processObject = (val, context) => {
   Object.keys(val).forEach(k => stack.push(val[k]));
 };
 
+const processMap = (val, context) => {
+  const stack = context.stack;
+  for (const value of val.values()) {
+    stack.push(value);
+  }
+};
+
 const defaultRegistry = [Command, processCommand, Array, processObject, Date, nop, RegExp, nop],
   defaultFilters = [];
+
+// add more exotic types
+
+const addType = (Type, process) => typeof Type == 'function' && defaultRegistry.push(Type, process || nop);
+
+addType(Map, processMap);
+addType(Set);
+addType(Int8Array);
+addType(Uint8Array);
+addType(Uint8ClampedArray);
+addType(Int16Array);
+addType(Uint16Array);
+addType(Int32Array);
+addType(Uint32Array);
+addType(Float32Array);
+addType(Float64Array);
+addType(BigInt64Array);
+addType(BigUint64Array);
+addType(DataView);
+addType(ArrayBuffer);
+
+// main
 
 const walk = (o, options) => {
   // non-recursive stack-based walk about an object tree
