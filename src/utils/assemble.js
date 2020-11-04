@@ -142,4 +142,5 @@ const assemble = (source, env, options) => {
 assemble.registry = registry;
 assemble.filters = filters;
 
+export {registry, filters};
 export default assemble;

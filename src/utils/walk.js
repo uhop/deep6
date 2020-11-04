@@ -84,5 +84,5 @@ const walk = (o, options) => {
 
 walk.Command = Command;
 
-export {Command};
+export {Command, defaultRegistry as registry, defaultFilters as filters};
 export default walk;
