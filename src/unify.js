@@ -150,35 +150,35 @@ const mapOps = {
   soft: {
     soft: {
       update: function () {
-        for (const key of this.l.keys()) {
-          !this.r.has(key) && this.r.set(key, this.l.get(key));
+        for (const [key, value] of this.l) {
+          !this.r.has(key) && this.r.set(key, value);
         }
-        for (const key of this.r.keys()) {
-          !this.l.has(key) && this.l.set(key, this.r.get(key));
+        for (const [key, value] of this.r) {
+          !this.l.has(key) && this.l.set(key, value);
         }
       }
     }
   }
 };
 mapOps.exact.exact.compare = mapOps.exact.open.compare = mapOps.exact.soft.compare = (l, r, ls, rs) => {
-  for (const key of r.keys()) {
+  for (const [key, value] of r) {
     if (!l.has(key)) return false;
     ls.push(l.get(key));
-    rs.push(r.get(key));
+    rs.push(value);
   }
   return true;
 };
 mapOps.open.open.compare = mapOps.open.soft.compare = mapOps.soft.soft.compare = (l, r, ls, rs) => {
-  for (const key of r.keys()) {
+  for (const [key, value] of r) {
     if (!l.has(key)) continue;
     ls.push(l.get(key));
-    rs.push(r.get(key));
+    rs.push(value);
   }
   return true;
 };
 mapOps.exact.soft.update = mapOps.open.soft.update = function () {
-  for (const key of this.l.keys()) {
-    !this.r.has(key) && this.r.set(key, this.l.get(key));
+  for (const [key, value] of this.l) {
+    !this.r.has(key) && this.r.set(key, value);
   }
 };
 
