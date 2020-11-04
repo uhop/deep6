@@ -19,24 +19,28 @@ const processObject = (val, context) => {
   Object.keys(val).forEach(k => stack.push(val[k]));
 };
 
-const postProcessMap = wrapper =>
-  function (context) {
-    const stackOut = context.stackOut,
-      wrap = context[wrapper],
-      t = new Map();
-    for (const key of this.s.keys()) {
-      t.set(key, stackOut.pop());
-    }
-    stackOut.push(wrap ? wrap(t) : t);
-  };
+function postProcessMap(context) {
+  const stackOut = context.stackOut,
+    wrap = context.wrapMap,
+    t = new Map();
+  for (const key of this.s.keys()) {
+    t.set(key, stackOut.pop());
+  }
+  stackOut.push(wrap ? wrap(t) : t);
+}
 
 const processMap = (val, context) => {
   const stack = context.stack;
-  stack.push(new walk.Command(postProcessMap('wrapMap'), val));
+  stack.push(new walk.Command(postProcessMap, val));
   for (const value of val.values()) {
     stack.push(value);
   }
 };
+
+function processSet(val, context) {
+  const wrap = context.wrapSet;
+  context.stackOut.push(wrap ? wrap(new Set(val)) : val);
+}
 
 const processOther = (val, context) => context.stackOut.push(val);
 
@@ -67,7 +71,7 @@ const registry = [
 const addType = (Type, process) => registry.push(Type, process || processOther);
 
 typeof Map == 'function' && addType(Map, processMap);
-typeof Set == 'function' && addType(Set);
+typeof Set == 'function' && addType(Set, processSet);
 typeof Int8Array == 'function' && addType(Int8Array);
 typeof Uint8Array == 'function' && addType(Uint8Array);
 typeof Uint8ClampedArray == 'function' && addType(Uint8ClampedArray);
@@ -94,6 +98,7 @@ const preprocess = (source, options) => {
   context.wrapObject = options.openObjects && open;
   context.wrapArray = options.openArrays && open;
   context.wrapMap = options.openMaps && open;
+  context.wrapSet = options.openSets && open;
 
   walk(source, {
     processObject: options.processObject || processObject,
