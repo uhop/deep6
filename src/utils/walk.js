@@ -1,3 +1,5 @@
+import {_} from '../unify.js';
+
 const empty = {};
 
 const nop = () => {};
@@ -32,6 +34,10 @@ const walk = (o, options) => {
   main: while (stack.length) {
     o = stack.pop();
     if (o && typeof o == 'object') {
+      if (o === _) {
+        doOther(o, context);
+        continue;
+      }
       // process registered constructors
       for (let i = 0; i < registry.length; i += 2) {
         if (o instanceof registry[i]) {
@@ -53,4 +59,5 @@ const walk = (o, options) => {
 
 walk.Command = Command;
 
+export {Command};
 export default walk;
