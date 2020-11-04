@@ -1,7 +1,7 @@
 {
-  "name": "yopl",
+  "name": "deep-equivalence",
   "version": "1.0.1",
-  "description": "No dependency mini-library: unification, deep equivalence, deep cloning, logical solver.",
+  "description": "No dependency mini-library: unification, deep equivalence, deep cloning.",
   "type": "module",
   "module": "src/unify.js",
   "main": "cjs/unify.js",
@@ -21,22 +21,6 @@
     "./unify.js": {
       "require": "./cjs/unify.js",
       "default": "./src/unify.js"
-    },
-    "./solve.js": {
-      "require": "./cjs/solve.js",
-      "default": "./src/solve.js"
-    },
-    "./solvers/async.js": {
-      "require": "./cjs/solvers/async.js",
-      "default": "./src/solvers/async.js"
-    },
-    "./solvers/asyncGen.js": {
-      "require": "./cjs/solvers/asyncGen.js",
-      "default": "./src/solvers/asyncGen.js"
-    },
-    "./solvers/gen.js": {
-      "require": "./cjs/solvers/gen.js",
-      "default": "./src/solvers/gen.js"
     },
     "./unifiers/matchConditions.js": {
       "require": "./cjs/unifiers/matchConditions.js",
@@ -85,10 +69,6 @@
     "./cjs/*": "./cjs/*",
     "./cjs/env.js": "./cjs/env.js",
     "./cjs/unify.js": "./cjs/unify.js",
-    "./cjs/solve.js": "./cjs/solve.js",
-    "./cjs/solvers/async.js": "./cjs/solvers/async.js",
-    "./cjs/solvers/asyncGen.js": "./cjs/solvers/asyncGen.js",
-    "./cjs/solvers/gen.js": "./cjs/solvers/gen.js",
     "./cjs/unifiers/matchConditions.js": "./cjs/unifiers/matchConditions.js",
     "./cjs/unifiers/matchInstanceOf.js": "./cjs/unifiers/matchInstanceOf.js",
     "./cjs/unifiers/matchString.js": "./cjs/unifiers/matchString.js",
@@ -111,7 +91,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/uhop/yopl.git"
+    "url": "git://github.com/uhop/deep-equivalence.git"
   },
   "keywords": [
     "deep",
