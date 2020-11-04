@@ -366,8 +366,6 @@ const tests = [
     eval(TEST('unify(set1, set1)'));
     eval(TEST('unify(set2, set2)'));
 
-    eval(TEST('unify(set1, set2)'));
-
     set1.add(1).add(2).add(3);
     set2.add(1).add(2);
 
@@ -376,6 +374,24 @@ const tests = [
     set2.add(3);
 
     eval(TEST('unify(set1, set2)'));
+    eval(TEST('unify(set2, set1)'));
+  },
+  function test_open_sets() {
+    if (typeof Set != 'function') return;
+    eval(TEST('unify(new Set([1, 2, 3]), open(new Set([3, 1])))'));
+  },
+  function test_soft_sets() {
+    if (typeof Set != 'function') return;
+    const set1 = new Set();
+    eval(TEST('unify(new Set([1, 2, 3]), soft(set1))'));
+    eval(TEST('unify(new Set([1, 2, 3]), set1)'));
+    const set2 = new Set([5]);
+    eval(TEST('unify(new Set([1, 2, 3]), soft(set2))'));
+    eval(TEST('unify(new Set([1, 2, 3, 5]), set2)'));
+    const set3 = new Set([4]), set4 = new Set([5]);
+    eval(TEST('!unify(set3, set4)'));
+    eval(TEST('unify(soft(set3), soft(set4))'));
+    eval(TEST('unify(set3, set4)'));
   },
   function test_maps() {
     if (typeof Map != 'function') return;
@@ -385,8 +401,6 @@ const tests = [
     eval(TEST('unify(map1, map1)'));
     eval(TEST('unify(map2, map2)'));
 
-    eval(TEST('unify(map1, map2)'));
-
     map1.set(1, {value: 42}).set(2, [42]).set(3, null);
     map2.set(1, {value: 42}).set(2, [42]);
 
@@ -395,6 +409,28 @@ const tests = [
     map2.set(3, null);
 
     eval(TEST('unify(map1, map2)'));
+    eval(TEST('unify(map2, map1)'));
+
+    eval(TEST('unify({a: 1}, {a: 1})'));
+    eval(TEST('!unify({a: 2}, {a: 1})'));
+  },
+  function test_open_maps() {
+    if (typeof Map != 'function') return;
+    eval(TEST('unify(new Map([["a", 1], ["b", 2], ["c", 3]]), open(new Map([["a", 1], ["c", 3]])))'));
+  },
+  function test_soft_maps() {
+    if (typeof Map != 'function') return;
+    const map1 = new Map();
+    eval(TEST('unify(new Map([["a", 1], ["b", 2], ["c", 3]]), soft(map1))'));
+    eval(TEST('unify(new Map([["a", 1], ["b", 2], ["c", 3]]), map1)'));
+    const map2 = new Map([['e', 5]]);
+    eval(TEST('unify(open(new Map([["a", 1], ["b", 2], ["c", 3]])), soft(map2))'));
+    eval(TEST('unify(new Map([["a", 1], ["b", 2], ["c", 3], ["e", 5]]), map2)'));
+    const map3 = new Map([['d', 4]]),
+      map4 = new Map([['e', 5]]);
+    eval(TEST('!unify(map3, map4)'));
+    eval(TEST('unify(soft(map3), soft(map4))'));
+    eval(TEST('unify(map3, map4)'));
   },
   function test_loose() {
     eval(TEST('!unify([42], ["42"])'));
