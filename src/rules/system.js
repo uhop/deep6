@@ -19,6 +19,7 @@ export const call = X => (env, goals) => {
   let term = X,
     name,
     args;
+    // TODO: add processing of arrays of goals
   if (isVariable(X)) {
     if (!X.isBound(env)) return false;
     term = X.get(env);
