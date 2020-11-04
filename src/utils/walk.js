@@ -62,27 +62,23 @@ const walk = (o, options) => {
   context.stack = stack;
   main: while (stack.length) {
     o = stack.pop();
-    if (o && typeof o == 'object') {
-      if (o === _) {
-        doOther(o, context);
-        continue;
-      }
-      // process registered constructors
-      for (let i = 0; i < registry.length; i += 2) {
-        if (o instanceof registry[i]) {
-          registry[i + 1](o, context);
-          continue main;
-        }
-      }
-      // process registered filters
-      for (let i = 0; i < filters.length; ++i) {
-        if (filters[i](o, context)) continue main;
-      }
-      // process naked objects
-      doObject(o, context);
+    if (!o || typeof o != 'object' || o === _) {
+      doOther(o, context);
       continue;
     }
-    doOther(o, context);
+    // process registered constructors
+    for (let i = 0; i < registry.length; i += 2) {
+      if (o instanceof registry[i]) {
+        registry[i + 1](o, context);
+        continue main;
+      }
+    }
+    // process registered filters
+    for (let i = 0; i < filters.length; ++i) {
+      if (filters[i](o, context)) continue main;
+    }
+    // process naked objects
+    doObject(o, context);
   }
 };
 
