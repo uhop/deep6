@@ -22,6 +22,24 @@ class Wrap extends Unifier {
     const isWrapped = val instanceof Wrap,
       value = isWrapped ? val.object : val;
     if (!value || typeof value != 'object' || Array.isArray(this.object) !== Array.isArray(value)) return false;
+    if (Array.isArray(this.object)) {
+      if (!Array.isArray(value)) return false;
+      return isWrapped
+        ? unifyObjects(this.object, this.type, this, val.object, val.type, val, ls, rs, env)
+        : unifyObjects(this.object, this.type, this, val, env.openArrays ? 'open' : 'exact', null, ls, rs, env);
+    }
+    if (typeof Map == 'function' && this.object instanceof Map) {
+      if (!(value instanceof Map)) return false;
+      return isWrapped
+        ? unifyMaps(this.object, this.type, this, val.object, val.type, val, ls, rs, env)
+        : unifyMaps(this.object, this.type, this, val, env.openMaps ? 'open' : 'exact', null, ls, rs, env);
+    }
+    if (typeof Set == 'function' && this.object instanceof Set) {
+      if (!(value instanceof Set)) return false;
+      return isWrapped
+        ? unifySets(this.object, this.type, this, val.object, val.type, val, ls, rs, env)
+        : unifySets(this.object, this.type, this, val, env.openSets ? 'open' : 'exact', null, ls, rs, env);
+    }
     return isWrapped
       ? unifyObjects(this.object, this.type, this, val.object, val.type, val, ls, rs, env)
       : unifyObjects(this.object, this.type, this, val, env.openObjects ? 'open' : 'exact', null, ls, rs, env);
@@ -106,6 +124,130 @@ const unifyMap = (l, r, ls, rs, env) => {
 };
 typeof Map == 'function' && registry.push(Map, unifyMap);
 
+// unification of maps
+
+const mapOps = {
+  exact: {
+    exact: {
+      precheck: (l, r) => {
+        for (const key of l.keys()) {
+          if (!r.has(key)) return false;
+        }
+        return true;
+      }
+    },
+    open: {},
+    soft: {
+      fix: function () {
+        this.l.type = 'exact';
+      }
+    }
+  },
+  open: {
+    open: {},
+    soft: {}
+  },
+  soft: {
+    soft: {
+      update: function () {
+        for (const key of this.l.keys()) {
+          !this.r.has(key) && this.r.set(key, this.l.get(key));
+        }
+        for (const key of this.r.keys()) {
+          !this.l.has(key) && this.l.set(key, this.r.get(key));
+        }
+      }
+    }
+  }
+};
+mapOps.exact.exact.compare = mapOps.exact.open.compare = mapOps.exact.soft.compare = (l, r, ls, rs) => {
+  for (const key of r.keys()) {
+    if (!l.has(key)) return false;
+    ls.push(l.get(key));
+    rs.push(r.get(key));
+  }
+  return true;
+};
+mapOps.open.open.compare = mapOps.open.soft.compare = mapOps.soft.soft.compare = (l, r, ls, rs) => {
+  for (const key of r.keys()) {
+    if (!l.has(key)) continue;
+    ls.push(l.get(key));
+    rs.push(r.get(key));
+  }
+  return true;
+};
+mapOps.exact.soft.update = mapOps.open.soft.update = function () {
+  for (const key of this.l.keys()) {
+    !this.r.has(key) && this.r.set(key, this.l.get(key));
+  }
+};
+
+const unifyMaps = (l, lt, lm, r, rt, rm, ls, rs, env) => {
+  if (lt > rt) {
+    [l, lt, lm, r, rt, rm] = [r, rt, rm, l, lt, lm];
+  }
+  const ops = mapOps[lt][rt];
+  if (ops.precheck && !ops.precheck(l, r)) return false;
+  if (ops.fix && rm) ls.push(new Command(ops.fix, rm));
+  if (ops.update) ls.push(new Command(ops.update, l, r));
+  return ops.compare(l, r, ls, rs, env);
+};
+
+// unification of sets
+
+const setOps = {
+  exact: {
+    exact: {
+      precheck: (l, r) => {
+        for (const key of l) {
+          if (!r.has(key)) return false;
+        }
+        return true;
+      }
+    },
+    open: {},
+    soft: {
+      fix: function () {
+        this.l.type = 'exact';
+      }
+    }
+  },
+  open: {
+    open: {},
+    soft: {}
+  },
+  soft: {
+    soft: {
+      update: function () {
+        for (const key of this.l) {
+          this.r.add(key);
+        }
+        for (const key of this.r) {
+          this.l.add(key);
+        }
+      }
+    }
+  }
+};
+setOps.exact.exact.compare = setOps.exact.open.compare = setOps.exact.soft.compare = setOps.open.open.compare = setOps.open.soft.compare = setOps.soft.soft.compare = () =>
+  true;
+setOps.exact.soft.update = setOps.open.soft.update = function () {
+  for (const key of this.l) {
+    this.r.add(key);
+  }
+};
+
+const unifySets = (l, lt, lm, r, rt, rm, ls, rs, env) => {
+  if (lt > rt) {
+    [l, lt, lm, r, rt, rm] = [r, rt, rm, l, lt, lm];
+  }
+  const ops = setOps[lt][rt];
+  if (ops.precheck && !ops.precheck(l, r)) return false;
+  if (ops.fix && rm) ls.push(new Command(ops.fix, rm));
+  if (ops.update) ls.push(new Command(ops.update, l, r));
+  return ops.compare(l, r, ls, rs, env);
+};
+
 // unification of objects
 
 const hasOwnProperty = Object.prototype.hasOwnProperty;
@@ -159,7 +301,7 @@ objectOps.exact.soft.update = objectOps.open.soft.update = function () {
 
 const unifyObjects = (l, lt, lm, r, rt, rm, ls, rs, env) => {
   if (lt > rt) {
-    ([l, r] = [r, l]), ([lm, rm] = [rm, lm]), ([lt, rt] = [rt, lt]);
+    [l, lt, lm, r, rt, rm] = [r, rt, rm, l, lt, lm];
   }
   const ops = objectOps[lt][rt];
   if (ops.precheck && !ops.precheck(l, r)) return false;
@@ -175,6 +317,8 @@ const unify = (l, r, env, options) => {
   if (options) {
     env.openObjects = options.openObjects;
     env.openArrays = options.openArrays;
+    env.openMaps = options.openMaps;
+    env.openSets = options.openSets;
     env.loose = options.loose;
   }
   const ls = [l],
