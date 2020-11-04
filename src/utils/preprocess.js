@@ -19,11 +19,11 @@ const processObject = (val, context) => {
   Object.keys(val).forEach(k => stack.push(val[k]));
 };
 
-const postProcessMap = (wrapper) =>
+const postProcessMap = wrapper =>
   function (context) {
     const stackOut = context.stackOut,
       wrap = context[wrapper],
-      t = new Map;
+      t = new Map();
     for (const key of this.s.keys()) {
       t.set(key, stackOut.pop());
     }

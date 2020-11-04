@@ -51,7 +51,7 @@ const postProcessMap = context => {
     }
     return;
   }
-  const t = new Map;
+  const t = new Map();
   for (const key of s.keys()) {
     t.set(key, stackOut.pop());
   }

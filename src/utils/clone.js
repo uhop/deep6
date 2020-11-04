@@ -19,7 +19,7 @@ const processObject = (val, context) => {
 
 const postProcessMap = context => {
   const stackOut = context.stackOut,
-    t = new Map;
+    t = new Map();
   for (const key of this.s.keys()) {
     t.set(key, stackOut.pop());
   }
