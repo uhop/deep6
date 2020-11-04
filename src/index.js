@@ -1,11 +1,12 @@
 import {any, _} from './env.js';
 import unify from './unify.js';
 import clone from './utils/clone.js';
-import preprocess from './utils/preprocess.js'
+import preprocess from './utils/preprocess.js';
 
 const equal = (a, b) => !!unify(a, b);
 
-const match = (object, pattern) => !!unify(object, preprocess(pattern, {openObjects: true}));
+const defaultMatchOptions = {openObjects: true, openMaps: true, openSets: true};
+const match = (object, pattern, options = defaultMatchOptions) => !!unify(object, preprocess(pattern, options));
 
-export {clone, match, any, _};
+export {clone, match, match as isShape, any, _};
 export default equal;
