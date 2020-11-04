@@ -1,4 +1,4 @@
-import {Unifier, Variable, _, open} from '../unify.js';
+import {Unifier, Variable, open} from '../unify.js';
 import walk from './walk.js';
 
 const empty = {};
