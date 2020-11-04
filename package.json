@@ -1,6 +1,6 @@
 {
   "name": "deep-equivalence",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "No dependency mini-library: unification, deep equivalence, deep cloning.",
   "type": "module",
   "module": "src/unify.js",
