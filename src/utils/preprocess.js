@@ -14,13 +14,9 @@ const postProcess = (init, wrapper) =>
   };
 
 const processObject = (val, context) => {
-  if (val === _) {
-    context.stackOut.push(val);
-  } else {
-    const stack = context.stack;
-    stack.push(new walk.Command(postProcess({}, 'wrapObject'), val));
-    Object.keys(val).forEach(k => stack.push(val[k]));
-  }
+  const stack = context.stack;
+  stack.push(new walk.Command(postProcess({}, 'wrapObject'), val));
+  Object.keys(val).forEach(k => stack.push(val[k]));
 };
 
 const postProcessMap = (wrapper) =>
@@ -35,14 +31,10 @@ const postProcessMap = (wrapper) =>
   };
 
 const processMap = (val, context) => {
-  if (val === _) {
-    context.stackOut.push(val);
-  } else {
-    const stack = context.stack;
-    stack.push(new walk.Command(postProcessMap('wrapMap'), val));
-    for (const key of val.keys()) {
-      stack.push(val.get(key));
-    }
+  const stack = context.stack;
+  stack.push(new walk.Command(postProcessMap('wrapMap'), val));
+  for (const value of val.values()) {
+    stack.push(value);
   }
 };
 
@@ -55,13 +47,9 @@ const registry = [
     },
     Array,
     function processArray(val, context) {
-      if (val === _) {
-        context.stackOut.push(val);
-      } else {
-        const stack = context.stack;
-        stack.push(new walk.Command(postProcess([], 'wrapArray'), val));
-        Object.keys(val).forEach(k => stack.push(val[k]));
-      }
+      const stack = context.stack;
+      stack.push(new walk.Command(postProcess([], 'wrapArray'), val));
+      Object.keys(val).forEach(k => stack.push(val[k]));
     },
     Variable,
     processOther,
@@ -108,7 +96,6 @@ const preprocess = (source, options) => {
 
   walk(source, {
     processObject: options.processObject || processObject,
-    processMap: options.processMap || processMap,
     processOther: options.processOther || processOther,
     registry: options.registry || preprocess.registry,
     filters: options.filters || preprocess.filters,
