@@ -1,4 +1,4 @@
-import {Unifier, Variable, _} from '../unify.js';
+import {Unifier, Variable} from '../unify.js';
 import walk from './walk.js';
 
 const empty = {};
@@ -12,12 +12,25 @@ const postProcess = init =>
   };
 
 const processObject = (val, context) => {
-  if (val === _) {
-    context.stackOut.push(s);
-  } else {
-    const stack = context.stack;
-    stack.push(new walk.Command(postProcess({}), val));
-    Object.keys(val).forEach(k => stack.push(val[k]));
+  const stack = context.stack;
+  stack.push(new walk.Command(postProcess({}), val));
+  Object.keys(val).forEach(k => stack.push(val[k]));
+};
+
+const postProcessMap = context => {
+  const stackOut = context.stackOut,
+    t = new Map;
+  for (const key of this.s.keys()) {
+    t.set(key, stackOut.pop());
+  }
+  stackOut.push(t);
+};
+
+const processMap = (val, context) => {
+  const stack = context.stack;
+  stack.push(new walk.Command(postProcessMap, val));
+  for (const value of val) {
+    stack.push(value);
   }
 };
 
@@ -28,13 +41,9 @@ const registry = [
     },
     Array,
     function processArray(val, context) {
-      if (val === _) {
-        context.stackOut.push(val);
-      } else {
-        const stack = context.stack;
-        stack.push(new walk.Command(postProcess([]), val));
-        Object.keys(val).forEach(k => stack.push(val[k]));
-      }
+      const stack = context.stack;
+      stack.push(new walk.Command(postProcess([]), val));
+      Object.keys(val).forEach(k => stack.push(val[k]));
     },
     Variable,
     function processVariable(val, context) {
@@ -61,6 +70,26 @@ const registry = [
   filters = [];
 
 const processOther = (val, context) => context.stackOut.push(val);
+
+// add more exotic types
+
+const addType = (Type, process) => typeof Type == 'function' && registry.push(Type, process || ((val, context) => context.stackOut.push(new Type(val))));
+
+addType(Map, processMap);
+addType(Set);
+addType(Int8Array);
+addType(Uint8Array);
+addType(Uint8ClampedArray);
+addType(Int16Array);
+addType(Uint16Array);
+addType(Int32Array);
+addType(Uint32Array);
+addType(Float32Array);
+addType(Float64Array);
+addType(BigInt64Array);
+addType(BigUint64Array);
+
+// main
 
 const clone = (source, env, options) => {
   options = options || empty;
