@@ -34,6 +34,8 @@ const processMap = (val, context) => {
   }
 };
 
+const processPromise = (val, context) => context.stackOut.push(val.then(value => value, error => Promise.reject(error)));
+
 const registry = [
     walk.Command,
     function processCommand(val, context) {
@@ -73,21 +75,24 @@ const processOther = (val, context) => context.stackOut.push(val);
 
 // add more exotic types
 
-const addType = (Type, process) => typeof Type == 'function' && registry.push(Type, process || ((val, context) => context.stackOut.push(new Type(val))));
+const addType = (Type, process) => registry.push(Type, process || ((val, context) => context.stackOut.push(new Type(val))));
 
-addType(Map, processMap);
-addType(Set);
-addType(Int8Array);
-addType(Uint8Array);
-addType(Uint8ClampedArray);
-addType(Int16Array);
-addType(Uint16Array);
-addType(Int32Array);
-addType(Uint32Array);
-addType(Float32Array);
-addType(Float64Array);
-addType(BigInt64Array);
-addType(BigUint64Array);
+typeof Map == 'function' && addType(Map, processMap);
+typeof Set == 'function' && addType(Set);
+typeof Int8Array == 'function' && addType(Int8Array);
+typeof Uint8Array == 'function' && addType(Uint8Array);
+typeof Uint8ClampedArray == 'function' && addType(Uint8ClampedArray);
+typeof Int16Array == 'function' && addType(Int16Array);
+typeof Uint16Array == 'function' && addType(Uint16Array);
+typeof Int32Array == 'function' && addType(Int32Array);
+typeof Uint32Array == 'function' && addType(Uint32Array);
+typeof Float32Array == 'function' && addType(Float32Array);
+typeof Float64Array == 'function' && addType(Float64Array);
+typeof BigInt64Array == 'function' && addType(BigInt64Array);
+typeof BigUint64Array == 'function' && addType(BigUint64Array);
+typeof DataView == 'function' && addType(DataView);
+typeof ArrayBuffer == 'function' && addType(ArrayBuffer);
+typeof Promise == 'function' && addType(Promise, processPromise);
 
 // main
 
