@@ -72,11 +72,8 @@ const walk = (o, options) => {
     }
     // process circular dependencies
     if (options.circular) {
-      if (seen.has(o)) {
-        doCircular(o, context); // TODO: ???
-        continue;
-      }
-      // TODO: add a command?
+      if (seen.has(o)) continue; // skip
+      seen.add(o);
     }
     // process registered constructors
     for (let i = 0; i < registry.length; i += 2) {
