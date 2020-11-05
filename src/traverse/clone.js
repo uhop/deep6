@@ -77,8 +77,10 @@ const processOther = (val, context) => context.stackOut.push(val);
 
 const addType = (Type, process) => registry.push(Type, process || ((val, context) => context.stackOut.push(new Type(val))));
 
-typeof Map == 'function' && addType(Map, processMap);
-typeof Set == 'function' && addType(Set);
+addType(Map, processMap);
+addType(Set);
+addType(Promise, processPromise);
+
 typeof Int8Array == 'function' && addType(Int8Array);
 typeof Uint8Array == 'function' && addType(Uint8Array);
 typeof Uint8ClampedArray == 'function' && addType(Uint8ClampedArray);
@@ -92,7 +94,6 @@ typeof BigInt64Array == 'function' && addType(BigInt64Array);
 typeof BigUint64Array == 'function' && addType(BigUint64Array);
 typeof DataView == 'function' && addType(DataView);
 typeof ArrayBuffer == 'function' && addType(ArrayBuffer);
-typeof Promise == 'function' && addType(Promise, processPromise);
 
 // main
 

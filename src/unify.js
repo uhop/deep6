@@ -77,7 +77,6 @@ const unifyTypedArrays = Type => (l, r, ls, rs, env) => {
 
 const addType = Type => registry.push(Type, unifyTypedArrays(Type));
 
-typeof Buffer == 'function' && addType(Buffer);
 typeof Int8Array == 'function' && addType(Int8Array);
 typeof Uint8Array == 'function' && addType(Uint8Array);
 typeof Uint8ClampedArray == 'function' && addType(Uint8ClampedArray);

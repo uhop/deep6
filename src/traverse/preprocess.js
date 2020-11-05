@@ -70,8 +70,10 @@ const registry = [
 
 const addType = (Type, process) => registry.push(Type, process || processOther);
 
-typeof Map == 'function' && addType(Map, processMap);
-typeof Set == 'function' && addType(Set, processSet);
+addType(Map, processMap);
+addType(Set, processSet);
+addType(Promise);
+
 typeof Int8Array == 'function' && addType(Int8Array);
 typeof Uint8Array == 'function' && addType(Uint8Array);
 typeof Uint8ClampedArray == 'function' && addType(Uint8ClampedArray);
@@ -85,7 +87,6 @@ typeof BigInt64Array == 'function' && addType(BigInt64Array);
 typeof BigUint64Array == 'function' && addType(BigUint64Array);
 typeof DataView == 'function' && addType(DataView);
 typeof ArrayBuffer == 'function' && addType(ArrayBuffer);
-typeof Promise == 'function' && addType(Promise);
 
 // main
 
