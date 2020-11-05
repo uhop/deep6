@@ -691,8 +691,11 @@ const tests = [
     circle1.a = circle1;
     circle2.a = circle2;
     eval(TEST('unify(circle1, circle2, {circular: true})'));
-    // circle2.a = circle1;
-    // eval(TEST('!unify(circle1, circle2, {circular: true})'));
+
+    circle2.a = circle1;
+    eval(TEST('!unify(circle1, circle2, {circular: true})'));
+    circle2.a = circle2;
+
     circle1.b = {c: circle1};
     circle2.b = {c: circle2};
     eval(TEST('unify(circle1, circle2, {circular: true})'));

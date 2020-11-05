@@ -338,7 +338,12 @@ const unify = (l, r, env, options) => {
     }
     r = rs.pop();
     // direct equality or anyvar
-    if (l === r || l === _ || r === _) continue;
+    if (l === r) {
+      if (env.circular && lSeen.has(l) ^ rSeen.has(r)) return null;
+      continue;
+    }
+    // anyvar
+    if (l === _ || r === _) continue;
     // process variables (variables have priority)
     if (l instanceof Variable) {
       if (l.unify(r, ls, rs, env)) continue;
