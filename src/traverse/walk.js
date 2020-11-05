@@ -32,8 +32,10 @@ const defaultRegistry = [Command, processCommand, Array, processObject, Date, no
 
 const addType = (Type, process) => defaultRegistry.push(Type, process || nop);
 
-typeof Map == 'function' && addType(Map, processMap);
-typeof Set == 'function' && addType(Set);
+addType(Map, processMap);
+addType(Set);
+addType(Promise);
+
 typeof Int8Array == 'function' && addType(Int8Array);
 typeof Uint8Array == 'function' && addType(Uint8Array);
 typeof Uint8ClampedArray == 'function' && addType(Uint8ClampedArray);
@@ -47,7 +49,6 @@ typeof BigInt64Array == 'function' && addType(BigInt64Array);
 typeof BigUint64Array == 'function' && addType(BigUint64Array);
 typeof DataView == 'function' && addType(DataView);
 typeof ArrayBuffer == 'function' && addType(ArrayBuffer);
-typeof Promise == 'function' && addType(Promise);
 
 // main
 
@@ -56,16 +57,26 @@ const walk = (o, options) => {
   options = options || empty;
   const doObject = options.processObject || processObject,
     doOther = options.processOther || nop,
+    doCircular = options.processCircular || nop,
     registry = options.registry || defaultRegistry,
     filters = options.filters || defaultFilters,
     context = options.context || {},
-    stack = [o];
+    stack = [o],
+    seen = new Map();
   context.stack = stack;
   main: while (stack.length) {
     o = stack.pop();
     if (!o || typeof o != 'object' || o === _) {
       doOther(o, context);
       continue;
+    }
+    // process circular dependencies
+    if (options.circular) {
+      if (seen.has(o)) {
+        doCircular(o, context); // TODO: ???
+        continue;
+      }
+      // TODO: add a command?
     }
     // process registered constructors
     for (let i = 0; i < registry.length; i += 2) {
