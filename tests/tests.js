@@ -677,6 +677,28 @@ const tests = [
     result = unify('5', smallNumber);
     eval(TEST('!result'));
   },
+  function test_unify_circular() {
+    const diamond1 = {},
+      diamond2 = {};
+    diamond1.a = diamond1.b = {};
+    diamond2.a = diamond2.b = {};
+    eval(TEST('unify(diamond1, diamond2, {circular: true})'));
+    diamond2.b = {};
+    eval(TEST('!unify(diamond1, diamond2, {circular: true})'));
+
+    const circle1 = {},
+      circle2 = {};
+    circle1.a = circle1;
+    circle2.a = circle2;
+    eval(TEST('unify(circle1, circle2, {circular: true})'));
+    // circle2.a = circle1;
+    // eval(TEST('!unify(circle1, circle2, {circular: true})'));
+    circle1.b = {c: circle1};
+    circle2.b = {c: circle2};
+    eval(TEST('unify(circle1, circle2, {circular: true})'));
+    circle2.a = {a: 1};
+    eval(TEST('!unify(circle1, circle2, {circular: true})'));
+  },
   function test_walk() {
     const result = {};
     walk(
