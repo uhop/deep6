@@ -75,19 +75,20 @@ const unifyTypedArrays = Type => (l, r, ls, rs, env) => {
   return true;
 };
 
-const addTypedArray = Type => typeof Type == 'function' && registry.push(Type, unifyTypedArrays(Type));
+const addType = Type => registry.push(Type, unifyTypedArrays(Type));
 
-addTypedArray(Int8Array);
-addTypedArray(Uint8Array);
-addTypedArray(Uint8ClampedArray);
-addTypedArray(Int16Array);
-addTypedArray(Uint16Array);
-addTypedArray(Int32Array);
-addTypedArray(Uint32Array);
-addTypedArray(Float32Array);
-addTypedArray(Float64Array);
-addTypedArray(BigInt64Array);
-addTypedArray(BigUint64Array);
+typeof Buffer == 'function' && addType(Buffer);
+typeof Int8Array == 'function' && addType(Int8Array);
+typeof Uint8Array == 'function' && addType(Uint8Array);
+typeof Uint8ClampedArray == 'function' && addType(Uint8ClampedArray);
+typeof Int16Array == 'function' && addType(Int16Array);
+typeof Uint16Array == 'function' && addType(Uint16Array);
+typeof Int32Array == 'function' && addType(Int32Array);
+typeof Uint32Array == 'function' && addType(Uint32Array);
+typeof Float32Array == 'function' && addType(Float32Array);
+typeof Float64Array == 'function' && addType(Float64Array);
+typeof BigInt64Array == 'function' && addType(BigInt64Array);
+typeof BigUint64Array == 'function' && addType(BigUint64Array);
 
 const unifyDataView = (l, r, ls, rs, env) => {
   if (!(l instanceof DataView) || !(r instanceof DataView) || l.byteLength != r.byteLength) return false;
@@ -111,7 +112,7 @@ const unifySet = (l, r, ls, rs, env) => {
   }
   return true;
 };
-typeof Set == 'function' && registry.push(Set, unifySet);
+registry.push(Set, unifySet);
 
 const unifyMap = (l, r, ls, rs, env) => {
   if (!(l instanceof Map) || !(r instanceof Map) || l.size != r.size) return false;
@@ -122,7 +123,7 @@ const unifyMap = (l, r, ls, rs, env) => {
   }
   return true;
 };
-typeof Map == 'function' && registry.push(Map, unifyMap);
+registry.push(Map, unifyMap);
 
 // unification of maps
 
@@ -183,13 +184,14 @@ mapOps.exact.soft.update = mapOps.open.soft.update = function () {
 };
 
 const unifyMaps = (l, lt, lm, r, rt, rm, ls, rs, env) => {
+  const originalLs = ls;
   if (lt > rt) {
-    [l, lt, lm, r, rt, rm] = [r, rt, rm, l, lt, lm];
+    [l, lt, lm, ls, r, rt, rm, rs] = [r, rt, rm, rs, l, lt, lm, ls];
   }
   const ops = mapOps[lt][rt];
   if (ops.precheck && !ops.precheck(l, r)) return false;
-  if (ops.fix && rm) ls.push(new Command(ops.fix, rm));
-  if (ops.update) ls.push(new Command(ops.update, l, r));
+  if (ops.fix && rm) originalLs.push(new Command(ops.fix, rm));
+  if (ops.update) originalLs.push(new Command(ops.update, l, r));
   return ops.compare(l, r, ls, rs, env);
 };
 
@@ -238,13 +240,14 @@ setOps.exact.soft.update = setOps.open.soft.update = function () {
 };
 
 const unifySets = (l, lt, lm, r, rt, rm, ls, rs, env) => {
+  const originalLs = ls;
   if (lt > rt) {
-    [l, lt, lm, r, rt, rm] = [r, rt, rm, l, lt, lm];
+    [l, lt, lm, ls, r, rt, rm, rs] = [r, rt, rm, rs, l, lt, lm, ls];
   }
   const ops = setOps[lt][rt];
   if (ops.precheck && !ops.precheck(l, r)) return false;
-  if (ops.fix && rm) ls.push(new Command(ops.fix, rm));
-  if (ops.update) ls.push(new Command(ops.update, l, r));
+  if (ops.fix && rm) originalLs.push(new Command(ops.fix, rm));
+  if (ops.update) originalLs.push(new Command(ops.update, l, r));
   return ops.compare(l, r, ls, rs, env);
 };
 
@@ -300,13 +303,14 @@ objectOps.exact.soft.update = objectOps.open.soft.update = function () {
 };
 
 const unifyObjects = (l, lt, lm, r, rt, rm, ls, rs, env) => {
+  const originalLs = ls;
   if (lt > rt) {
-    [l, lt, lm, r, rt, rm] = [r, rt, rm, l, lt, lm];
+    [l, lt, lm, ls, r, rt, rm, rs] = [r, rt, rm, rs, l, lt, lm, ls];
   }
   const ops = objectOps[lt][rt];
   if (ops.precheck && !ops.precheck(l, r)) return false;
-  if (ops.fix && rm) ls.push(new Command(ops.fix, rm));
-  if (ops.update) ls.push(new Command(ops.update, l, r));
+  if (ops.fix && rm) originalLs.push(new Command(ops.fix, rm));
+  if (ops.update) originalLs.push(new Command(ops.update, l, r));
   return ops.compare(l, r, ls, rs, env);
 };
 
@@ -319,10 +323,13 @@ const unify = (l, r, env, options) => {
     env.openArrays = options.openArrays;
     env.openMaps = options.openMaps;
     env.openSets = options.openSets;
+    env.circular = options.circular;
     env.loose = options.loose;
   }
   const ls = [l],
-    rs = [r];
+    rs = [r],
+    lSeen = new Map(),
+    rSeen = new Map();
   main: while (ls.length) {
     // perform a command, or extract a pair
     l = ls.pop();
@@ -361,6 +368,18 @@ const unify = (l, r, env, options) => {
     if (typeof l == 'number' && isNaN(l) && isNaN(r)) continue;
     // cut off impossible combinations
     if (typeof l != 'object' || !l || !r) return null;
+    // process circular dependencies
+    if (env.circular) {
+      const lIndex = lSeen.get(l);
+      if (typeof lIndex == 'number') {
+        if (lIndex === rSeen.get(r)) continue main;
+        return null;
+      } else {
+        if (rSeen.has(r)) return null;
+      }
+      lSeen.set(l, lSeen.size);
+      rSeen.set(r, rSeen.size);
+    }
     // process registered constructors
     const registry = unify.registry;
     for (let i = 0; i < registry.length; i += 2) {
