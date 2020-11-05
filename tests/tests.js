@@ -682,25 +682,31 @@ const tests = [
       diamond2 = {};
     diamond1.a = diamond1.b = {};
     diamond2.a = diamond2.b = {};
-    eval(TEST('unify(diamond1, diamond2, {circular: true})'));
+    eval(TEST('unify(diamond1, diamond2, null, {circular: true})'));
     diamond2.b = {};
-    eval(TEST('!unify(diamond1, diamond2, {circular: true})'));
+    eval(TEST('!unify(diamond1, diamond2, null, {circular: true})'));
 
     const circle1 = {},
       circle2 = {};
     circle1.a = circle1;
     circle2.a = circle2;
-    eval(TEST('unify(circle1, circle2, {circular: true})'));
+    eval(TEST('unify(circle1, circle2, null, {circular: true})'));
 
     circle2.a = circle1;
-    eval(TEST('!unify(circle1, circle2, {circular: true})'));
+    eval(TEST('!unify(circle1, circle2, null, {circular: true})'));
     circle2.a = circle2;
 
     circle1.b = {c: circle1};
     circle2.b = {c: circle2};
-    eval(TEST('unify(circle1, circle2, {circular: true})'));
+    eval(TEST('unify(circle1, circle2, null, {circular: true})'));
     circle2.a = {a: 1};
-    eval(TEST('!unify(circle1, circle2, {circular: true})'));
+    eval(TEST('!unify(circle1, circle2, null, {circular: true})'));
+  },
+  function test_unify_flags() {
+    eval(TEST('unify(0, -0)'));
+    eval(TEST('!unify(0, -0, null, {signedZero: true})'));
+    eval(TEST('!unify(() => {}, () => {})'));
+    eval(TEST('unify(() => {}, () => {}, null, {ignoreFunctions: true})'));
   },
   function test_walk() {
     const result = {};

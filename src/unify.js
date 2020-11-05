@@ -316,15 +316,8 @@ const unifyObjects = (l, lt, lm, r, rt, rm, ls, rs, env) => {
 // unification
 
 const unify = (l, r, env, options) => {
-  env = env || new Env();
-  if (options) {
-    env.openObjects = options.openObjects;
-    env.openArrays = options.openArrays;
-    env.openMaps = options.openMaps;
-    env.openSets = options.openSets;
-    env.circular = options.circular;
-    env.loose = options.loose;
-  }
+  env = Object.assign(env || new Env(), options);
+  // options: openObjects, openArrays, openMaps, openSets, circular, loose, ignoreFunctions, signedZero.
   const ls = [l],
     rs = [r],
     lSeen = new Map(),
@@ -337,9 +330,10 @@ const unify = (l, r, env, options) => {
       continue;
     }
     r = rs.pop();
-    // direct equality or anyvar
+    // direct equality
     if (l === r) {
-      if (env.circular && lSeen.has(l) ^ rSeen.has(r)) return null;
+      if (env.circular && l && typeof l == 'object' && lSeen.has(l) ^ rSeen.has(r)) return null;
+      if (env.signedZero && l === 0 && 1/l !== 1/r) return null;
       continue;
     }
     // anyvar
@@ -362,12 +356,12 @@ const unify = (l, r, env, options) => {
       if (r.unify(l, ls, rs, env)) continue;
       return null;
     }
-    // reject unequal functions
-    if (typeof l == 'function' || typeof r == 'function') return null;
     // process loose equality for non-objects and nulls
     if (env.loose && !(l && r && typeof l == 'object' && typeof r == 'object') && l == r) continue main;
     // check rough types
     if (typeof l != typeof r) return null;
+    // reject unequal functions
+    if (typeof l == 'function' && env.ignoreFunctions) continue;
     // special case: NaN
     if (typeof l == 'number' && isNaN(l) && isNaN(r)) continue;
     // cut off impossible combinations
