@@ -1,7 +1,7 @@
 import {any, _} from './env.js';
 import unify from './unify.js';
-import clone from './utils/clone.js';
-import preprocess from './utils/preprocess.js';
+import clone from './traverse/clone.js';
+import preprocess from './traverse/preprocess.js';
 
 const defaultEqualOptions = {circular: true};
 const equal = (a, b) => !!unify(a, b, null, defaultEqualOptions);

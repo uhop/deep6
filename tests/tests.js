@@ -1,14 +1,14 @@
 import unify, {Env, _, variable as v, open, soft, isSoft} from '../src/unify.js';
-import preprocess from '../src/utils/preprocess.js';
+import preprocess from '../src/traverse/preprocess.js';
 import matchString from '../src/unifiers/matchString.js';
 import matchTypeOf from '../src/unifiers/matchTypeOf.js';
 import matchInstanceOf from '../src/unifiers/matchInstanceOf.js';
 import matchCondition from '../src/unifiers/matchCondition.js';
 import ref from '../src/unifiers/ref.js';
-import walk from '../src/utils/walk.js';
-import clone from '../src/utils/clone.js';
-import assemble from '../src/utils/assemble.js';
-import deref from '../src/utils/deref.js';
+import walk from '../src/traverse/walk.js';
+import clone from '../src/traverse/clone.js';
+import assemble from '../src/traverse/assemble.js';
+import deref from '../src/traverse/deref.js';
 import replace from '../src/utils/replace.js';
 
 // test harness
