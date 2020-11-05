@@ -1,9 +1,9 @@
-# deep-equivalence [![NPM version][npm-image]][npm-url]
+# deep6 [![NPM version][npm-image]][npm-url]
 
-[npm-image]:      https://img.shields.io/npm/v/deep-equivalence.svg
-[npm-url]:        https://npmjs.org/package/deep-equivalence
+[npm-image]:      https://img.shields.io/npm/v/deep6.svg
+[npm-url]:        https://npmjs.org/package/deep6
 
-`deep-equivalence`: a no dependency mini-library that provides:
+`deep6`: a no dependency mini-library that provides:
 
 * Advanced deep equivalency for JavaScript structures.
   * Extensible to accommodate custom objects.
@@ -19,7 +19,7 @@ TBD
 ## Installation
 
 ```bash
-npm install --save deep-equivalence
+npm install --save deep6
 ```
 
 ## Release History

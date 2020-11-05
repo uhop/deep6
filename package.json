@@ -1,5 +1,5 @@
 {
-  "name": "deep-equivalence",
+  "name": "deep6",
   "version": "1.0.2",
   "description": "No dependency mini-library: unification, deep equivalence, deep cloning.",
   "type": "module",
@@ -91,7 +91,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/uhop/deep-equivalence.git"
+    "url": "git://github.com/uhop/deep6.git"
   },
   "keywords": [
     "deep",
