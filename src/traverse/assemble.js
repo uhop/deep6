@@ -135,6 +135,7 @@ const assemble = (source, env, options) => {
     processOther: options.processOther || processOther,
     registry: options.registry || assemble.registry,
     filters: options.filters || assemble.filters,
+    circular: options.circular,
     context: context
   });
 

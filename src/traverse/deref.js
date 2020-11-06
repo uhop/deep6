@@ -113,6 +113,7 @@ const deref = (source, env, options) => {
     processOther: options.processOther || processOther,
     registry: options.registry || deref.registry,
     filters: options.filters || deref.filters,
+    circular: options.circular,
     context: context
   });
 

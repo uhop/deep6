@@ -106,6 +106,7 @@ const preprocess = (source, options) => {
     processOther: options.processOther || processOther,
     registry: options.registry || preprocess.registry,
     filters: options.filters || preprocess.filters,
+    circular: options.circular,
     context: context
   });
 
