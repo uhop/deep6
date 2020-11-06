@@ -62,7 +62,7 @@ const walk = (o, options) => {
     filters = options.filters || defaultFilters,
     context = options.context || {},
     stack = [o],
-    seen = new Map();
+    seen = new Set();
   context.stack = stack;
   main: while (stack.length) {
     o = stack.pop();
@@ -72,7 +72,10 @@ const walk = (o, options) => {
     }
     // process circular dependencies
     if (options.circular) {
-      if (seen.has(o)) continue; // skip
+      if (seen.has(o)) {
+        doCircular(o, context);
+        continue;
+      }
       seen.add(o);
     }
     // process registered constructors
