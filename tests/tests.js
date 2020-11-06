@@ -787,6 +787,28 @@ const tests = [
     };
     eval(TEST('unify(result, expected)'));
   },
+  function test_clone_circular() {
+    const a = {};
+    a.a = a;
+    const b = clone(a, null, {circular: true});
+    eval(TEST('a !== b'));
+    eval(TEST('b.a === b'));
+    eval(TEST('unify(a, b, null, {circular: true})'));
+
+    const x = {c: null, a: {b: {}}};
+    x.c = x.a.b;
+    const y = clone(x, null, {circular: true});
+    eval(TEST('x !== y'));
+    eval(TEST('y.c === y.a.b'));
+    eval(TEST('unify(x, y, null, {circular: true})'));
+
+    const z = new Map();
+    z.set('a', z);
+    const w = clone(z, null, {circular: true});
+    eval(TEST('z !== w'));
+    eval(TEST('w.get("a") === w'));
+    eval(TEST('unify(z, w, null, {circular: true})'));
+  },
   function test_assemble() {
     let source = {
       a: [1, , null],

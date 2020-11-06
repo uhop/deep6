@@ -3,6 +3,25 @@ import walk from './walk.js';
 
 const empty = {};
 
+class Circular {
+  constructor(value) {
+    this.value = value;
+  }
+}
+
+const setObject = (seen, s, t) => {
+  if (seen.has(s)) {
+    seen.get(s).actions.forEach(([object, key]) => {
+      if (object instanceof Map) {
+        object.set(key, t);
+      } else {
+        object[key] = t;
+      }
+    });
+  }
+  seen.set(s, {value: t});
+};
+
 const postProcess = init =>
   function (context) {
     const stackOut = context.stackOut,
@@ -11,30 +30,87 @@ const postProcess = init =>
     stackOut.push(t);
   };
 
+const postProcessSeen = init =>
+  function (context) {
+    const stackOut = context.stackOut,
+      seen = context.seen,
+      t = init;
+    setObject(seen, this.s, t);
+    for (const k of Object.keys(this.s)) {
+      const value = stackOut.pop();
+      if (!(value instanceof Circular)) {
+        t[k] = value;
+        continue;
+      }
+      const record = seen.get(value.value);
+      if (record) {
+        if (record.actions) {
+          record.actions.push([t, k]);
+        } else {
+          t[k] = record.value;
+        }
+      } else {
+        seen.set(value.value, {actions: [[t, k]]});
+      }
+    }
+    stackOut.push(t);
+  };
+
 const processObject = (val, context) => {
   const stack = context.stack;
-  stack.push(new walk.Command(postProcess({}), val));
+  stack.push(new walk.Command((context.seen ? postProcessSeen : postProcess)({}), val));
   Object.keys(val).forEach(k => stack.push(val[k]));
 };
 
-const postProcessMap = context => {
+function postProcessMap(context) {
   const stackOut = context.stackOut,
     t = new Map();
   for (const key of this.s.keys()) {
     t.set(key, stackOut.pop());
   }
   stackOut.push(t);
-};
+}
+
+function postProcessMapSeen(context) {
+  const stackOut = context.stackOut,
+    seen = context.seen,
+    t = new Map();
+  setObject(seen, this.s, t);
+  for (const k of this.s.keys()) {
+    const value = stackOut.pop();
+    if (!(value instanceof Circular)) {
+      t.set(k, value);
+      continue;
+    }
+    const record = seen.get(value.value);
+    if (record) {
+      if (record.actions) {
+        record.actions.push([t, k]);
+      } else {
+        t.set(k, record.value);
+      }
+    } else {
+      seen.set(value.value, {actions: [[t, k]]});
+    }
+  }
+  stackOut.push(t);
+}
 
 const processMap = (val, context) => {
   const stack = context.stack;
-  stack.push(new walk.Command(postProcessMap, val));
-  for (const value of val) {
+  stack.push(new walk.Command(context.seen ? postProcessMapSeen : postProcessMap, val));
+  for (const value of val.values()) {
     stack.push(value);
   }
 };
 
-const processPromise = (val, context) => context.stackOut.push(val.then(value => value, error => Promise.reject(error)));
+const processPromise = (val, context) =>
+  context.stackOut.push(
+    val.then(
+      value => value,
+      error => Promise.reject(error)
+    )
+  );
 
 const registry = [
     walk.Command,
@@ -73,6 +149,8 @@ const registry = [
 
 const processOther = (val, context) => context.stackOut.push(val);
 
+const processCircular = (val, context) => context.stackOut.push(new Circular(val));
+
 // add more exotic types
 
 const addType = (Type, process) => registry.push(Type, process || ((val, context) => context.stackOut.push(new Type(val))));
@@ -103,13 +181,16 @@ const clone = (source, env, options) => {
   const context = options.context || {},
     stackOut = [];
   context.stackOut = stackOut;
+  context.seen = options.circular ? new Map() : null;
   context.env = env;
 
   walk(source, {
     processObject: options.processObject || processObject,
     processOther: options.processOther || processOther,
+    processCircular: options.processCircular || processCircular,
     registry: options.registry || clone.registry,
     filters: options.filters || clone.filters,
+    circular: options.circular,
     context: context
   });
 
