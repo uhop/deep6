@@ -333,7 +333,7 @@ const unify = (l, r, env, options) => {
     // direct equality
     if (l === r) {
       if (env.circular && l && typeof l == 'object' && lSeen.has(l) ^ rSeen.has(r)) return null;
-      if (env.signedZero && l === 0 && 1/l !== 1/r) return null;
+      if (env.signedZero && l === 0 && 1 / l !== 1 / r) return null;
       continue;
     }
     // anyvar
