@@ -3,10 +3,11 @@ import {_, Env, Variable, variable, isVariable, Unifier, isUnifier} from './env.
 // Command
 
 class Command {
-  constructor(f, l, r) {
+  constructor(f, l, r, e) {
     this.f = f;
     this.l = l;
     this.r = r;
+    this.e = e;
   }
 }
 
@@ -257,7 +258,11 @@ const hasOwnProperty = Object.prototype.hasOwnProperty;
 const objectOps = {
   exact: {
     exact: {
-      precheck: (l, r) => Object.keys(l).every(k => hasOwnProperty.call(r, k))
+      precheck: (l, r, env) => {
+        let keys = Object.keys(l);
+        if (!env.ignoreSymbols) keys = keys.concat(Object.getOwnPropertySymbols(l));
+        return keys.every(k => hasOwnProperty.call(r, k));
+      }
     },
     open: {},
     soft: {
@@ -273,14 +278,20 @@ const objectOps = {
   soft: {
     soft: {
       update: function () {
-        Object.keys(this.l).forEach(k => !hasOwnProperty.call(this.r, k) && (this.r[k] = this.l[k]));
-        Object.keys(this.r).forEach(k => !hasOwnProperty.call(this.l, k) && (this.l[k] = this.r[k]));
+        let keys = Object.keys(this.l);
+        if (!this.e.ignoreSymbols) keys = keys.concat(Object.getOwnPropertySymbols(this.l));
+        keys.forEach(k => !hasOwnProperty.call(this.r, k) && (this.r[k] = this.l[k]));
+        keys = Object.keys(this.r);
+        if (!this.e.ignoreSymbols) keys = keys.concat(Object.getOwnPropertySymbols(this.r));
+        keys.forEach(k => !hasOwnProperty.call(this.l, k) && (this.l[k] = this.r[k]));
       }
     }
   }
 };
-objectOps.exact.exact.compare = objectOps.exact.open.compare = objectOps.exact.soft.compare = (l, r, ls, rs) =>
-  Object.keys(r).every(k => {
+objectOps.exact.exact.compare = objectOps.exact.open.compare = objectOps.exact.soft.compare = (l, r, ls, rs, env) => {
+  let keys = Object.keys(r);
+  if (!env.ignoreSymbols) keys = keys.concat(Object.getOwnPropertySymbols(r));
+  return keys.every(k => {
     if (hasOwnProperty.call(l, k)) {
       ls.push(l[k]);
       rs.push(r[k]);
@@ -288,8 +299,11 @@ objectOps.exact.exact.compare = objectOps.exact.open.compare = objectOps.exact.s
     }
     return false;
   });
-objectOps.open.open.compare = objectOps.open.soft.compare = objectOps.soft.soft.compare = (l, r, ls, rs) => {
-  Object.keys(r).forEach(k => {
+};
+objectOps.open.open.compare = objectOps.open.soft.compare = objectOps.soft.soft.compare = (l, r, ls, rs, env) => {
+  let keys = Object.keys(r);
+  if (!env.ignoreSymbols) keys = keys.concat(Object.getOwnPropertySymbols(r));
+  keys.forEach(k => {
     if (hasOwnProperty.call(l, k)) {
       ls.push(l[k]);
       rs.push(r[k]);
@@ -298,7 +312,9 @@ objectOps.open.open.compare = objectOps.open.soft.compare = objectOps.soft.soft.
   return true;
 };
 objectOps.exact.soft.update = objectOps.open.soft.update = function () {
-  Object.keys(this.l).forEach(k => !hasOwnProperty.call(this.r, k) && (this.r[k] = this.l[k]));
+  let keys = Object.keys(this.l);
+  if (!this.e.ignoreSymbols) keys = keys.concat(Object.getOwnPropertySymbols(this.l));
+  keys.forEach(k => !hasOwnProperty.call(this.r, k) && (this.r[k] = this.l[k]));
 };
 
 const unifyObjects = (l, lt, lm, r, rt, rm, ls, rs, env) => {
@@ -307,17 +323,21 @@ const unifyObjects = (l, lt, lm, r, rt, rm, ls, rs, env) => {
     [l, lt, lm, ls, r, rt, rm, rs] = [r, rt, rm, rs, l, lt, lm, ls];
   }
   const ops = objectOps[lt][rt];
-  if (ops.precheck && !ops.precheck(l, r)) return false;
-  if (ops.fix && rm) originalLs.push(new Command(ops.fix, rm));
-  if (ops.update) originalLs.push(new Command(ops.update, l, r));
+  if (ops.precheck && !ops.precheck(l, r, env)) return false;
+  if (ops.fix && rm) originalLs.push(new Command(ops.fix, rm, null, env));
+  if (ops.update) originalLs.push(new Command(ops.update, l, r, env));
   return ops.compare(l, r, ls, rs, env);
 };
 
 // unification
 
 const unify = (l, r, env, options) => {
-  env = Object.assign(env || new Env(), options);
-  // options: openObjects, openArrays, openMaps, openSets, circular, loose, ignoreFunctions, signedZero.
+  if (!env) {
+    env = new Env();
+    env.ignoreSymbols = true;
+  }
+  env = Object.assign(env, options);
+  // options: openObjects, openArrays, openMaps, openSets, circular, loose, ignoreFunctions, signedZero, ignoreSymbols (=true).
   const ls = [l],
     rs = [r],
     lSeen = new Map(),
