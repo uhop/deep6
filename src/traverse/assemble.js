@@ -3,44 +3,43 @@ import walk from './walk.js';
 
 const empty = {};
 
-const postProcess = init =>
-  function (context) {
-    const stackOut = context.stackOut,
-      s = this.s,
-      descriptors = Object.getOwnPropertyDescriptors(s);
-    if (init instanceof Array) delete descriptors.length;
-    const keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
-    let j = stackOut.length - 1;
-    main: {
-      const result = keys.some(k => {
-        const d = descriptors[k];
-        if (d.get || d.set) return false;
-        const t = stackOut[j--];
-        return typeof t == 'number' && isNaN(t) ? typeof s[k] == 'number' && !isNaN(s[k]) : s[k] !== t;
-      });
-      if (result) break main;
-      const l = stackOut.length - 1 - j;
-      if (l) {
-        stackOut.splice(-l, l, s);
-      } else {
-        stackOut.push(s);
-      }
-      return;
-    }
-    const t = init;
-    keys.forEach(key => {
-      const d = descriptors[key];
-      if (!(d.get || d.set)) {
-        d.value = stackOut.pop();
-      }
-      Object.defineProperty(t, key, d);
+function postProcess(context) {
+  const stackOut = context.stackOut,
+    s = this.s,
+    descriptors = Object.getOwnPropertyDescriptors(s);
+  if (s instanceof Array) delete descriptors.length;
+  const keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
+  let j = stackOut.length - 1;
+  main: {
+    const result = keys.some(k => {
+      const d = descriptors[k];
+      if (d.get || d.set) return false;
+      const t = stackOut[j--];
+      return typeof t == 'number' && isNaN(t) ? typeof s[k] == 'number' && !isNaN(s[k]) : s[k] !== t;
     });
-    stackOut.push(t);
-  };
+    if (result) break main;
+    const l = stackOut.length - 1 - j;
+    if (l) {
+      stackOut.splice(-l, l, s);
+    } else {
+      stackOut.push(s);
+    }
+    return;
+  }
+  const t = s instanceof Array ? [] : Object.create(Object.getPrototypeOf(s));
+  keys.forEach(key => {
+    const d = descriptors[key];
+    if (!(d.get || d.set)) {
+      d.value = stackOut.pop();
+    }
+    Object.defineProperty(t, key, d);
+  });
+  stackOut.push(t);
+}
 
 const processObject = (val, context) => {
   const stack = context.stack;
-  stack.push(new walk.Command(postProcess(Object.create(Object.getPrototypeOf(val))), val));
+  stack.push(new walk.Command(postProcess, val));
   const descriptors = Object.getOwnPropertyDescriptors(val),
     keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
   keys.forEach(key => {
@@ -93,7 +92,7 @@ const registry = [
     Array,
     function processArray(val, context) {
       const stack = context.stack;
-      stack.push(new walk.Command(postProcess([]), val));
+      stack.push(new walk.Command(postProcess, val));
       const descriptors = Object.getOwnPropertyDescriptors(val);
       delete descriptors.length;
       const keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));

@@ -24,30 +24,30 @@ const setObject = (seen, s, t) => {
   seen.set(s, {value: t});
 };
 
-const postProcess = init =>
-  function (context) {
-    const stackOut = context.stackOut,
-      descriptors = Object.getOwnPropertyDescriptors(this.s);
-    if (init instanceof Array) delete descriptors.length;
-    const t = init,
-      keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
-    for (const k of keys) {
-      const d = descriptors[k];
-      if (!(d.get || d.set)) {
-        d.value = stackOut.pop();
-      }
-      Object.defineProperty(t, k, d);
+function postProcess(context) {
+  const stackOut = context.stackOut,
+    s = this.s,
+    descriptors = Object.getOwnPropertyDescriptors(s);
+  if (s instanceof Array) delete descriptors.length;
+  const t = s instanceof Array ? [] : Object.create(Object.getPrototypeOf(s)),
+    keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
+  for (const k of keys) {
+    const d = descriptors[k];
+    if (!(d.get || d.set)) {
+      d.value = stackOut.pop();
     }
-    stackOut.push(t);
-  };
+    Object.defineProperty(t, k, d);
+  }
+  stackOut.push(t);
+}
 
-const postProcessSeen = init =>
-  function (context) {
+  function postProcessSeen(context) {
     const stackOut = context.stackOut,
       seen = context.seen,
-      descriptors = Object.getOwnPropertyDescriptors(this.s);
-    if (init instanceof Array) delete descriptors.length;
-    const t = init,
+      s = this.s,
+      descriptors = Object.getOwnPropertyDescriptors(s);
+    if (s instanceof Array) delete descriptors.length;
+    const t = s instanceof Array ? [] : Object.create(Object.getPrototypeOf(s)),
       keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
     setObject(seen, this.s, t);
     for (const k of keys) {
@@ -82,7 +82,7 @@ const postProcessSeen = init =>
 
 const processObject = (val, context) => {
   const stack = context.stack;
-  stack.push(new walk.Command((context.seen ? postProcessSeen : postProcess)({}), val));
+  stack.push(new walk.Command(context.seen ? postProcessSeen : postProcess, val));
   const descriptors = Object.getOwnPropertyDescriptors(val);
   const keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
   keys.forEach(key => {
@@ -149,7 +149,7 @@ const registry = [
     Array,
     function processArray(val, context) {
       const stack = context.stack;
-      stack.push(new walk.Command((context.seen ? postProcessSeen : postProcess)([]), val));
+      stack.push(new walk.Command(context.seen ? postProcessSeen : postProcess, val));
       const descriptors = Object.getOwnPropertyDescriptors(val);
       delete descriptors.length;
       const keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
