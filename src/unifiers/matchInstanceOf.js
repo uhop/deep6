@@ -11,8 +11,6 @@ class MatchInstanceOf extends Unifier {
   }
 }
 
-function matchInstanceOf(types) {
-  return new MatchInstanceOf(types);
-}
+const matchInstanceOf = types => new MatchInstanceOf(types);
 
 export default matchInstanceOf;
