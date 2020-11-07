@@ -280,10 +280,14 @@ const objectOps = {
       update: function () {
         let keys = Object.keys(this.l);
         if (!this.e.ignoreSymbols) keys = keys.concat(Object.getOwnPropertySymbols(this.l));
-        keys.forEach(k => !hasOwnProperty.call(this.r, k) && (this.r[k] = this.l[k]));
+        for (const k of keys) {
+          !hasOwnProperty.call(this.r, k) && (this.r[k] = this.l[k]);
+        }
         keys = Object.keys(this.r);
         if (!this.e.ignoreSymbols) keys = keys.concat(Object.getOwnPropertySymbols(this.r));
-        keys.forEach(k => !hasOwnProperty.call(this.l, k) && (this.l[k] = this.r[k]));
+        for (const k of keys) {
+          !hasOwnProperty.call(this.l, k) && (this.l[k] = this.r[k]);
+        }
       }
     }
   }
@@ -303,18 +307,20 @@ objectOps.exact.exact.compare = objectOps.exact.open.compare = objectOps.exact.s
 objectOps.open.open.compare = objectOps.open.soft.compare = objectOps.soft.soft.compare = (l, r, ls, rs, env) => {
   let keys = Object.keys(r);
   if (!env.ignoreSymbols) keys = keys.concat(Object.getOwnPropertySymbols(r));
-  keys.forEach(k => {
+  for (const k of keys) {
     if (hasOwnProperty.call(l, k)) {
       ls.push(l[k]);
       rs.push(r[k]);
     }
-  });
+  }
   return true;
 };
 objectOps.exact.soft.update = objectOps.open.soft.update = function () {
   let keys = Object.keys(this.l);
   if (!this.e.ignoreSymbols) keys = keys.concat(Object.getOwnPropertySymbols(this.l));
-  keys.forEach(k => !hasOwnProperty.call(this.r, k) && (this.r[k] = this.l[k]));
+  for (const k of keys) {
+    !hasOwnProperty.call(this.r, k) && (this.r[k] = this.l[k]);
+  }
 };
 
 const unifyObjects = (l, lt, lm, r, rt, rm, ls, rs, env) => {
