@@ -1,5 +1,5 @@
 import {Unifier, Variable, open} from '../unify.js';
-import walk, {Circular, setObject, processMap} from './walk.js';
+import walk, {Circular, setObject, processOther, processCircular, processMap} from './walk.js';
 
 const empty = {};
 
@@ -115,10 +115,6 @@ function processSet(val, context) {
   const wrap = context.wrapSet;
   context.stackOut.push(wrap ? wrap(new Set(val)) : val);
 }
-
-const processOther = (val, context) => context.stackOut.push(val);
-
-const processCircular = (val, context) => context.stackOut.push(new Circular(val));
 
 const registry = [
     walk.Command,

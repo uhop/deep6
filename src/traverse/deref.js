@@ -1,5 +1,5 @@
 import {Env, Unifier, Variable} from '../unify.js';
-import walk, {processMap} from './walk.js';
+import walk, {processOther, processMap} from './walk.js';
 
 const empty = {};
 
@@ -52,8 +52,6 @@ function postProcessMap(context) {
     stackOut.push(s);
   }
 }
-
-const processOther = (val, context) => context.stackOut.push(val);
 
 const registry = [
     walk.Command,

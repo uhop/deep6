@@ -1,5 +1,5 @@
 import {Env, Unifier, Variable} from '../unify.js';
-import walk, {Circular, setObject, processMap} from './walk.js';
+import walk, {Circular, setObject, processOther, processCircular, processMap} from './walk.js';
 
 const empty = {};
 
@@ -156,10 +156,6 @@ const registry = [
     }
   ],
   filters = [];
-
-const processOther = (val, context) => context.stackOut.push(val);
-
-const processCircular = (val, context) => context.stackOut.push(new Circular(val));
 
 // add more exotic types
 

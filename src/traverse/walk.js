@@ -25,6 +25,10 @@ const setObject = (seen, s, t) => {
   seen.set(s, {value: t});
 };
 
+const processOther = (val, context) => context.stackOut.push(val);
+
+const processCircular = (val, context) => context.stackOut.push(new Circular(val));
+
 const processMap = (postProcess, postProcessSeen) => (val, context) => {
   const stack = context.stack;
   postProcess && stack.push(new walk.Command(postProcessSeen ? (context.seen ? postProcessSeen : postProcess) : postProcess, val));
@@ -126,5 +130,5 @@ const walk = (o, options) => {
 
 walk.Command = Command;
 
-export {Command, defaultRegistry as registry, defaultFilters as filters, Circular, setObject, processMap};
+export {Command, defaultRegistry as registry, defaultFilters as filters, Circular, setObject, processMap, processOther, processCircular};
 export default walk;
