@@ -102,6 +102,18 @@ const getObjectData = (object, context) => {
   return {descriptors, keys};
 };
 
+const buildNewObject = (source, descriptors, keys, stackOut, wrap) => {
+  const t = Array.isArray(source) ? [] : Object.create(Object.getPrototypeOf(source));
+  for (const key of keys) {
+    const d = descriptors[key];
+    if (!(d.get || d.set)) {
+      d.value = stackOut.pop();
+    }
+    Object.defineProperty(t, key, d);
+  }
+  stackOut.push(wrap ? wrap(t) : t);
+};
+
 // implementation
 
 class Command {
@@ -198,6 +210,7 @@ export {
   buildNewMap,
   replaceObject,
   processObject,
-  getObjectData
+  getObjectData,
+  buildNewObject
 };
 export default walk;

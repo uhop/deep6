@@ -9,15 +9,15 @@ import walk, {
   buildNewMap,
   replaceObject,
   processObject,
-  getObjectData
+  getObjectData,
+  buildNewObject
 } from './walk.js';
 
 const empty = {};
 
 function postProcess(context) {
   const stackOut = context.stackOut,
-    s = this.s,
-    isArray = s instanceof Array;
+    s = this.s;
   const {descriptors, keys} = getObjectData(this.s, context);
   let j = stackOut.length - 1;
   main: {
@@ -31,15 +31,7 @@ function postProcess(context) {
     replaceObject(j, s, stackOut);
     return;
   }
-  const t = isArray ? [] : Object.create(Object.getPrototypeOf(s));
-  for (const key of keys) {
-    const d = descriptors[key];
-    if (!(d.get || d.set)) {
-      d.value = stackOut.pop();
-    }
-    Object.defineProperty(t, key, d);
-  }
-  stackOut.push(t);
+  buildNewObject(s, descriptors, keys, stackOut);
 }
 
 function postProcessSeen(context) {

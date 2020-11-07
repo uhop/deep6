@@ -1,22 +1,22 @@
 import {Env, Unifier, Variable} from '../unify.js';
-import walk, {Circular, setObject, processOther, processCircular, processMap, postMapCircular, buildNewMap, processObject, getObjectData} from './walk.js';
+import walk, {
+  Circular,
+  setObject,
+  processOther,
+  processCircular,
+  processMap,
+  postMapCircular,
+  buildNewMap,
+  processObject,
+  getObjectData,
+  buildNewObject
+} from './walk.js';
 
 const empty = {};
 
 function postProcess(context) {
-  const stackOut = context.stackOut,
-    s = this.s,
-    isArray = s instanceof Array;
   const {descriptors, keys} = getObjectData(this.s, context);
-  const t = isArray ? [] : Object.create(Object.getPrototypeOf(s));
-  for (const k of keys) {
-    const d = descriptors[k];
-    if (!(d.get || d.set)) {
-      d.value = stackOut.pop();
-    }
-    Object.defineProperty(t, k, d);
-  }
-  stackOut.push(t);
+  buildNewObject(this.s, descriptors, keys, context.stackOut);
 }
 
 function postProcessSeen(context) {
