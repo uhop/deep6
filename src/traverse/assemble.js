@@ -10,7 +10,6 @@ const postProcess = init =>
       descriptors = Object.getOwnPropertyDescriptors(s);
     if (init instanceof Array) delete descriptors.length;
     const keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
-    if (init instanceof Array) delete descriptors.length;
     let j = stackOut.length - 1;
     main: {
       const result = keys.some(k => {
