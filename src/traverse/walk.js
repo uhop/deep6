@@ -35,12 +35,12 @@ class Command {
 const processCommand = (val, context) => val.f(context);
 
 const processObject = (val, context) => {
-  const stack = context.stack,
+  const {stack, ignoreSymbols} = context,
     descriptors = Object.getOwnPropertyDescriptors(val);
   if (val instanceof Array) delete descriptors.length;
-  const keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
+  let keys = Object.keys(descriptors);
+  if (!ignoreSymbols) keys = keys.concat(Object.getOwnPropertySymbols(descriptors));
   for (const key of keys) {
-    if (context.ignoreSymbols && typeof key == 'symbol') continue;
     const d = descriptors[key];
     !(d.get || d.set) && stack.push(d.value);
   }

@@ -9,11 +9,11 @@ function postProcess(context) {
     isArray = s instanceof Array,
     descriptors = Object.getOwnPropertyDescriptors(s);
   if (isArray) delete descriptors.length;
-  const keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
+  let keys = Object.keys(descriptors);
+  if (!ignoreSymbols) keys = keys.concat(Object.getOwnPropertySymbols(descriptors));
   let j = stackOut.length - 1;
   main: {
     const result = keys.some(k => {
-      if (ignoreSymbols && typeof k == 'symbol') return false;
       const d = descriptors[k];
       if (d.get || d.set) return false;
       const t = stackOut[j--];
@@ -30,7 +30,6 @@ function postProcess(context) {
   }
   const t = isArray ? [] : Object.create(Object.getPrototypeOf(s));
   for (const key of keys) {
-    if (ignoreSymbols && typeof key == 'symbol') continue;
     const d = descriptors[key];
     if (!(d.get || d.set)) {
       d.value = stackOut.pop();
@@ -46,11 +45,11 @@ function postProcessSeen(context) {
     isArray = s instanceof Array,
     descriptors = Object.getOwnPropertyDescriptors(s);
   if (isArray) delete descriptors.length;
-  const keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
+  let keys = Object.keys(descriptors);
+  if (!ignoreSymbols) keys = keys.concat(Object.getOwnPropertySymbols(descriptors));
   let j = stackOut.length - 1;
   main: {
     const result = keys.some(k => {
-      if (ignoreSymbols && typeof k == 'symbol') return false;
       const d = descriptors[k];
       if (d.get || d.set) return false;
       const t = stackOut[j--];
@@ -97,14 +96,13 @@ function postProcessSeen(context) {
   stackOut.push(t);
 }
 
-
 const processObject = (val, context) => {
   const {stack, ignoreSymbols} = context;
   stack.push(new walk.Command(context.seen ? postProcessSeen : postProcess, val));
-  const descriptors = Object.getOwnPropertyDescriptors(val),
-    keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
+  const descriptors = Object.getOwnPropertyDescriptors(val);
+  let keys = Object.keys(descriptors);
+  if (!ignoreSymbols) keys = keys.concat(Object.getOwnPropertySymbols(descriptors));
   for (const key of keys) {
-    if (ignoreSymbols && typeof key == 'symbol') continue;
     const d = descriptors[key];
     !(d.get || d.set) && stack.push(d.value);
   }
@@ -199,9 +197,9 @@ const registry = [
       stack.push(new walk.Command(context.seen ? postProcessSeen : postProcess, val));
       const descriptors = Object.getOwnPropertyDescriptors(val);
       delete descriptors.length;
-      const keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
+      let keys = Object.keys(descriptors);
+      if (!ignoreSymbols) keys = keys.concat(Object.getOwnPropertySymbols(descriptors));
       for (const key of keys) {
-        if (ignoreSymbols && typeof key == 'symbol') continue;
         const d = descriptors[key];
         !(d.get || d.set) && stack.push(d.value);
       }
