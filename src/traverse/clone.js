@@ -9,7 +9,8 @@ import walk, {
   postObjectCircular,
   getObjectData,
   buildNewObject,
-  processVariable
+  processVariable,
+  processCommand
 } from './walk.js';
 
 const empty = {};
@@ -42,9 +43,7 @@ const processPromise = (val, context) =>
 
 const registry = [
     walk.Command,
-    function processCommand(val, context) {
-      val.f(context);
-    },
+    processCommand,
     Array,
     processObject(postProcess, postProcessSeen),
     Variable,

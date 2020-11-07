@@ -1,5 +1,5 @@
 import {Env, Unifier, Variable} from '../unify.js';
-import walk, {processOther, processMap, replaceObject, processObject, getObjectData, processVariable} from './walk.js';
+import walk, {processOther, processMap, replaceObject, processObject, getObjectData, processVariable, processCommand} from './walk.js';
 
 const empty = {};
 
@@ -30,9 +30,7 @@ function postProcessMap(context) {
 
 const registry = [
     walk.Command,
-    function processCommand(val, context) {
-      val.f(context);
-    },
+    processCommand,
     Array,
     processObject(postProcess),
     Variable,

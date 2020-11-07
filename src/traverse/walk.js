@@ -259,6 +259,7 @@ export {
   postObjectCircular,
   getObjectData,
   buildNewObject,
-  processVariable
+  processVariable,
+  processCommand
 };
 export default walk;

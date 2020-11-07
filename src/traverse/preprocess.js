@@ -8,7 +8,8 @@ import walk, {
   processObject,
   postObjectCircular,
   getObjectData,
-  buildNewObject
+  buildNewObject,
+  processCommand
 } from './walk.js';
 
 const empty = {};
@@ -38,9 +39,7 @@ function processSet(val, context) {
 
 const registry = [
     walk.Command,
-    function processCommand(val, context) {
-      val.f(context);
-    },
+    processCommand,
     Array,
     processObject(postProcess, postProcessSeen),
     Variable,
