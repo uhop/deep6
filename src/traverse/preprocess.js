@@ -1,5 +1,5 @@
 import {Unifier, Variable, open} from '../unify.js';
-import walk, {Circular, setObject, processOther, processCircular, processMap, postMapCircular, buildNewMap} from './walk.js';
+import walk, {Circular, setObject, processOther, processCircular, processMap, postMapCircular, buildNewMap, processObject} from './walk.js';
 
 const empty = {};
 
@@ -65,18 +65,6 @@ function postProcessSeen(context) {
   stackOut.push(o);
 }
 
-const processObject = (val, context) => {
-  const {stack, symbols} = context;
-  stack.push(new walk.Command(context.seen ? postProcessSeen : postProcess, val));
-  const descriptors = Object.getOwnPropertyDescriptors(val);
-  let keys = Object.keys(descriptors);
-  if (symbols) keys = keys.concat(Object.getOwnPropertySymbols(descriptors));
-  for (const key of keys) {
-    const d = descriptors[key];
-    !(d.get || d.set) && stack.push(d.value);
-  }
-};
-
 function postProcessMap(context) {
   buildNewMap(this.s.keys(), context.stackOut, context.wrapMap);
 }
@@ -96,18 +84,7 @@ const registry = [
       val.f(context);
     },
     Array,
-    function processArray(val, context) {
-      const {stack, symbols} = context;
-      stack.push(new walk.Command(context.seen ? postProcessSeen : postProcess, val));
-      const descriptors = Object.getOwnPropertyDescriptors(val);
-      delete descriptors.length;
-      let keys = Object.keys(descriptors);
-      if (symbols) keys = keys.concat(Object.getOwnPropertySymbols(descriptors));
-      for (const key of keys) {
-        const d = descriptors[key];
-        !(d.get || d.set) && stack.push(d.value);
-      }
-    },
+    processObject(postProcess, postProcessSeen),
     Variable,
     processOther,
     Unifier,
@@ -156,7 +133,7 @@ const preprocess = (source, options) => {
   context.wrapSet = options.openSets && open;
 
   walk(source, {
-    processObject: options.processObject || processObject,
+    processObject: options.processObject || processObject(postProcess, postProcessSeen),
     processOther: options.processOther || processOther,
     processCircular: options.processCircular || processCircular,
     registry: options.registry || preprocess.registry,

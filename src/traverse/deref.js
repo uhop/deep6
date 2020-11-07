@@ -1,5 +1,5 @@
 import {Env, Unifier, Variable} from '../unify.js';
-import walk, {processOther, processMap, replaceObject} from './walk.js';
+import walk, {processOther, processMap, replaceObject, processObject} from './walk.js';
 
 const empty = {};
 
@@ -26,18 +26,6 @@ function postProcess(context) {
   }
 }
 
-const processObject = (val, context) => {
-  const {stack, symbols} = context;
-  stack.push(new walk.Command(postProcess, val));
-  const descriptors = Object.getOwnPropertyDescriptors(val);
-  let keys = Object.keys(descriptors);
-  if (symbols) keys = keys.concat(Object.getOwnPropertySymbols(descriptors));
-  for (const key of keys) {
-    const d = descriptors[key];
-    !(d.get || d.set) && stack.push(d.value);
-  }
-};
-
 function postProcessMap(context) {
   const stackOut = context.stackOut,
     s = this.s;
@@ -54,18 +42,7 @@ const registry = [
       val.f(context);
     },
     Array,
-    function processArray(val, context) {
-      const {stack, symbols} = context;
-      stack.push(new walk.Command(postProcess, val));
-      const descriptors = Object.getOwnPropertyDescriptors(val);
-      delete descriptors.length;
-      let keys = Object.keys(descriptors);
-      if (symbols) keys = keys.concat(Object.getOwnPropertySymbols(descriptors));
-      for (const key of keys) {
-        const d = descriptors[key];
-        !(d.get || d.set) && stack.push(d.value);
-      }
-    },
+    processObject(postProcess),
     Variable,
     function processVariable(val, context) {
       const env = context.env;
@@ -121,7 +98,7 @@ const deref = (source, env, options) => {
   context.env = env;
 
   walk(source, {
-    processObject: options.processObject || processObject,
+    processObject: options.processObject || processObject(postProcess),
     processOther: options.processOther || processOther,
     processCircular: options.processCircular || processOther,
     registry: options.registry || deref.registry,

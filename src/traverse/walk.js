@@ -33,7 +33,7 @@ const processCircular = (value, context) => context.stackOut.push(new Circular(v
 
 const processMap = (postProcess, postProcessSeen) => (object, context) => {
   const stack = context.stack;
-  postProcess && stack.push(new walk.Command(postProcessSeen ? (context.seen ? postProcessSeen : postProcess) : postProcess, object));
+  postProcess && stack.push(new Command(postProcessSeen ? (context.seen ? postProcessSeen : postProcess) : postProcess, object));
   for (const value of object.values()) {
     stack.push(value);
   }
@@ -64,7 +64,6 @@ const postMapCircular = (source, context) => {
   stackOut.push(o);
 };
 
-
 const buildNewMap = (keys, stackOut, wrap) => {
   const t = new Map();
   for (const key of keys) {
@@ -82,6 +81,19 @@ const replaceObject = (upTo, object, stackOut) => {
   }
 };
 
+const processObject = (postProcess, postProcessSeen) => (object, context) => {
+  const {stack, symbols} = context;
+  postProcess && stack.push(new Command(postProcessSeen ? (context.seen ? postProcessSeen : postProcess) : postProcess, object));
+  const descriptors = Object.getOwnPropertyDescriptors(object);
+  Array.isArray(object) && delete descriptors.length;
+  let keys = Object.keys(descriptors);
+  if (symbols) keys = keys.concat(Object.getOwnPropertySymbols(descriptors));
+  for (const key of keys) {
+    const d = descriptors[key];
+    !(d.get || d.set) && stack.push(d.value);
+  }
+};
+
 // implementation
 
 class Command {
@@ -93,19 +105,7 @@ class Command {
 
 const processCommand = (val, context) => val.f(context);
 
-const processObject = (val, context) => {
-  const {stack, symbols} = context,
-    descriptors = Object.getOwnPropertyDescriptors(val);
-  if (val instanceof Array) delete descriptors.length;
-  let keys = Object.keys(descriptors);
-  if (symbols) keys = keys.concat(Object.getOwnPropertySymbols(descriptors));
-  for (const key of keys) {
-    const d = descriptors[key];
-    !(d.get || d.set) && stack.push(d.value);
-  }
-};
-
-const defaultRegistry = [Command, processCommand, Array, processObject, Date, nop, RegExp, nop],
+const defaultRegistry = [Command, processCommand, Array, processObject(), Date, nop, RegExp, nop],
   defaultFilters = [];
 
 // add more types
@@ -135,7 +135,7 @@ typeof ArrayBuffer == 'function' && addType(ArrayBuffer);
 const walk = (o, options) => {
   // non-recursive stack-based walk about an object tree
   options = options || empty;
-  const doObject = options.processObject || processObject,
+  const doObject = options.processObject || processObject(),
     doOther = options.processOther || nop,
     doCircular = options.processCircular || nop,
     registry = options.registry || defaultRegistry,
@@ -188,6 +188,7 @@ export {
   processOther,
   processCircular,
   buildNewMap,
-  replaceObject
+  replaceObject,
+  processObject
 };
 export default walk;
