@@ -549,6 +549,12 @@ const tests = [
     eval(TEST('result'));
     result = unify(l, preprocess(r, {openObjects: true, ignoreSymbols: false}), {ignoreSymbols: false});
     eval(TEST('!result'));
+    const a = {x: 42},
+      b = {};
+    a.a = a;
+    b.a = b;
+    result = unify(a, preprocess(b, {openObjects: true, circular: true}), {circular: true});
+    eval(TEST('result'));
   },
   function test_matchString() {
     let result = unify('12345', matchString(/1(2)3/));
