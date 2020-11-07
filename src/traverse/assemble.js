@@ -21,18 +21,17 @@ function postProcess(context) {
     s = this.s,
     {descriptors, keys} = getObjectData(s, context);
   let j = stackOut.length - 1;
-  main: {
-    const result = keys.some(k => {
-      const d = descriptors[k];
-      if (d.get || d.set) return false;
-      const t = stackOut[j--];
-      return typeof t == 'number' && isNaN(t) ? typeof s[k] == 'number' && !isNaN(s[k]) : s[k] !== t;
-    });
-    if (result) break main;
+  const result = keys.some(k => {
+    const d = descriptors[k];
+    if (d.get || d.set) return false;
+    const t = stackOut[j--];
+    return typeof t == 'number' && isNaN(t) ? typeof s[k] == 'number' && !isNaN(s[k]) : s[k] !== t;
+  });
+  if (result) {
+    buildNewObject(s, descriptors, keys, stackOut);
+  } else {
     replaceObject(j, s, stackOut);
-    return;
   }
-  buildNewObject(s, descriptors, keys, stackOut);
 }
 
 function postProcessSeen(context) {
@@ -40,50 +39,47 @@ function postProcessSeen(context) {
     s = this.s,
     {descriptors, keys} = getObjectData(s, context);
   let j = stackOut.length - 1;
-  main: {
-    const result = keys.some(k => {
-      const d = descriptors[k];
-      if (d.get || d.set) return false;
-      const t = stackOut[j--];
-      return typeof t == 'number' && isNaN(t) ? typeof s[k] == 'number' && !isNaN(s[k]) : s[k] !== t;
-    });
-    if (result) break main;
+  const result = keys.some(k => {
+    const d = descriptors[k];
+    if (d.get || d.set) return false;
+    const t = stackOut[j--];
+    return typeof t == 'number' && isNaN(t) ? typeof s[k] == 'number' && !isNaN(s[k]) : s[k] !== t;
+  });
+  if (result) {
+    postObjectCircular(s, descriptors, keys, context);
+  } else {
     replaceObject(j, s, stackOut);
-    return;
   }
-  postObjectCircular(s, descriptors, keys, context);
 }
 
 const postProcessMap = context => {
   const stackOut = context.stackOut,
     s = this.s;
   let j = stackOut.length - 1;
-  main: {
-    const result = Array.from(s.values()).some(v => {
-      const t = stackOut[j--];
-      return typeof t == 'number' && isNaN(t) ? typeof v == 'number' && !isNaN(v) : v !== t;
-    });
-    if (result) break main;
+  const result = Array.from(s.values()).some(v => {
+    const t = stackOut[j--];
+    return typeof t == 'number' && isNaN(t) ? typeof v == 'number' && !isNaN(v) : v !== t;
+  });
+  if (result) {
+    buildNewMap(s.keys(), stackOut);
+  } else {
     replaceObject(j, s, stackOut);
-    return;
   }
-  buildNewMap(s.keys(), stackOut);
 };
 
 function postProcessMapSeen(context) {
   const stackOut = context.stackOut,
     s = this.s;
   let j = stackOut.length - 1;
-  main: {
-    const result = Array.from(s.values()).some(v => {
-      const t = stackOut[j--];
-      return typeof t == 'number' && isNaN(t) ? typeof v == 'number' && !isNaN(v) : v !== t;
-    });
-    if (result) break main;
+  const result = Array.from(s.values()).some(v => {
+    const t = stackOut[j--];
+    return typeof t == 'number' && isNaN(t) ? typeof v == 'number' && !isNaN(v) : v !== t;
+  });
+  if (result) {
+    postMapCircular(s, context);
+  } else {
     replaceObject(j, s, stackOut);
-    return;
   }
-  postMapCircular(s, context);
 }
 
 const registry = [
