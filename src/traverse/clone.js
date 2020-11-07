@@ -1,5 +1,5 @@
 import {Env, Unifier, Variable} from '../unify.js';
-import walk, {Circular, setObject, processOther, processCircular, processMap, buildNewMap} from './walk.js';
+import walk, {Circular, setObject, processOther, processCircular, processMap, postMapCircular, buildNewMap} from './walk.js';
 
 const empty = {};
 
@@ -79,27 +79,7 @@ function postProcessMap(context) {
 }
 
 function postProcessMapSeen(context) {
-  const {stackOut, seen} = context,
-    t = new Map();
-  setObject(seen, this.s, t);
-  for (const k of this.s.keys()) {
-    const value = stackOut.pop();
-    if (!(value instanceof Circular)) {
-      t.set(k, value);
-      continue;
-    }
-    const record = seen.get(value.value);
-    if (record) {
-      if (record.actions) {
-        record.actions.push([t, k]);
-      } else {
-        t.set(k, record.value);
-      }
-    } else {
-      seen.set(value.value, {actions: [[t, k]]});
-    }
-  }
-  stackOut.push(t);
+  postMapCircular(this.s, context);
 }
 
 const processPromise = (val, context) =>

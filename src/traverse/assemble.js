@@ -1,5 +1,5 @@
 import {Env, Unifier, Variable} from '../unify.js';
-import walk, {Circular, setObject, processOther, processCircular, processMap, buildNewMap, replaceObject} from './walk.js';
+import walk, {Circular, setObject, processOther, processCircular, processMap, postMapCircular, buildNewMap, replaceObject} from './walk.js';
 
 const empty = {};
 
@@ -125,7 +125,7 @@ const postProcessMap = context => {
 };
 
 function postProcessMapSeen(context) {
-  const {stackOut, seen} = context,
+  const stackOut = context.stackOut,
     s = this.s;
   let j = stackOut.length - 1;
   main: {
@@ -137,26 +137,7 @@ function postProcessMapSeen(context) {
     replaceObject(j, s, stackOut);
     return;
   }
-  const t = new Map();
-  setObject(seen, this.s, t);
-  for (const k of this.s.keys()) {
-    const value = stackOut.pop();
-    if (!(value instanceof Circular)) {
-      t.set(k, value);
-      continue;
-    }
-    const record = seen.get(value.value);
-    if (record) {
-      if (record.actions) {
-        record.actions.push([t, k]);
-      } else {
-        t.set(k, record.value);
-      }
-    } else {
-      seen.set(value.value, {actions: [[t, k]]});
-    }
-  }
-  stackOut.push(t);
+  postMapCircular(s, context);
 }
 
 const registry = [

@@ -12,32 +12,58 @@ class Circular {
   }
 }
 
-const setObject = (seen, s, t) => {
-  if (seen.has(s)) {
-    seen.get(s).actions.forEach(([object, key]) => {
+const setObject = (seen, source, value) => {
+  if (seen.has(source)) {
+    seen.get(source).actions.forEach(([object, key]) => {
       if (object instanceof Map) {
-        object.set(key, t);
+        object.set(key, value);
       } else {
         const d = Object.getOwnPropertyDescriptor(object, key);
-        d.value = t;
+        d.value = value;
         Object.defineProperty(object, key, d);
       }
     });
   }
-  seen.set(s, {value: t});
+  seen.set(source, {value});
 };
 
-const processOther = (val, context) => context.stackOut.push(val);
+const processOther = (value, context) => context.stackOut.push(value);
 
-const processCircular = (val, context) => context.stackOut.push(new Circular(val));
+const processCircular = (value, context) => context.stackOut.push(new Circular(value));
 
-const processMap = (postProcess, postProcessSeen) => (val, context) => {
+const processMap = (postProcess, postProcessSeen) => (object, context) => {
   const stack = context.stack;
-  postProcess && stack.push(new walk.Command(postProcessSeen ? (context.seen ? postProcessSeen : postProcess) : postProcess, val));
-  for (const value of val.values()) {
+  postProcess && stack.push(new walk.Command(postProcessSeen ? (context.seen ? postProcessSeen : postProcess) : postProcess, object));
+  for (const value of object.values()) {
     stack.push(value);
   }
 };
+
+const postMapCircular = (source, context) => {
+  const {stackOut, seen, wrapMap} = context,
+    t = new Map();
+  for (const k of source.keys()) {
+    const value = stackOut.pop();
+    if (!(value instanceof Circular)) {
+      t.set(k, value);
+      continue;
+    }
+    const record = seen.get(value.value);
+    if (record) {
+      if (record.actions) {
+        record.actions.push([t, k]);
+      } else {
+        t.set(k, record.value);
+      }
+    } else {
+      seen.set(value.value, {actions: [[t, k]]});
+    }
+  }
+  const o = wrapMap ? wrapMap(t) : t;
+  setObject(seen, source, o);
+  stackOut.push(o);
+};
+
 
 const buildNewMap = (keys, stackOut, wrap) => {
   const t = new Map();
@@ -158,6 +184,7 @@ export {
   Circular,
   setObject,
   processMap,
+  postMapCircular,
   processOther,
   processCircular,
   buildNewMap,
