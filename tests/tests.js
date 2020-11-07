@@ -9,7 +9,7 @@ import walk from '../src/traverse/walk.js';
 import clone from '../src/traverse/clone.js';
 import assemble from '../src/traverse/assemble.js';
 import deref from '../src/traverse/deref.js';
-import replace from '../src/utils/replace.js';
+import replaceVars from '../src/utils/replaceVars.js';
 
 // test harness
 
@@ -1023,7 +1023,7 @@ const tests = [
     eval(TEST('unify(y, 2, env)'));
     eval(TEST('val.isBound(env)'));
     eval(TEST('unify(val, 3, env)'));
-    eval(TEST("replace('${x} + ${y} = ${val}', env) === '1 + 2 = 3'"));
+    eval(TEST('replaceVars(env)`${x} + ${y} = ${val}` === "1 + 2 = 3"'));
   },
   function test_nullProto() {
     const x = Object.create(null),
