@@ -43,8 +43,7 @@ function postProcess(context) {
 }
 
 function postProcessSeen(context) {
-  const stackOut = context.stackOut,
-    seen = context.seen,
+  const {stackOut, seen} = context,
     s = this.s,
     isArray = s instanceof Array,
     descriptors = Object.getOwnPropertyDescriptors(s);
@@ -104,8 +103,7 @@ function postProcessMap(context) {
 }
 
 function postProcessMapSeen(context) {
-  const stackOut = context.stackOut,
-    seen = context.seen,
+  const {stackOut, seen} = context,
     t = new Map();
   setObject(seen, this.s, t);
   for (const k of this.s.keys()) {
