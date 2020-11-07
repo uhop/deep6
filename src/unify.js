@@ -281,12 +281,12 @@ const objectOps = {
         let keys = Object.keys(this.l);
         if (!this.e.ignoreSymbols) keys = keys.concat(Object.getOwnPropertySymbols(this.l));
         for (const k of keys) {
-          !hasOwnProperty.call(this.r, k) && (this.r[k] = this.l[k]);
+          !hasOwnProperty.call(this.r, k) && Object.defineProperty(this.r, k, Object.getOwnPropertyDescriptor(this.l, k));
         }
         keys = Object.keys(this.r);
         if (!this.e.ignoreSymbols) keys = keys.concat(Object.getOwnPropertySymbols(this.r));
         for (const k of keys) {
-          !hasOwnProperty.call(this.l, k) && (this.l[k] = this.r[k]);
+          !hasOwnProperty.call(this.l, k) && Object.defineProperty(this.l, k, Object.getOwnPropertyDescriptor(this.r, k));
         }
       }
     }
@@ -319,7 +319,7 @@ objectOps.exact.soft.update = objectOps.open.soft.update = function () {
   let keys = Object.keys(this.l);
   if (!this.e.ignoreSymbols) keys = keys.concat(Object.getOwnPropertySymbols(this.l));
   for (const k of keys) {
-    !hasOwnProperty.call(this.r, k) && (this.r[k] = this.l[k]);
+    !hasOwnProperty.call(this.r, k) && Object.defineProperty(this.r, k, Object.getOwnPropertyDescriptor(this.l, k));
   }
 };
 
