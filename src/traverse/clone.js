@@ -15,7 +15,9 @@ const setObject = (seen, s, t) => {
       if (object instanceof Map) {
         object.set(key, t);
       } else {
-        object[key] = t;
+        const d = Object.getOwnPropertyDescriptor(object, key);
+        d.value = t;
+        Object.defineProperty(object, key, d);
       }
     });
   }
@@ -25,8 +27,17 @@ const setObject = (seen, s, t) => {
 const postProcess = init =>
   function (context) {
     const stackOut = context.stackOut,
-      t = init;
-    Object.keys(this.s).forEach(k => (t[k] = stackOut.pop()));
+      descriptors = Object.getOwnPropertyDescriptors(this.s);
+    if (init instanceof Array) delete descriptors.length;
+    const t = init,
+      keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
+    for (const k of keys) {
+      const d = descriptors[k];
+      if (!(d.get || d.set)) {
+        d.value = stackOut.pop();
+      }
+      Object.defineProperty(t, k, d);
+    }
     stackOut.push(t);
   };
 
@@ -34,24 +45,37 @@ const postProcessSeen = init =>
   function (context) {
     const stackOut = context.stackOut,
       seen = context.seen,
-      t = init;
+      descriptors = Object.getOwnPropertyDescriptors(this.s);
+    if (init instanceof Array) delete descriptors.length;
+    const t = init,
+      keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
     setObject(seen, this.s, t);
-    for (const k of Object.keys(this.s)) {
+    for (const k of keys) {
+      const d = descriptors[k];
+      if (d.get || d.set) {
+        Object.defineProperty(t, k, d);
+        continue;
+      }
       const value = stackOut.pop();
       if (!(value instanceof Circular)) {
-        t[k] = value;
+        d.value = value;
+        Object.defineProperty(t, k, d);
         continue;
       }
       const record = seen.get(value.value);
       if (record) {
         if (record.actions) {
           record.actions.push([t, k]);
+          d.value = null;
         } else {
-          t[k] = record.value;
+          d.value = record.value;
         }
-      } else {
-        seen.set(value.value, {actions: [[t, k]]});
+        Object.defineProperty(t, k, d);
+        continue;
       }
+      seen.set(value.value, {actions: [[t, k]]});
+      d.value = null;
+      Object.defineProperty(t, k, d);
     }
     stackOut.push(t);
   };
@@ -59,7 +83,12 @@ const postProcessSeen = init =>
 const processObject = (val, context) => {
   const stack = context.stack;
   stack.push(new walk.Command((context.seen ? postProcessSeen : postProcess)({}), val));
-  Object.keys(val).forEach(k => stack.push(val[k]));
+  const descriptors = Object.getOwnPropertyDescriptors(val);
+  const keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
+  keys.forEach(key => {
+    const d = descriptors[key];
+    !(d.get || d.set) && stack.push(d.value);
+  });
 };
 
 function postProcessMap(context) {
@@ -120,8 +149,14 @@ const registry = [
     Array,
     function processArray(val, context) {
       const stack = context.stack;
-      stack.push(new walk.Command(postProcess([]), val));
-      Object.keys(val).forEach(k => stack.push(val[k]));
+      stack.push(new walk.Command((context.seen ? postProcessSeen : postProcess)([]), val));
+      const descriptors = Object.getOwnPropertyDescriptors(val);
+      delete descriptors.length;
+      const keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
+      keys.forEach(key => {
+        const d = descriptors[key];
+        !(d.get || d.set) && stack.push(d.value);
+      });
     },
     Variable,
     function processVariable(val, context) {
