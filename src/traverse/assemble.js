@@ -1,5 +1,5 @@
-import {Unifier, Variable} from '../unify.js';
-import walk from './walk.js';
+import {Env, Unifier, Variable} from '../unify.js';
+import walk, {Circular, setObject} from './walk.js';
 
 const empty = {};
 
@@ -40,9 +40,67 @@ function postProcess(context) {
   stackOut.push(t);
 }
 
+function postProcessSeen(context) {
+  const {stackOut, seen, ignoreSymbols} = context,
+    s = this.s,
+    isArray = s instanceof Array,
+    descriptors = Object.getOwnPropertyDescriptors(s);
+  if (isArray) delete descriptors.length;
+  const keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
+  let j = stackOut.length - 1;
+  main: {
+    const result = keys.some(k => {
+      if (ignoreSymbols && typeof k == 'symbol') return false;
+      const d = descriptors[k];
+      if (d.get || d.set) return false;
+      const t = stackOut[j--];
+      return typeof t == 'number' && isNaN(t) ? typeof s[k] == 'number' && !isNaN(s[k]) : s[k] !== t;
+    });
+    if (result) break main;
+    const l = stackOut.length - 1 - j;
+    if (l) {
+      stackOut.splice(-l, l, s);
+    } else {
+      stackOut.push(s);
+    }
+    return;
+  }
+  const t = isArray ? [] : Object.create(Object.getPrototypeOf(s));
+  setObject(seen, this.s, t);
+  for (const k of keys) {
+    const d = descriptors[k];
+    if (d.get || d.set) {
+      Object.defineProperty(t, k, d);
+      continue;
+    }
+    const value = stackOut.pop();
+    if (!(value instanceof Circular)) {
+      d.value = value;
+      Object.defineProperty(t, k, d);
+      continue;
+    }
+    const record = seen.get(value.value);
+    if (record) {
+      if (record.actions) {
+        record.actions.push([t, k]);
+        d.value = null;
+      } else {
+        d.value = record.value;
+      }
+      Object.defineProperty(t, k, d);
+      continue;
+    }
+    seen.set(value.value, {actions: [[t, k]]});
+    d.value = null;
+    Object.defineProperty(t, k, d);
+  }
+  stackOut.push(t);
+}
+
+
 const processObject = (val, context) => {
   const {stack, ignoreSymbols} = context;
-  stack.push(new walk.Command(postProcess, val));
+  stack.push(new walk.Command(context.seen ? postProcessSeen : postProcess, val));
   const descriptors = Object.getOwnPropertyDescriptors(val),
     keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
   for (const key of keys) {
@@ -77,9 +135,49 @@ const postProcessMap = context => {
   stackOut.push(t);
 };
 
+function postProcessMapSeen(context) {
+  const {stackOut, seen} = context,
+    s = this.s;
+  let j = stackOut.length - 1;
+  main: {
+    const result = Array.from(s.values()).some(v => {
+      const t = stackOut[j--];
+      return typeof t == 'number' && isNaN(t) ? typeof v == 'number' && !isNaN(v) : v !== t;
+    });
+    if (result) break main;
+    const l = stackOut.length - 1 - j;
+    if (l) {
+      stackOut.splice(-l, l, s);
+    } else {
+      stackOut.push(s);
+    }
+    return;
+  }
+  const t = new Map();
+  setObject(seen, this.s, t);
+  for (const k of this.s.keys()) {
+    const value = stackOut.pop();
+    if (!(value instanceof Circular)) {
+      t.set(k, value);
+      continue;
+    }
+    const record = seen.get(value.value);
+    if (record) {
+      if (record.actions) {
+        record.actions.push([t, k]);
+      } else {
+        t.set(k, record.value);
+      }
+    } else {
+      seen.set(value.value, {actions: [[t, k]]});
+    }
+  }
+  stackOut.push(t);
+}
+
 const processMap = (val, context) => {
   const stack = context.stack;
-  stack.push(new walk.Command(postProcessMap, val));
+  stack.push(new walk.Command(context.seen ? postProcessMapSeen : postProcessMap, val));
   for (const value of val.values()) {
     stack.push(value);
   }
@@ -87,6 +185,8 @@ const processMap = (val, context) => {
 
 // no processing, use as a reference
 const processOther = (val, context) => context.stackOut.push(val);
+
+const processCircular = (val, context) => context.stackOut.push(new Circular(val));
 
 const registry = [
     walk.Command,
@@ -96,7 +196,7 @@ const registry = [
     Array,
     function processArray(val, context) {
       const {stack, ignoreSymbols} = context;
-      stack.push(new walk.Command(postProcess, val));
+      stack.push(new walk.Command(context.seen ? postProcessSeen : postProcess, val));
       const descriptors = Object.getOwnPropertyDescriptors(val);
       delete descriptors.length;
       const keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
@@ -149,16 +249,22 @@ typeof ArrayBuffer == 'function' && addType(ArrayBuffer);
 // main
 
 const assemble = (source, env, options) => {
+  if (env && !(env instanceof Env)) {
+    options = env;
+    env = null;
+  }
   options = options || empty;
 
   const context = options.context || {},
     stackOut = [];
   context.stackOut = stackOut;
+  context.seen = options.circular ? new Map() : null;
   context.env = env;
 
   walk(source, {
     processObject: options.processObject || processObject,
     processOther: options.processOther || processOther,
+    processCircular: options.processCircular || processCircular,
     registry: options.registry || assemble.registry,
     filters: options.filters || assemble.filters,
     circular: options.circular,
