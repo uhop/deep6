@@ -1,5 +1,5 @@
 import {Env, Unifier, Variable} from '../unify.js';
-import walk, {Circular, setObject, processOther, processCircular, processMap, buildNewMap} from './walk.js';
+import walk, {Circular, setObject, processOther, processCircular, processMap, buildNewMap, replaceObject} from './walk.js';
 
 const empty = {};
 
@@ -118,12 +118,7 @@ const postProcessMap = context => {
       return typeof t == 'number' && isNaN(t) ? typeof v == 'number' && !isNaN(v) : v !== t;
     });
     if (result) break main;
-    const l = stackOut.length - 1 - j;
-    if (l) {
-      stackOut.splice(-l, l, s);
-    } else {
-      stackOut.push(s);
-    }
+    replaceObject(j, s, stackOut);
     return;
   }
   buildNewMap(s.keys(), stackOut);
@@ -139,12 +134,7 @@ function postProcessMapSeen(context) {
       return typeof t == 'number' && isNaN(t) ? typeof v == 'number' && !isNaN(v) : v !== t;
     });
     if (result) break main;
-    const l = stackOut.length - 1 - j;
-    if (l) {
-      stackOut.splice(-l, l, s);
-    } else {
-      stackOut.push(s);
-    }
+    replaceObject(j, s, stackOut);
     return;
   }
   const t = new Map();

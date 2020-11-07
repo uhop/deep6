@@ -47,6 +47,15 @@ const buildNewMap = (keys, stackOut, wrap) => {
   stackOut.push(wrap ? wrap(t) : t);
 };
 
+const replaceObject = (upTo, object, stackOut) => {
+  const l = stackOut.length - 1 - upTo;
+  if (l) {
+    stackOut.splice(-l, l, object);
+  } else {
+    stackOut.push(object);
+  }
+};
+
 // implementation
 
 class Command {
@@ -142,5 +151,16 @@ const walk = (o, options) => {
 
 walk.Command = Command;
 
-export {Command, defaultRegistry as registry, defaultFilters as filters, Circular, setObject, processMap, processOther, processCircular, buildNewMap};
+export {
+  Command,
+  defaultRegistry as registry,
+  defaultFilters as filters,
+  Circular,
+  setObject,
+  processMap,
+  processOther,
+  processCircular,
+  buildNewMap,
+  replaceObject
+};
 export default walk;

@@ -1,5 +1,5 @@
 import {Env, Unifier, Variable} from '../unify.js';
-import walk, {processOther, processMap} from './walk.js';
+import walk, {processOther, processMap, replaceObject} from './walk.js';
 
 const empty = {};
 
@@ -45,12 +45,7 @@ function postProcessMap(context) {
   for (const key of s) {
     s.set(key, stackOut[j--]);
   }
-  const l = stackOut.length - 1 - j;
-  if (l) {
-    stackOut.splice(-l, l, s);
-  } else {
-    stackOut.push(s);
-  }
+  replaceObject(j, s, stackOut);
 }
 
 const registry = [
