@@ -94,6 +94,14 @@ const processObject = (postProcess, postProcessSeen) => (object, context) => {
   }
 };
 
+const getObjectData = (object, context) => {
+  const descriptors = Object.getOwnPropertyDescriptors(object);
+  if (Array.isArray(object)) delete descriptors.length;
+  let keys = Object.keys(descriptors);
+  if (context.symbols) keys = keys.concat(Object.getOwnPropertySymbols(descriptors));
+  return {descriptors, keys};
+};
+
 // implementation
 
 class Command {
@@ -189,6 +197,7 @@ export {
   processCircular,
   buildNewMap,
   replaceObject,
-  processObject
+  processObject,
+  getObjectData
 };
 export default walk;

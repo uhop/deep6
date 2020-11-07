@@ -1,15 +1,12 @@
 import {Env, Unifier, Variable} from '../unify.js';
-import walk, {processOther, processMap, replaceObject, processObject} from './walk.js';
+import walk, {processOther, processMap, replaceObject, processObject, getObjectData} from './walk.js';
 
 const empty = {};
 
 function postProcess(context) {
-  const {stackOut, symbols} = context,
-    s = this.s,
-    descriptors = Object.getOwnPropertyDescriptors(s);
-  if (s instanceof Array) delete descriptors.length;
-  let keys = Object.keys(descriptors);
-  if (symbols) keys = keys.concat(Object.getOwnPropertySymbols(descriptors));
+  const stackOut = context.stackOut,
+    s = this.s;
+  const {descriptors, keys} = getObjectData(this.s, context);
   let j = stackOut.length - 1;
   for (const key of keys) {
     const d = descriptors[key];
@@ -61,7 +58,7 @@ const registry = [
   ],
   filters = [];
 
-// add more exotic types
+// add more types
 
 const addType = (Type, process) => registry.push(Type, process || processOther);
 

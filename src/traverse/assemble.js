@@ -1,16 +1,24 @@
 import {Env, Unifier, Variable} from '../unify.js';
-import walk, {Circular, setObject, processOther, processCircular, processMap, postMapCircular, buildNewMap, replaceObject, processObject} from './walk.js';
+import walk, {
+  Circular,
+  setObject,
+  processOther,
+  processCircular,
+  processMap,
+  postMapCircular,
+  buildNewMap,
+  replaceObject,
+  processObject,
+  getObjectData
+} from './walk.js';
 
 const empty = {};
 
 function postProcess(context) {
-  const {stackOut, symbols} = context,
+  const stackOut = context.stackOut,
     s = this.s,
-    isArray = s instanceof Array,
-    descriptors = Object.getOwnPropertyDescriptors(s);
-  if (isArray) delete descriptors.length;
-  let keys = Object.keys(descriptors);
-  if (symbols) keys = keys.concat(Object.getOwnPropertySymbols(descriptors));
+    isArray = s instanceof Array;
+  const {descriptors, keys} = getObjectData(this.s, context);
   let j = stackOut.length - 1;
   main: {
     const result = keys.some(k => {
@@ -40,13 +48,10 @@ function postProcess(context) {
 }
 
 function postProcessSeen(context) {
-  const {stackOut, seen, symbols} = context,
+  const {stackOut, seen} = context,
     s = this.s,
-    isArray = s instanceof Array,
-    descriptors = Object.getOwnPropertyDescriptors(s);
-  if (isArray) delete descriptors.length;
-  let keys = Object.keys(descriptors);
-  if (symbols) keys = keys.concat(Object.getOwnPropertySymbols(descriptors));
+    isArray = s instanceof Array;
+  const {descriptors, keys} = getObjectData(this.s, context);
   let j = stackOut.length - 1;
   main: {
     const result = keys.some(k => {
@@ -153,7 +158,7 @@ const registry = [
   ],
   filters = [];
 
-// add more exotic types
+// add more types
 
 const addType = (Type, process) => registry.push(Type, process || processOther);
 
