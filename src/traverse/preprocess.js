@@ -3,6 +3,27 @@ import walk from './walk.js';
 
 const empty = {};
 
+class Circular {
+  constructor(value) {
+    this.value = value;
+  }
+}
+
+const setObject = (seen, s, t) => {
+  if (seen.has(s)) {
+    seen.get(s).actions.forEach(([object, key]) => {
+      if (object instanceof Map) {
+        object.set(key, t);
+      } else {
+        const d = Object.getOwnPropertyDescriptor(object, key);
+        d.value = t;
+        Object.defineProperty(object, key, d);
+      }
+    });
+  }
+  seen.set(s, {value: t});
+};
+
 function postProcess(context) {
   const {stackOut, ignoreSymbols} = context,
     s = this.s,
@@ -23,9 +44,51 @@ function postProcess(context) {
   stackOut.push(wrap ? wrap(t) : t);
 }
 
+function postProcessSeen(context) {
+  const stackOut = context.stackOut,
+    seen = context.seen,
+    s = this.s,
+    isArray = s instanceof Array,
+    descriptors = Object.getOwnPropertyDescriptors(s);
+  if (isArray) delete descriptors.length;
+  const wrap = context[isArray ? 'wrapArray' : 'wrapObject'],
+    t = isArray ? [] : Object.create(Object.getPrototypeOf(s)),
+    keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
+  for (const k of keys) {
+    const d = descriptors[k];
+    if (d.get || d.set) {
+      Object.defineProperty(t, k, d);
+      continue;
+    }
+    const value = stackOut.pop();
+    if (!(value instanceof Circular)) {
+      d.value = value;
+      Object.defineProperty(t, k, d);
+      continue;
+    }
+    const record = seen.get(value.value);
+    if (record) {
+      if (record.actions) {
+        record.actions.push([t, k]);
+        d.value = null;
+      } else {
+        d.value = record.value;
+      }
+      Object.defineProperty(t, k, d);
+      continue;
+    }
+    seen.set(value.value, {actions: [[t, k]]});
+    d.value = null;
+    Object.defineProperty(t, k, d);
+  }
+  const o = wrap ? wrap(t) : t;
+  setObject(seen, this.s, o);
+  stackOut.push(o);
+}
+
 const processObject = (val, context) => {
   const {stack, ignoreSymbols} = context;
-  stack.push(new walk.Command(postProcess, val));
+  stack.push(new walk.Command(context.seen ? postProcessSeen : postProcess, val));
   const descriptors = Object.getOwnPropertyDescriptors(val),
     keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
   for (const key of keys) {
@@ -36,18 +99,42 @@ const processObject = (val, context) => {
 };
 
 function postProcessMap(context) {
-  const stackOut = context.stackOut,
-    wrap = context.wrapMap,
+  const {stackOut, wrapMap} = context,
     t = new Map();
   for (const key of this.s.keys()) {
     t.set(key, stackOut.pop());
   }
-  stackOut.push(wrap ? wrap(t) : t);
+  stackOut.push(wrapMap ? wrapMap(t) : t);
+}
+
+function postProcessMapSeen(context) {
+  const {stackOut, seen, wrapMap} = context,
+    t = new Map();
+  for (const k of this.s.keys()) {
+    const value = stackOut.pop();
+    if (!(value instanceof Circular)) {
+      t.set(k, value);
+      continue;
+    }
+    const record = seen.get(value.value);
+    if (record) {
+      if (record.actions) {
+        record.actions.push([t, k]);
+      } else {
+        t.set(k, record.value);
+      }
+    } else {
+      seen.set(value.value, {actions: [[t, k]]});
+    }
+  }
+  const o = wrapMap ? wrapMap(t) : t;
+  setObject(seen, this.s, o);
+  stackOut.push(o);
 }
 
 const processMap = (val, context) => {
   const stack = context.stack;
-  stack.push(new walk.Command(postProcessMap, val));
+  stack.push(new walk.Command(context.seen ? postProcessMapSeen : postProcessMap, val));
   for (const value of val.values()) {
     stack.push(value);
   }
@@ -60,6 +147,8 @@ function processSet(val, context) {
 
 const processOther = (val, context) => context.stackOut.push(val);
 
+const processCircular = (val, context) => context.stackOut.push(new Circular(val));
+
 const registry = [
     walk.Command,
     function processCommand(val, context) {
@@ -68,7 +157,7 @@ const registry = [
     Array,
     function processArray(val, context) {
       const {stack, ignoreSymbols} = context;
-      stack.push(new walk.Command(postProcess, val));
+      stack.push(new walk.Command(context.seen ? postProcessSeen : postProcess, val));
       const descriptors = Object.getOwnPropertyDescriptors(val);
       delete descriptors.length;
       const keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
@@ -119,6 +208,7 @@ const preprocess = (source, options) => {
   const context = options.context || {},
     stackOut = [];
   context.stackOut = stackOut;
+  context.seen = options.circular ? new Map() : null;
   context.wrapObject = options.openObjects && open;
   context.wrapArray = options.openArrays && open;
   context.wrapMap = options.openMaps && open;
@@ -127,6 +217,7 @@ const preprocess = (source, options) => {
   walk(source, {
     processObject: options.processObject || processObject,
     processOther: options.processOther || processOther,
+    processCircular: options.processCircular || processCircular,
     registry: options.registry || preprocess.registry,
     filters: options.filters || preprocess.filters,
     circular: options.circular,
