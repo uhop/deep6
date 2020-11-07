@@ -3,7 +3,7 @@
 [npm-image]:      https://img.shields.io/npm/v/deep6.svg
 [npm-url]:        https://npmjs.org/package/deep6
 
-`deep6`: a no dependency mini-library that provides:
+`deep6`: a no-dependency mini-library that provides:
 
 * Advanced deep equivalency for JavaScript structures.
   * Extensible to accommodate custom objects.
