@@ -3,20 +3,33 @@ import walk from './walk.js';
 
 const empty = {};
 
-const postProcess = (init, wrapper) =>
-  function (context) {
-    const stackOut = context.stackOut,
-      wrap = context[wrapper],
-      s = this.s,
-      t = init;
-    Object.keys(s).forEach(k => (t[k] = stackOut.pop()));
-    stackOut.push(wrap ? wrap(t) : t);
-  };
+function postProcess(context) {
+  const stackOut = context.stackOut,
+    s = this.s,
+    descriptors = Object.getOwnPropertyDescriptors(s);
+  if (s instanceof Array) delete descriptors.length;
+  const wrap = context[s instanceof Array ? 'wrapArray' : 'wrapObject'],
+    t = s instanceof Array ? [] : Object.create(Object.getPrototypeOf(s)),
+    keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
+  for (const k of keys) {
+    const d = descriptors[k];
+    if (!(d.get || d.set)) {
+      d.value = stackOut.pop();
+    }
+    Object.defineProperty(t, k, d);
+  }
+  stackOut.push(wrap ? wrap(t) : t);
+}
 
 const processObject = (val, context) => {
   const stack = context.stack;
-  stack.push(new walk.Command(postProcess({}, 'wrapObject'), val));
-  Object.keys(val).forEach(k => stack.push(val[k]));
+  stack.push(new walk.Command(postProcess, val));
+  const descriptors = Object.getOwnPropertyDescriptors(val),
+    keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
+  keys.forEach(key => {
+    const d = descriptors[key];
+    !(d.get || d.set) && stack.push(d.value);
+  });
 };
 
 function postProcessMap(context) {
@@ -52,8 +65,14 @@ const registry = [
     Array,
     function processArray(val, context) {
       const stack = context.stack;
-      stack.push(new walk.Command(postProcess([], 'wrapArray'), val));
-      Object.keys(val).forEach(k => stack.push(val[k]));
+      stack.push(new walk.Command(postProcess, val));
+      const descriptors = Object.getOwnPropertyDescriptors(val);
+      delete descriptors.length;
+      const keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
+      keys.forEach(key => {
+        const d = descriptors[key];
+        !(d.get || d.set) && stack.push(d.value);
+      });
     },
     Variable,
     processOther,
