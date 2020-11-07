@@ -1,5 +1,5 @@
 import {Env, Unifier, Variable} from '../unify.js';
-import walk, {processOther, processMap, replaceObject, processObject, getObjectData} from './walk.js';
+import walk, {processOther, processMap, replaceObject, processObject, getObjectData, processVariable} from './walk.js';
 
 const empty = {};
 
@@ -36,14 +36,7 @@ const registry = [
     Array,
     processObject(postProcess),
     Variable,
-    function processVariable(val, context) {
-      const env = context.env;
-      if (val.isBound(env)) {
-        context.stack.push(val.get(env));
-      } else {
-        context.stackOut.push(val);
-      }
-    },
+    processVariable,
     Unifier,
     processOther,
     Date,

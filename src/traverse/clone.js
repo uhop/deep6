@@ -8,7 +8,8 @@ import walk, {
   processObject,
   postObjectCircular,
   getObjectData,
-  buildNewObject
+  buildNewObject,
+  processVariable
 } from './walk.js';
 
 const empty = {};
@@ -47,14 +48,7 @@ const registry = [
     Array,
     processObject(postProcess, postProcessSeen),
     Variable,
-    function processVariable(val, context) {
-      const env = context.env;
-      if (val.isBound(env)) {
-        context.stack.push(val.get(env));
-      } else {
-        context.stackOut.push(val);
-      }
-    },
+    processVariable,
     Unifier,
     function processAsValue(val, context) {
       context.stackOut.push(val);

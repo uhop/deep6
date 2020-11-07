@@ -151,6 +151,15 @@ const buildNewObject = (source, descriptors, keys, stackOut, wrap) => {
   stackOut.push(wrap ? wrap(t) : t);
 };
 
+const processVariable = (val, context) => {
+  const env = context.env;
+  if (val.isBound(env)) {
+    context.stack.push(val.get(env));
+  } else {
+    context.stackOut.push(val);
+  }
+};
+
 // implementation
 
 class Command {
@@ -249,6 +258,7 @@ export {
   processObject,
   postObjectCircular,
   getObjectData,
-  buildNewObject
+  buildNewObject,
+  processVariable
 };
 export default walk;
