@@ -1,5 +1,5 @@
 import {Unifier, Variable, open} from '../unify.js';
-import walk, {Circular, setObject, processOther, processCircular, processMap} from './walk.js';
+import walk, {Circular, setObject, processOther, processCircular, processMap, buildNewMap} from './walk.js';
 
 const empty = {};
 
@@ -78,12 +78,7 @@ const processObject = (val, context) => {
 };
 
 function postProcessMap(context) {
-  const {stackOut, wrapMap} = context,
-    t = new Map();
-  for (const key of this.s.keys()) {
-    t.set(key, stackOut.pop());
-  }
-  stackOut.push(wrapMap ? wrapMap(t) : t);
+  buildNewMap(this.s.keys(), context.stackOut, context.wrapMap);
 }
 
 function postProcessMapSeen(context) {

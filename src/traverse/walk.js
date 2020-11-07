@@ -4,6 +4,8 @@ const empty = {};
 
 const nop = () => {};
 
+// public utilities to build walkers
+
 class Circular {
   constructor(value) {
     this.value = value;
@@ -37,6 +39,16 @@ const processMap = (postProcess, postProcessSeen) => (val, context) => {
   }
 };
 
+const buildNewMap = (keys, stackOut, wrap) => {
+  const t = new Map();
+  for (const key of keys) {
+    t.set(key, stackOut.pop());
+  }
+  stackOut.push(wrap ? wrap(t) : t);
+};
+
+// implementation
+
 class Command {
   constructor(f, s) {
     this.f = f;
@@ -61,7 +73,7 @@ const processObject = (val, context) => {
 const defaultRegistry = [Command, processCommand, Array, processObject, Date, nop, RegExp, nop],
   defaultFilters = [];
 
-// add more exotic types
+// add more types
 
 const addType = (Type, process) => defaultRegistry.push(Type, process || nop);
 
@@ -130,5 +142,5 @@ const walk = (o, options) => {
 
 walk.Command = Command;
 
-export {Command, defaultRegistry as registry, defaultFilters as filters, Circular, setObject, processMap, processOther, processCircular};
+export {Command, defaultRegistry as registry, defaultFilters as filters, Circular, setObject, processMap, processOther, processCircular, buildNewMap};
 export default walk;
