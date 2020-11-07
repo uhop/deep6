@@ -1,7 +1,5 @@
 import {Env, Unifier, Variable} from '../unify.js';
 import walk, {
-  Circular,
-  setObject,
   processOther,
   processCircular,
   processMap,
@@ -9,6 +7,7 @@ import walk, {
   buildNewMap,
   replaceObject,
   processObject,
+  postObjectCircular,
   getObjectData,
   buildNewObject
 } from './walk.js';
@@ -17,8 +16,8 @@ const empty = {};
 
 function postProcess(context) {
   const stackOut = context.stackOut,
-    s = this.s;
-  const {descriptors, keys} = getObjectData(this.s, context);
+    s = this.s,
+    {descriptors, keys} = getObjectData(s, context);
   let j = stackOut.length - 1;
   main: {
     const result = keys.some(k => {
@@ -35,10 +34,9 @@ function postProcess(context) {
 }
 
 function postProcessSeen(context) {
-  const {stackOut, seen} = context,
+  const stackOut = context.stackOut,
     s = this.s,
-    isArray = s instanceof Array;
-  const {descriptors, keys} = getObjectData(this.s, context);
+    {descriptors, keys} = getObjectData(s, context);
   let j = stackOut.length - 1;
   main: {
     const result = keys.some(k => {
@@ -51,36 +49,7 @@ function postProcessSeen(context) {
     replaceObject(j, s, stackOut);
     return;
   }
-  const t = isArray ? [] : Object.create(Object.getPrototypeOf(s));
-  setObject(seen, this.s, t);
-  for (const k of keys) {
-    const d = descriptors[k];
-    if (d.get || d.set) {
-      Object.defineProperty(t, k, d);
-      continue;
-    }
-    const value = stackOut.pop();
-    if (!(value instanceof Circular)) {
-      d.value = value;
-      Object.defineProperty(t, k, d);
-      continue;
-    }
-    const record = seen.get(value.value);
-    if (record) {
-      if (record.actions) {
-        record.actions.push([t, k]);
-        d.value = null;
-      } else {
-        d.value = record.value;
-      }
-      Object.defineProperty(t, k, d);
-      continue;
-    }
-    seen.set(value.value, {actions: [[t, k]]});
-    d.value = null;
-    Object.defineProperty(t, k, d);
-  }
-  stackOut.push(t);
+  postObjectCircular(s, descriptors, keys, context);
 }
 
 const postProcessMap = context => {

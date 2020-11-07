@@ -5,22 +5,17 @@ const empty = {};
 
 function postProcess(context) {
   const stackOut = context.stackOut,
-    s = this.s;
-  const {descriptors, keys} = getObjectData(this.s, context);
+    s = this.s,
+    {descriptors, keys} = getObjectData(s, context);
   let j = stackOut.length - 1;
   for (const key of keys) {
     const d = descriptors[key];
     if (!(d.get || d.set)) {
-      d.value = stackOut.pop();
+      d.value = stackOut[j--];
       Object.defineProperty(s, key, d);
     }
   }
-  const l = stackOut.length - 1 - j;
-  if (l) {
-    stackOut.splice(-l, l, s);
-  } else {
-    stackOut.push(s);
-  }
+  replaceObject(j, s, stackOut);
 }
 
 function postProcessMap(context) {

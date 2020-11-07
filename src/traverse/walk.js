@@ -94,6 +94,43 @@ const processObject = (postProcess, postProcessSeen) => (object, context) => {
   }
 };
 
+const postObjectCircular = (source, descriptors, keys, context) => {
+  const {stackOut, seen} = context,
+    isArray = Array.isArray(source),
+    wrap = context[isArray ? 'wrapArray' : 'wrapObject'],
+    t = isArray ? [] : Object.create(Object.getPrototypeOf(source));
+  for (const k of keys) {
+    const d = descriptors[k];
+    if (d.get || d.set) {
+      Object.defineProperty(t, k, d);
+      continue;
+    }
+    const value = stackOut.pop();
+    if (!(value instanceof Circular)) {
+      d.value = value;
+      Object.defineProperty(t, k, d);
+      continue;
+    }
+    const record = seen.get(value.value);
+    if (record) {
+      if (record.actions) {
+        record.actions.push([t, k]);
+        d.value = null;
+      } else {
+        d.value = record.value;
+      }
+      Object.defineProperty(t, k, d);
+      continue;
+    }
+    seen.set(value.value, {actions: [[t, k]]});
+    d.value = null;
+    Object.defineProperty(t, k, d);
+  }
+  const o = wrap ? wrap(t) : t;
+  setObject(seen, source, o);
+  stackOut.push(o);
+}
+
 const getObjectData = (object, context) => {
   const descriptors = Object.getOwnPropertyDescriptors(object);
   if (Array.isArray(object)) delete descriptors.length;
@@ -210,6 +247,7 @@ export {
   buildNewMap,
   replaceObject,
   processObject,
+  postObjectCircular,
   getObjectData,
   buildNewObject
 };
