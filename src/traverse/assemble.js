@@ -4,7 +4,7 @@ import walk from './walk.js';
 const empty = {};
 
 function postProcess(context) {
-  const stackOut = context.stackOut,
+  const {stackOut, ignoreSymbols} = context,
     s = this.s,
     isArray = s instanceof Array,
     descriptors = Object.getOwnPropertyDescriptors(s);
@@ -13,6 +13,7 @@ function postProcess(context) {
   let j = stackOut.length - 1;
   main: {
     const result = keys.some(k => {
+      if (ignoreSymbols && typeof k == 'symbol') return false;
       const d = descriptors[k];
       if (d.get || d.set) return false;
       const t = stackOut[j--];
@@ -28,25 +29,27 @@ function postProcess(context) {
     return;
   }
   const t = isArray ? [] : Object.create(Object.getPrototypeOf(s));
-  keys.forEach(key => {
+  for (const key of keys) {
+    if (ignoreSymbols && typeof key == 'symbol') continue;
     const d = descriptors[key];
     if (!(d.get || d.set)) {
       d.value = stackOut.pop();
     }
     Object.defineProperty(t, key, d);
-  });
+  }
   stackOut.push(t);
 }
 
 const processObject = (val, context) => {
-  const stack = context.stack;
+  const {stack, ignoreSymbols} = context;
   stack.push(new walk.Command(postProcess, val));
   const descriptors = Object.getOwnPropertyDescriptors(val),
     keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
-  keys.forEach(key => {
+  for (const key of keys) {
+    if (ignoreSymbols && typeof key == 'symbol') continue;
     const d = descriptors[key];
     !(d.get || d.set) && stack.push(d.value);
-  });
+  }
 };
 
 const postProcessMap = context => {
@@ -92,15 +95,16 @@ const registry = [
     },
     Array,
     function processArray(val, context) {
-      const stack = context.stack;
+      const {stack, ignoreSymbols} = context;
       stack.push(new walk.Command(postProcess, val));
       const descriptors = Object.getOwnPropertyDescriptors(val);
       delete descriptors.length;
       const keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
-      keys.forEach(key => {
+      for (const key of keys) {
+        if (ignoreSymbols && typeof key == 'symbol') continue;
         const d = descriptors[key];
         !(d.get || d.set) && stack.push(d.value);
-      });
+      }
     },
     Variable,
     function processVariable(val, context) {
@@ -158,6 +162,7 @@ const assemble = (source, env, options) => {
     registry: options.registry || assemble.registry,
     filters: options.filters || assemble.filters,
     circular: options.circular,
+    ignoreSymbols: options.ignoreSymbols,
     context: context
   });
 

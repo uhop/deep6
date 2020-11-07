@@ -4,7 +4,7 @@ import walk from './walk.js';
 const empty = {};
 
 function postProcess(context) {
-  const stackOut = context.stackOut,
+  const {stackOut, ignoreSymbols} = context,
     s = this.s,
     isArray = s instanceof Array,
     descriptors = Object.getOwnPropertyDescriptors(s);
@@ -12,25 +12,27 @@ function postProcess(context) {
   const wrap = context[isArray ? 'wrapArray' : 'wrapObject'],
     t = isArray ? [] : Object.create(Object.getPrototypeOf(s)),
     keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
-  for (const k of keys) {
-    const d = descriptors[k];
+  for (const key of keys) {
+    if (ignoreSymbols && typeof key == 'symbol') continue;
+    const d = descriptors[key];
     if (!(d.get || d.set)) {
       d.value = stackOut.pop();
     }
-    Object.defineProperty(t, k, d);
+    Object.defineProperty(t, key, d);
   }
   stackOut.push(wrap ? wrap(t) : t);
 }
 
 const processObject = (val, context) => {
-  const stack = context.stack;
+  const {stack, ignoreSymbols} = context;
   stack.push(new walk.Command(postProcess, val));
   const descriptors = Object.getOwnPropertyDescriptors(val),
     keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
-  keys.forEach(key => {
+  for (const key of keys) {
+    if (ignoreSymbols && typeof key == 'symbol') continue;
     const d = descriptors[key];
     !(d.get || d.set) && stack.push(d.value);
-  });
+  }
 };
 
 function postProcessMap(context) {
@@ -65,15 +67,16 @@ const registry = [
     },
     Array,
     function processArray(val, context) {
-      const stack = context.stack;
+      const {stack, ignoreSymbols} = context;
       stack.push(new walk.Command(postProcess, val));
       const descriptors = Object.getOwnPropertyDescriptors(val);
       delete descriptors.length;
       const keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
-      keys.forEach(key => {
+      for (const key of keys) {
+        if (ignoreSymbols && typeof key == 'symbol') continue;
         const d = descriptors[key];
         !(d.get || d.set) && stack.push(d.value);
-      });
+      }
     },
     Variable,
     processOther,
@@ -127,6 +130,7 @@ const preprocess = (source, options) => {
     registry: options.registry || preprocess.registry,
     filters: options.filters || preprocess.filters,
     circular: options.circular,
+    ignoreSymbols: options.ignoreSymbols,
     context: context
   });
 

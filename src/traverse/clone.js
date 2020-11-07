@@ -42,55 +42,56 @@ function postProcess(context) {
   stackOut.push(t);
 }
 
-  function postProcessSeen(context) {
-    const stackOut = context.stackOut,
-      seen = context.seen,
-      s = this.s,
-      isArray = s instanceof Array,
-      descriptors = Object.getOwnPropertyDescriptors(s);
-    if (isArray) delete descriptors.length;
-    const t = isArray ? [] : Object.create(Object.getPrototypeOf(s)),
-      keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
-    setObject(seen, this.s, t);
-    for (const k of keys) {
-      const d = descriptors[k];
-      if (d.get || d.set) {
-        Object.defineProperty(t, k, d);
-        continue;
-      }
-      const value = stackOut.pop();
-      if (!(value instanceof Circular)) {
-        d.value = value;
-        Object.defineProperty(t, k, d);
-        continue;
-      }
-      const record = seen.get(value.value);
-      if (record) {
-        if (record.actions) {
-          record.actions.push([t, k]);
-          d.value = null;
-        } else {
-          d.value = record.value;
-        }
-        Object.defineProperty(t, k, d);
-        continue;
-      }
-      seen.set(value.value, {actions: [[t, k]]});
-      d.value = null;
+function postProcessSeen(context) {
+  const stackOut = context.stackOut,
+    seen = context.seen,
+    s = this.s,
+    isArray = s instanceof Array,
+    descriptors = Object.getOwnPropertyDescriptors(s);
+  if (isArray) delete descriptors.length;
+  const t = isArray ? [] : Object.create(Object.getPrototypeOf(s)),
+    keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
+  setObject(seen, this.s, t);
+  for (const k of keys) {
+    const d = descriptors[k];
+    if (d.get || d.set) {
       Object.defineProperty(t, k, d);
+      continue;
     }
-    stackOut.push(t);
-  };
+    const value = stackOut.pop();
+    if (!(value instanceof Circular)) {
+      d.value = value;
+      Object.defineProperty(t, k, d);
+      continue;
+    }
+    const record = seen.get(value.value);
+    if (record) {
+      if (record.actions) {
+        record.actions.push([t, k]);
+        d.value = null;
+      } else {
+        d.value = record.value;
+      }
+      Object.defineProperty(t, k, d);
+      continue;
+    }
+    seen.set(value.value, {actions: [[t, k]]});
+    d.value = null;
+    Object.defineProperty(t, k, d);
+  }
+  stackOut.push(t);
+}
 
 const processObject = (val, context) => {
-  const stack = context.stack;
+  const {stack, ignoreSymbols} = context;
   stack.push(new walk.Command(context.seen ? postProcessSeen : postProcess, val));
   const descriptors = Object.getOwnPropertyDescriptors(val);
   const keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
-  keys.forEach(key => {
+  for (const key of keys) {
+    if (ignoreSymbols && typeof key == 'symbol') continue;
     const d = descriptors[key];
     !(d.get || d.set) && stack.push(d.value);
-  });
+  }
 };
 
 function postProcessMap(context) {
@@ -150,15 +151,16 @@ const registry = [
     },
     Array,
     function processArray(val, context) {
-      const stack = context.stack;
+      const {stack, ignoreSymbols} = context;
       stack.push(new walk.Command(context.seen ? postProcessSeen : postProcess, val));
       const descriptors = Object.getOwnPropertyDescriptors(val);
       delete descriptors.length;
       const keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
-      keys.forEach(key => {
+      for (const key of keys) {
+        if (ignoreSymbols && typeof key == 'symbol') continue;
         const d = descriptors[key];
         !(d.get || d.set) && stack.push(d.value);
-      });
+      }
     },
     Variable,
     function processVariable(val, context) {
@@ -228,6 +230,7 @@ const clone = (source, env, options) => {
     registry: options.registry || clone.registry,
     filters: options.filters || clone.filters,
     circular: options.circular,
+    ignoreSymbols: options.ignoreSymbols,
     context: context
   });
 

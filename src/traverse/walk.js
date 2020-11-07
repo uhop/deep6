@@ -18,10 +18,11 @@ const processObject = (val, context) => {
     descriptors = Object.getOwnPropertyDescriptors(val);
   if (val instanceof Array) delete descriptors.length;
   const keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
-  keys.forEach(key => {
+  for (const key of keys) {
+    if (context.ignoreSymbols && typeof key == 'symbol') continue;
     const d = descriptors[key];
     !(d.get || d.set) && stack.push(d.value);
-  });
+  }
 };
 
 const processMap = (val, context) => {
@@ -70,6 +71,7 @@ const walk = (o, options) => {
     stack = [o],
     seen = new Set();
   context.stack = stack;
+  context.ignoreSymbols = Object.prototype.hasOwnProperty.call(options, 'ignoreSymbols') ? options.ignoreSymbols : true;
   main: while (stack.length) {
     o = stack.pop();
     if (!o || typeof o != 'object' || o === _) {

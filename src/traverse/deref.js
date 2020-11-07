@@ -4,19 +4,20 @@ import walk from './walk.js';
 const empty = {};
 
 function postProcess(context) {
-  const stackOut = context.stackOut,
+  const {stackOut, ignoreSymbols} = context,
     s = this.s,
     descriptors = Object.getOwnPropertyDescriptors(s);
   if (s instanceof Array) delete descriptors.length;
   const keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
   let j = stackOut.length - 1;
-  keys.forEach(key => {
+  for (const key of keys) {
+    if (ignoreSymbols && typeof key == 'symbol') continue;
     const d = descriptors[key];
     if (!(d.get || d.set)) {
       d.value = stackOut.pop();
       Object.defineProperty(s, key, d);
     }
-  });
+  }
   const l = stackOut.length - 1 - j;
   if (l) {
     stackOut.splice(-l, l, s);
@@ -26,14 +27,15 @@ function postProcess(context) {
 }
 
 const processObject = (val, context) => {
-  const stack = context.stack;
+  const {stack, ignoreSymbols} = context;
   stack.push(new walk.Command(postProcess, val));
   const descriptors = Object.getOwnPropertyDescriptors(val),
     keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
-  keys.forEach(key => {
+  for (const key of keys) {
+    if (ignoreSymbols && typeof key == 'symbol') continue;
     const d = descriptors[key];
     !(d.get || d.set) && stack.push(d.value);
-  });
+  }
 };
 
 function postProcessMap(context) {
@@ -68,15 +70,16 @@ const registry = [
     },
     Array,
     function processArray(val, context) {
-      const stack = context.stack;
+      const {stack, ignoreSymbols} = context;
       stack.push(new walk.Command(postProcess, val));
       const descriptors = Object.getOwnPropertyDescriptors(val);
       delete descriptors.length;
       const keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
-      keys.forEach(key => {
+      for (const key of keys) {
+        if (ignoreSymbols && typeof key == 'symbol') continue;
         const d = descriptors[key];
         !(d.get || d.set) && stack.push(d.value);
-      });
+      }
     },
     Variable,
     function processVariable(val, context) {
@@ -134,6 +137,7 @@ const deref = (source, env, options) => {
     registry: options.registry || deref.registry,
     filters: options.filters || deref.filters,
     circular: options.circular,
+    ignoreSymbols: options.ignoreSymbols,
     context: context
   });
 
