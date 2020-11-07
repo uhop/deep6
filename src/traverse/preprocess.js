@@ -6,10 +6,11 @@ const empty = {};
 function postProcess(context) {
   const stackOut = context.stackOut,
     s = this.s,
+    isArray = s instanceof Array,
     descriptors = Object.getOwnPropertyDescriptors(s);
-  if (s instanceof Array) delete descriptors.length;
-  const wrap = context[s instanceof Array ? 'wrapArray' : 'wrapObject'],
-    t = s instanceof Array ? [] : Object.create(Object.getPrototypeOf(s)),
+  if (isArray) delete descriptors.length;
+  const wrap = context[isArray ? 'wrapArray' : 'wrapObject'],
+    t = isArray ? [] : Object.create(Object.getPrototypeOf(s)),
     keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
   for (const k of keys) {
     const d = descriptors[k];

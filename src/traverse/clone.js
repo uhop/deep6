@@ -27,9 +27,10 @@ const setObject = (seen, s, t) => {
 function postProcess(context) {
   const stackOut = context.stackOut,
     s = this.s,
+    isArray = s instanceof Array,
     descriptors = Object.getOwnPropertyDescriptors(s);
-  if (s instanceof Array) delete descriptors.length;
-  const t = s instanceof Array ? [] : Object.create(Object.getPrototypeOf(s)),
+  if (isArray) delete descriptors.length;
+  const t = isArray ? [] : Object.create(Object.getPrototypeOf(s)),
     keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
   for (const k of keys) {
     const d = descriptors[k];
@@ -45,9 +46,10 @@ function postProcess(context) {
     const stackOut = context.stackOut,
       seen = context.seen,
       s = this.s,
+      isArray = s instanceof Array,
       descriptors = Object.getOwnPropertyDescriptors(s);
-    if (s instanceof Array) delete descriptors.length;
-    const t = s instanceof Array ? [] : Object.create(Object.getPrototypeOf(s)),
+    if (isArray) delete descriptors.length;
+    const t = isArray ? [] : Object.create(Object.getPrototypeOf(s)),
       keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
     setObject(seen, this.s, t);
     for (const k of keys) {

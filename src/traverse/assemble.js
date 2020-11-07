@@ -6,8 +6,9 @@ const empty = {};
 function postProcess(context) {
   const stackOut = context.stackOut,
     s = this.s,
+    isArray = s instanceof Array,
     descriptors = Object.getOwnPropertyDescriptors(s);
-  if (s instanceof Array) delete descriptors.length;
+  if (isArray) delete descriptors.length;
   const keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
   let j = stackOut.length - 1;
   main: {
@@ -26,7 +27,7 @@ function postProcess(context) {
     }
     return;
   }
-  const t = s instanceof Array ? [] : Object.create(Object.getPrototypeOf(s));
+  const t = isArray ? [] : Object.create(Object.getPrototypeOf(s));
   keys.forEach(key => {
     const d = descriptors[key];
     if (!(d.get || d.set)) {
