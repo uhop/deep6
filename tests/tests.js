@@ -775,18 +775,23 @@ const tests = [
     eval(TEST('unify(result, expected)'));
   },
   function test_clone() {
-    const source = {
-      a: [1, true, [0, NaN, Infinity, Math.sin]],
-      b: ['hello!', new Date(), /\d+/, {g: undefined}],
-      c: null,
-      d: {
-        e: [],
-        f: {}
-      }
-    };
+    const s = Symbol(),
+      source = {
+        a: [1, true, [0, NaN, Infinity, Math.sin]],
+        b: ['hello!', new Date(), /\d+/, {g: undefined}],
+        c: null,
+        d: {
+          e: [s],
+          f: {},
+          [s]: 42
+        }
+      };
     let result = clone(source);
     eval(TEST('result !== source'));
     eval(TEST('unify(result, source)'));
+    eval(TEST('!unify(result, source, {ignoreSymbols: false})'));
+    result = clone(source, {ignoreSymbols: false});
+    eval(TEST('unify(result, source, {ignoreSymbols: false})'));
     const left = v('left'),
       right = v('right');
     const env = unify(
@@ -844,10 +849,11 @@ const tests = [
     eval(TEST('unify(z, w, null, {circular: true})'));
   },
   function test_assemble() {
-    let source = {
-      a: [1, , null],
-      b: {c: 'hey'}
-    };
+    let s = Symbol(),
+      source = {
+        a: [1, , null],
+        b: {c: 'hey', d: s, [s]: 42}
+      };
     let result = assemble(source);
     eval(TEST('result === source'));
     eval(TEST('unify(result, source)'));
@@ -861,6 +867,24 @@ const tests = [
     eval(TEST('result !== source'));
     eval(TEST('unify(result, source, env)'));
     eval(TEST('unify(result, {z: {x: [{y: false}]}})'));
+    source = {[s]: v('x')};
+    result = assemble(source, env, {ignoreSymbols: false});
+    eval(TEST('result !== source'));
+    eval(TEST('unify(result, source, env, {ignoreSymbols: false})'));
+    eval(TEST('unify(result, {[s]: {x: [{y: false}]}}, {ignoreSymbols: false})'));
+  },
+  function test_assemble_circular() {
+    const X = v(),
+      a = {},
+      env = unify(X, a);
+    a.a = X;
+    let result = assemble(a, env, {circular: true});
+    eval(TEST('result !== a'));
+    eval(TEST('result.a === result'));
+    const b = {};
+    b.b = b;
+    result = assemble(b, {circular: true});
+    eval(TEST('unify(b, result, {circular: true})'));
   },
   function test_deref() {
     let source = {
