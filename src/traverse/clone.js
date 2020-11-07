@@ -49,17 +49,11 @@ const registry = [
     Variable,
     processVariable,
     Unifier,
-    function processAsValue(val, context) {
-      context.stackOut.push(val);
-    },
+    (val, context) => context.stackOut.push(val),
     Date,
-    function processDate(val, context) {
-      context.stackOut.push(new Date(val.getTime()));
-    },
+    (val, context) => context.stackOut.push(new Date(val.getTime())),
     RegExp,
-    function processRegExp(val, context) {
-      context.stackOut.push(new RegExp(val.source, (val.global ? 'g' : '') + (val.multiline ? 'm' : '') + (val.ignoreCase ? 'i' : '')));
-    }
+    (val, context) => context.stackOut.push(new RegExp(val.source, (val.global ? 'g' : '') + (val.multiline ? 'm' : '') + (val.ignoreCase ? 'i' : '')))
   ],
   filters = [];
 
