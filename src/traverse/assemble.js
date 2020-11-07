@@ -1,5 +1,5 @@
 import {Env, Unifier, Variable} from '../unify.js';
-import walk, {Circular, setObject} from './walk.js';
+import walk, {Circular, setObject, processMap} from './walk.js';
 
 const empty = {};
 
@@ -173,14 +173,6 @@ function postProcessMapSeen(context) {
   stackOut.push(t);
 }
 
-const processMap = (val, context) => {
-  const stack = context.stack;
-  stack.push(new walk.Command(context.seen ? postProcessMapSeen : postProcessMap, val));
-  for (const value of val.values()) {
-    stack.push(value);
-  }
-};
-
 // no processing, use as a reference
 const processOther = (val, context) => context.stackOut.push(val);
 
@@ -226,7 +218,7 @@ const registry = [
 
 const addType = (Type, process) => registry.push(Type, process || processOther);
 
-addType(Map, processMap);
+addType(Map, processMap(postProcessMap, postProcessMapSeen));
 addType(Set);
 addType(Promise);
 

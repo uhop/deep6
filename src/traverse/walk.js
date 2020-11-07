@@ -25,6 +25,14 @@ const setObject = (seen, s, t) => {
   seen.set(s, {value: t});
 };
 
+const processMap = (postProcess, postProcessSeen) => (val, context) => {
+  const stack = context.stack;
+  postProcess && stack.push(new walk.Command(postProcessSeen ? (context.seen ? postProcessSeen : postProcess) : postProcess, val));
+  for (const value of val.values()) {
+    stack.push(value);
+  }
+};
+
 class Command {
   constructor(f, s) {
     this.f = f;
@@ -46,13 +54,6 @@ const processObject = (val, context) => {
   }
 };
 
-const processMap = (val, context) => {
-  const stack = context.stack;
-  for (const value of val.values()) {
-    stack.push(value);
-  }
-};
-
 const defaultRegistry = [Command, processCommand, Array, processObject, Date, nop, RegExp, nop],
   defaultFilters = [];
 
@@ -60,7 +61,7 @@ const defaultRegistry = [Command, processCommand, Array, processObject, Date, no
 
 const addType = (Type, process) => defaultRegistry.push(Type, process || nop);
 
-addType(Map, processMap);
+addType(Map, processMap());
 addType(Set);
 addType(Promise);
 
@@ -125,5 +126,5 @@ const walk = (o, options) => {
 
 walk.Command = Command;
 
-export {Circular, setObject, Command, defaultRegistry as registry, defaultFilters as filters};
+export {Command, defaultRegistry as registry, defaultFilters as filters, Circular, setObject, processMap};
 export default walk;
