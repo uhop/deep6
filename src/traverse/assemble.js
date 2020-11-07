@@ -28,12 +28,7 @@ function postProcess(context) {
       return typeof t == 'number' && isNaN(t) ? typeof s[k] == 'number' && !isNaN(s[k]) : s[k] !== t;
     });
     if (result) break main;
-    const l = stackOut.length - 1 - j;
-    if (l) {
-      stackOut.splice(-l, l, s);
-    } else {
-      stackOut.push(s);
-    }
+    replaceObject(j, s, stackOut);
     return;
   }
   const t = isArray ? [] : Object.create(Object.getPrototypeOf(s));
@@ -61,12 +56,7 @@ function postProcessSeen(context) {
       return typeof t == 'number' && isNaN(t) ? typeof s[k] == 'number' && !isNaN(s[k]) : s[k] !== t;
     });
     if (result) break main;
-    const l = stackOut.length - 1 - j;
-    if (l) {
-      stackOut.splice(-l, l, s);
-    } else {
-      stackOut.push(s);
-    }
+    replaceObject(j, s, stackOut);
     return;
   }
   const t = isArray ? [] : Object.create(Object.getPrototypeOf(s));
