@@ -102,10 +102,7 @@
     "clone",
     "deep clone",
     "deep cloning",
-    "traversing",
-    "logic programming",
-    "solver",
-    "logic solver"
+    "traversing"
   ],
   "author": "Eugene Lazutkin <eugene.lazutkin@gmail.com> (https://www.lazutkin.com/)",
   "license": "BSD-3-Clause",
