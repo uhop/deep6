@@ -260,7 +260,7 @@ const objectOps = {
     exact: {
       precheck: (l, r, env) => {
         let keys = Object.keys(l);
-        if (!env.ignoreSymbols) keys = keys.concat(Object.getOwnPropertySymbols(l));
+        if (env.symbols) keys = keys.concat(Object.getOwnPropertySymbols(l));
         return keys.every(k => hasOwnProperty.call(r, k));
       }
     },
@@ -279,12 +279,12 @@ const objectOps = {
     soft: {
       update: function () {
         let keys = Object.keys(this.l);
-        if (!this.e.ignoreSymbols) keys = keys.concat(Object.getOwnPropertySymbols(this.l));
+        if (this.e.symbols) keys = keys.concat(Object.getOwnPropertySymbols(this.l));
         for (const k of keys) {
           !hasOwnProperty.call(this.r, k) && Object.defineProperty(this.r, k, Object.getOwnPropertyDescriptor(this.l, k));
         }
         keys = Object.keys(this.r);
-        if (!this.e.ignoreSymbols) keys = keys.concat(Object.getOwnPropertySymbols(this.r));
+        if (this.e.symbols) keys = keys.concat(Object.getOwnPropertySymbols(this.r));
         for (const k of keys) {
           !hasOwnProperty.call(this.l, k) && Object.defineProperty(this.l, k, Object.getOwnPropertyDescriptor(this.r, k));
         }
@@ -294,7 +294,7 @@ const objectOps = {
 };
 objectOps.exact.exact.compare = objectOps.exact.open.compare = objectOps.exact.soft.compare = (l, r, ls, rs, env) => {
   let keys = Object.keys(r);
-  if (!env.ignoreSymbols) keys = keys.concat(Object.getOwnPropertySymbols(r));
+  if (env.symbols) keys = keys.concat(Object.getOwnPropertySymbols(r));
   return keys.every(k => {
     if (hasOwnProperty.call(l, k)) {
       ls.push(l[k]);
@@ -306,7 +306,7 @@ objectOps.exact.exact.compare = objectOps.exact.open.compare = objectOps.exact.s
 };
 objectOps.open.open.compare = objectOps.open.soft.compare = objectOps.soft.soft.compare = (l, r, ls, rs, env) => {
   let keys = Object.keys(r);
-  if (!env.ignoreSymbols) keys = keys.concat(Object.getOwnPropertySymbols(r));
+  if (env.symbols) keys = keys.concat(Object.getOwnPropertySymbols(r));
   for (const k of keys) {
     if (hasOwnProperty.call(l, k)) {
       ls.push(l[k]);
@@ -317,7 +317,7 @@ objectOps.open.open.compare = objectOps.open.soft.compare = objectOps.soft.soft.
 };
 objectOps.exact.soft.update = objectOps.open.soft.update = function () {
   let keys = Object.keys(this.l);
-  if (!this.e.ignoreSymbols) keys = keys.concat(Object.getOwnPropertySymbols(this.l));
+  if (this.e.symbols) keys = keys.concat(Object.getOwnPropertySymbols(this.l));
   for (const k of keys) {
     !hasOwnProperty.call(this.r, k) && Object.defineProperty(this.r, k, Object.getOwnPropertyDescriptor(this.l, k));
   }
@@ -344,10 +344,9 @@ const unify = (l, r, env, options) => {
   }
   if (!env) {
     env = new Env();
-    env.ignoreSymbols = true;
   }
   env = Object.assign(env, options);
-  // options: openObjects, openArrays, openMaps, openSets, circular, loose, ignoreFunctions, signedZero, ignoreSymbols (=true).
+  // options: openObjects, openArrays, openMaps, openSets, circular, loose, ignoreFunctions, signedZero, symbols.
   const ls = [l],
     rs = [r],
     lSeen = new Map(),

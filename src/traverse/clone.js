@@ -4,14 +4,14 @@ import walk, {Circular, setObject} from './walk.js';
 const empty = {};
 
 function postProcess(context) {
-  const {stackOut, ignoreSymbols} = context,
+  const {stackOut, symbols} = context,
     s = this.s,
     isArray = s instanceof Array,
     descriptors = Object.getOwnPropertyDescriptors(s);
   if (isArray) delete descriptors.length;
   const t = isArray ? [] : Object.create(Object.getPrototypeOf(s));
   let keys = Object.keys(descriptors);
-  if (!ignoreSymbols) keys = keys.concat(Object.getOwnPropertySymbols(descriptors));
+  if (symbols) keys = keys.concat(Object.getOwnPropertySymbols(descriptors));
   for (const k of keys) {
     const d = descriptors[k];
     if (!(d.get || d.set)) {
@@ -23,7 +23,7 @@ function postProcess(context) {
 }
 
 function postProcessSeen(context) {
-  const {stackOut, seen, ignoreSymbols} = context,
+  const {stackOut, seen, symbols} = context,
     s = this.s,
     isArray = s instanceof Array,
     descriptors = Object.getOwnPropertyDescriptors(s);
@@ -31,7 +31,7 @@ function postProcessSeen(context) {
   const t = isArray ? [] : Object.create(Object.getPrototypeOf(s));
   setObject(seen, this.s, t);
   let keys = Object.keys(descriptors);
-  if (!ignoreSymbols) keys = keys.concat(Object.getOwnPropertySymbols(descriptors));
+  if (symbols) keys = keys.concat(Object.getOwnPropertySymbols(descriptors));
   for (const k of keys) {
     const d = descriptors[k];
     if (d.get || d.set) {
@@ -63,11 +63,11 @@ function postProcessSeen(context) {
 }
 
 const processObject = (val, context) => {
-  const {stack, ignoreSymbols} = context;
+  const {stack, symbols} = context;
   stack.push(new walk.Command(context.seen ? postProcessSeen : postProcess, val));
   const descriptors = Object.getOwnPropertyDescriptors(val);
   let keys = Object.keys(descriptors);
-  if (!ignoreSymbols) keys = keys.concat(Object.getOwnPropertySymbols(descriptors));
+  if (symbols) keys = keys.concat(Object.getOwnPropertySymbols(descriptors));
   for (const key of keys) {
     const d = descriptors[key];
     !(d.get || d.set) && stack.push(d.value);
@@ -130,12 +130,12 @@ const registry = [
     },
     Array,
     function processArray(val, context) {
-      const {stack, ignoreSymbols} = context;
+      const {stack, symbols} = context;
       stack.push(new walk.Command(context.seen ? postProcessSeen : postProcess, val));
       const descriptors = Object.getOwnPropertyDescriptors(val);
       delete descriptors.length;
       let keys = Object.keys(descriptors);
-      if (!ignoreSymbols) keys = keys.concat(Object.getOwnPropertySymbols(descriptors));
+      if (symbols) keys = keys.concat(Object.getOwnPropertySymbols(descriptors));
       for (const key of keys) {
         const d = descriptors[key];
         !(d.get || d.set) && stack.push(d.value);
@@ -213,7 +213,7 @@ const clone = (source, env, options) => {
     registry: options.registry || clone.registry,
     filters: options.filters || clone.filters,
     circular: options.circular,
-    ignoreSymbols: Object.prototype.hasOwnProperty.call(options, 'ignoreSymbols') ? options.ignoreSymbols : true,
+    symbols: options.symbols,
     context: context
   });
 

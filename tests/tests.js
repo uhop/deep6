@@ -494,23 +494,23 @@ const tests = [
   function test_symbols() {
     const a = {[Symbol()]: 1},
       b = {[Symbol()]: 1};
-    eval(TEST('!unify(a, b, {ignoreSymbols: false})'));
+    eval(TEST('!unify(a, b, {symbols: true})'));
     const s = Symbol(),
       c = {[s]: 1},
       d = {[s]: 1};
-    eval(TEST('unify(c, d, {ignoreSymbols: false})'));
+    eval(TEST('unify(c, d, {symbols: true})'));
     const e = {[Symbol.for('x')]: 1},
       f = {[Symbol.for('x')]: 1};
-    eval(TEST('unify(e, f, {ignoreSymbols: false})'));
+    eval(TEST('unify(e, f, {symbols: true})'));
     const g = {a: Symbol()},
       h = {a: Symbol()};
-    eval(TEST('!unify(g, h, {ignoreSymbols: false})'));
+    eval(TEST('!unify(g, h, {symbols: true})'));
     const i = {a: s},
       j = {a: s};
-    eval(TEST('unify(i, j, {ignoreSymbols: false})'));
+    eval(TEST('unify(i, j, {symbols: true})'));
     const k = {a: Symbol.for('x')},
       l = {a: Symbol.for('x')};
-    eval(TEST('unify(k, l, {ignoreSymbols: false})'));
+    eval(TEST('unify(k, l, {symbols: true})'));
   },
   function test_preprocess() {
     const s = Symbol(),
@@ -547,7 +547,7 @@ const tests = [
     eval(TEST('!result'));
     result = unify(l.y, preprocess({c: [1, 2]}, {openObjects: true, openArrays: true}));
     eval(TEST('result'));
-    result = unify(l, preprocess(r, {openObjects: true, ignoreSymbols: false}), {ignoreSymbols: false});
+    result = unify(l, preprocess(r, {openObjects: true, symbols: true}), {symbols: true});
     eval(TEST('!result'));
     const a = {x: 42},
       b = {};
@@ -789,9 +789,9 @@ const tests = [
     let result = clone(source);
     eval(TEST('result !== source'));
     eval(TEST('unify(result, source)'));
-    eval(TEST('!unify(result, source, {ignoreSymbols: false})'));
-    result = clone(source, {ignoreSymbols: false});
-    eval(TEST('unify(result, source, {ignoreSymbols: false})'));
+    eval(TEST('!unify(result, source, {symbols: true})'));
+    result = clone(source, {symbols: true});
+    eval(TEST('unify(result, source, {symbols: true})'));
     const left = v('left'),
       right = v('right');
     const env = unify(
@@ -868,10 +868,10 @@ const tests = [
     eval(TEST('unify(result, source, env)'));
     eval(TEST('unify(result, {z: {x: [{y: false}]}})'));
     source = {[s]: v('x')};
-    result = assemble(source, env, {ignoreSymbols: false});
+    result = assemble(source, env, {symbols: true});
     eval(TEST('result !== source'));
-    eval(TEST('unify(result, source, env, {ignoreSymbols: false})'));
-    eval(TEST('unify(result, {[s]: {x: [{y: false}]}}, {ignoreSymbols: false})'));
+    eval(TEST('unify(result, source, env, {symbols: true})'));
+    eval(TEST('unify(result, {[s]: {x: [{y: false}]}}, {symbols: true})'));
   },
   function test_assemble_circular() {
     const X = v(),
