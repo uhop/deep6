@@ -491,21 +491,47 @@ const tests = [
     eval(TEST('x.get(result) === 0'));
     eval(TEST('unify(y.get(result), {value: 3})'));
   },
+  function test_symbols() {
+    const a = {[Symbol()]: 1},
+      b = {[Symbol()]: 1};
+    eval(TEST('!unify(a, b, {ignoreSymbols: false})'));
+    const s = Symbol(),
+      c = {[s]: 1},
+      d = {[s]: 1};
+    eval(TEST('unify(c, d, {ignoreSymbols: false})'));
+    const e = {[Symbol.for('x')]: 1},
+      f = {[Symbol.for('x')]: 1};
+    eval(TEST('unify(e, f, {ignoreSymbols: false})'));
+    const g = {a: Symbol()},
+      h = {a: Symbol()};
+    eval(TEST('!unify(g, h, {ignoreSymbols: false})'));
+    const i = {a: s},
+      j = {a: s};
+    eval(TEST('unify(i, j, {ignoreSymbols: false})'));
+    const k = {a: Symbol.for('x')},
+      l = {a: Symbol.for('x')};
+    eval(TEST('unify(k, l, {ignoreSymbols: false})'));
+  },
   function test_preprocess() {
-    const l = {
+    const s = Symbol(),
+      l = {
         x: 5,
         y: {
           a: 42,
           b: {},
-          c: [1, 2, 3]
+          c: [1, 2, 3],
+          d: s
         },
-        z: 'ah!'
+        z: 'ah!',
+        [s]: 42
       },
       r = {
         y: {
-          b: {}
+          b: {},
+          d: s
         },
-        z: 'ah!'
+        z: 'ah!',
+        [s]: 99
       };
     let result = unify(l, r);
     eval(TEST('!result'));
@@ -521,6 +547,8 @@ const tests = [
     eval(TEST('!result'));
     result = unify(l.y, preprocess({c: [1, 2]}, {openObjects: true, openArrays: true}));
     eval(TEST('result'));
+    result = unify(l, preprocess(r, {openObjects: true}), {ignoreSymbols: false});
+    eval(TEST('!result'));
   },
   function test_matchString() {
     let result = unify('12345', matchString(/1(2)3/));
