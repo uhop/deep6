@@ -332,6 +332,10 @@ const unifyObjects = (l, lt, lm, r, rt, rm, ls, rs, env) => {
 // unification
 
 const unify = (l, r, env, options) => {
+  if (env && !(env instanceof Env)) {
+    options = env;
+    env = null;
+  }
   if (!env) {
     env = new Env();
     env.ignoreSymbols = true;
