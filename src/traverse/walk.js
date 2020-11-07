@@ -14,8 +14,14 @@ class Command {
 const processCommand = (val, context) => val.f(context);
 
 const processObject = (val, context) => {
-  const stack = context.stack;
-  Object.keys(val).forEach(k => stack.push(val[k]));
+  const stack = context.stack,
+    descriptors = Object.getOwnPropertyDescriptors(val);
+  if (val instanceof Array) delete descriptors.length;
+  const keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
+  keys.forEach(key => {
+    const d = descriptors[key];
+    !(d.get || d.set) && stack.push(d.value);
+  });
 };
 
 const processMap = (val, context) => {

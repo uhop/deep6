@@ -6,10 +6,16 @@ const empty = {};
 const postProcess = init =>
   function (context) {
     const stackOut = context.stackOut,
-      s = this.s;
+      s = this.s,
+      descriptors = Object.getOwnPropertyDescriptors(s);
+    if (init instanceof Array) delete descriptors.length;
+    const keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
+    if (init instanceof Array) delete descriptors.length;
     let j = stackOut.length - 1;
     main: {
-      const result = Object.keys(s).some(k => {
+      const result = keys.some(k => {
+        const d = descriptors[k];
+        if (d.get || d.set) return false;
         const t = stackOut[j--];
         return typeof t == 'number' && isNaN(t) ? typeof s[k] == 'number' && !isNaN(s[k]) : s[k] !== t;
       });
@@ -23,14 +29,25 @@ const postProcess = init =>
       return;
     }
     const t = init;
-    Object.keys(s).forEach(k => (t[k] = stackOut.pop()));
+    keys.forEach(key => {
+      const d = descriptors[key];
+      if (!(d.get || d.set)) {
+        d.value = stackOut.pop();
+      }
+      Object.defineProperty(t, key, d);
+    });
     stackOut.push(t);
   };
 
 const processObject = (val, context) => {
   const stack = context.stack;
-  stack.push(new walk.Command(postProcess({}), val));
-  Object.keys(val).forEach(k => stack.push(val[k]));
+  stack.push(new walk.Command(postProcess(Object.create(Object.getPrototypeOf(val))), val));
+  const descriptors = Object.getOwnPropertyDescriptors(val),
+    keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
+  keys.forEach(key => {
+    const d = descriptors[key];
+    !(d.get || d.set) && stack.push(d.value);
+  });
 };
 
 const postProcessMap = context => {
@@ -78,7 +95,13 @@ const registry = [
     function processArray(val, context) {
       const stack = context.stack;
       stack.push(new walk.Command(postProcess([]), val));
-      Object.keys(val).forEach(k => stack.push(val[k]));
+      const descriptors = Object.getOwnPropertyDescriptors(val);
+      delete descriptors.length;
+      const keys = Object.keys(descriptors).concat(Object.getOwnPropertySymbols(descriptors));
+      keys.forEach(key => {
+        const d = descriptors[key];
+        !(d.get || d.set) && stack.push(d.value);
+      });
     },
     Variable,
     function processVariable(val, context) {
