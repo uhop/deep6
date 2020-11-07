@@ -88,6 +88,7 @@ const deref = (source, env, options) => {
     filters: options.filters || deref.filters,
     circular: options.circular,
     symbols: options.symbols,
+    allProps: options.allProps,
     context: context
   });
 

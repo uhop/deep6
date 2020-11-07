@@ -83,12 +83,9 @@ const replaceObject = (upTo, object, stackOut) => {
 };
 
 const processObject = (postProcess, postProcessSeen) => (object, context) => {
-  const {stack, symbols} = context;
+  const stack = context.stack;
   postProcess && stack.push(new Command(postProcessSeen ? (context.seen ? postProcessSeen : postProcess) : postProcess, object));
-  const descriptors = Object.getOwnPropertyDescriptors(object);
-  Array.isArray(object) && delete descriptors.length;
-  let keys = Object.keys(descriptors);
-  if (symbols) keys = keys.concat(Object.getOwnPropertySymbols(descriptors));
+  const {descriptors, keys} = getObjectData(object, context);
   for (const k of keys) {
     const d = descriptors[k];
     !(d.get || d.set) && stack.push(d.value);
@@ -137,6 +134,7 @@ const getObjectData = (object, context) => {
   if (Array.isArray(object)) delete descriptors.length;
   let keys = Object.keys(descriptors);
   if (context.symbols) keys = keys.concat(Object.getOwnPropertySymbols(descriptors));
+  if (!context.allProps) keys = keys.filter(key => descriptors[key].enumerable);
   return {descriptors, keys};
 };
 
@@ -213,6 +211,7 @@ const walk = (o, options) => {
   context.stack = stack;
   context.seen = seen;
   context.symbols = options.symbols;
+  context.allProps = options.allProps;
   main: while (stack.length) {
     o = stack.pop();
     if (!o || typeof o != 'object' || o === _) {

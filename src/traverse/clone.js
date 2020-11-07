@@ -101,6 +101,7 @@ const clone = (source, env, options) => {
     filters: options.filters || clone.filters,
     circular: options.circular,
     symbols: options.symbols,
+    allProps: options.allProps,
     context: context
   });
 

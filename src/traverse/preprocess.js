@@ -96,6 +96,7 @@ const preprocess = (source, options) => {
     filters: options.filters || preprocess.filters,
     circular: options.circular,
     symbols: options.symbols,
+    allProps: options.allProps,
     context: context
   });
 

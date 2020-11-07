@@ -1065,6 +1065,19 @@ const tests = [
     eval(TEST('va.get(env) === 1'));
     eval(TEST('vd.isBound(env)'));
     eval(TEST('vd.get(env) === 4'));
+  },
+  function test_clone_allProps() {
+    const a = {};
+    Object.defineProperties(a, {
+      a: {value: 1, enumerable: true},
+      b: {value: 2}
+    });
+    const b = clone(a);
+    eval(TEST('b.a === a.a'));
+    eval(TEST('b.b !== a.b'));
+    const c = clone(a, {allProps: true});
+    eval(TEST('c.a === a.a'));
+    eval(TEST('c.b === a.b'));
   }
 ];
 

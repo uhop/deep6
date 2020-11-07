@@ -142,6 +142,7 @@ const assemble = (source, env, options) => {
     filters: options.filters || assemble.filters,
     circular: options.circular,
     symbols: options.symbols,
+    allProps: options.allProps,
     context: context
   });
 
