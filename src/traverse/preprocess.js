@@ -130,7 +130,7 @@ const preprocess = (source, options) => {
     registry: options.registry || preprocess.registry,
     filters: options.filters || preprocess.filters,
     circular: options.circular,
-    ignoreSymbols: options.ignoreSymbols,
+    ignoreSymbols: Object.prototype.hasOwnProperty.call(options, 'ignoreSymbols') ? options.ignoreSymbols : true,
     context: context
   });
 

@@ -137,7 +137,7 @@ const deref = (source, env, options) => {
     registry: options.registry || deref.registry,
     filters: options.filters || deref.filters,
     circular: options.circular,
-    ignoreSymbols: options.ignoreSymbols,
+    ignoreSymbols: Object.prototype.hasOwnProperty.call(options, 'ignoreSymbols') ? options.ignoreSymbols : true,
     context: context
   });
 

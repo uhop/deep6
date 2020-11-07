@@ -230,7 +230,7 @@ const clone = (source, env, options) => {
     registry: options.registry || clone.registry,
     filters: options.filters || clone.filters,
     circular: options.circular,
-    ignoreSymbols: options.ignoreSymbols,
+    ignoreSymbols: Object.prototype.hasOwnProperty.call(options, 'ignoreSymbols') ? options.ignoreSymbols : true,
     context: context
   });
 

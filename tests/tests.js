@@ -547,7 +547,7 @@ const tests = [
     eval(TEST('!result'));
     result = unify(l.y, preprocess({c: [1, 2]}, {openObjects: true, openArrays: true}));
     eval(TEST('result'));
-    result = unify(l, preprocess(r, {openObjects: true}), {ignoreSymbols: false});
+    result = unify(l, preprocess(r, {openObjects: true, ignoreSymbols: false}), {ignoreSymbols: false});
     eval(TEST('!result'));
   },
   function test_matchString() {

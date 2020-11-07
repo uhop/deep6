@@ -162,7 +162,7 @@ const assemble = (source, env, options) => {
     registry: options.registry || assemble.registry,
     filters: options.filters || assemble.filters,
     circular: options.circular,
-    ignoreSymbols: options.ignoreSymbols,
+    ignoreSymbols: Object.prototype.hasOwnProperty.call(options, 'ignoreSymbols') ? options.ignoreSymbols : true,
     context: context
   });
 
