@@ -905,6 +905,21 @@ const tests = [
     eval(TEST('unify(result, source, env)'));
     eval(TEST('unify(result, {z: {x: [{y: false}]}})'));
   },
+  function test_deref_circular() {
+    const a = {};
+    a.a = a;
+    let result = deref(a, {circular: true});
+    eval(TEST('result === a'));
+    eval(TEST('unify(result, a, {circular: true})'));
+    const X = v(),
+      b = {},
+      env = unify(b, X);
+    b.b = X;
+    result = deref(b, env, {circular: true});
+    eval(TEST('result === b'));
+    eval(TEST('unify(result, b, {circular: true})'));
+    eval(TEST('b.b === b'));
+  },
   function test_ref() {
     const source = {
         left: {left: 1, right: 2},

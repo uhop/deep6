@@ -1,4 +1,4 @@
-import {Unifier, Variable} from '../unify.js';
+import {Env, Unifier, Variable} from '../unify.js';
 import walk from './walk.js';
 
 const empty = {};
@@ -124,6 +124,10 @@ typeof ArrayBuffer == 'function' && addType(ArrayBuffer);
 // main
 
 const deref = (source, env, options) => {
+  if (env && !(env instanceof Env)) {
+    options = env;
+    env = null;
+  }
   options = options || empty;
 
   const context = options.context || {},
@@ -134,6 +138,7 @@ const deref = (source, env, options) => {
   walk(source, {
     processObject: options.processObject || processObject,
     processOther: options.processOther || processOther,
+    processCircular: options.processCircular || processOther,
     registry: options.registry || deref.registry,
     filters: options.filters || deref.filters,
     circular: options.circular,
