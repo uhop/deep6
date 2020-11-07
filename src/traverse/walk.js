@@ -4,6 +4,27 @@ const empty = {};
 
 const nop = () => {};
 
+class Circular {
+  constructor(value) {
+    this.value = value;
+  }
+}
+
+const setObject = (seen, s, t) => {
+  if (seen.has(s)) {
+    seen.get(s).actions.forEach(([object, key]) => {
+      if (object instanceof Map) {
+        object.set(key, t);
+      } else {
+        const d = Object.getOwnPropertyDescriptor(object, key);
+        d.value = t;
+        Object.defineProperty(object, key, d);
+      }
+    });
+  }
+  seen.set(s, {value: t});
+};
+
 class Command {
   constructor(f, s) {
     this.f = f;
@@ -104,5 +125,5 @@ const walk = (o, options) => {
 
 walk.Command = Command;
 
-export {Command, defaultRegistry as registry, defaultFilters as filters};
+export {Circular, setObject, Command, defaultRegistry as registry, defaultFilters as filters};
 export default walk;

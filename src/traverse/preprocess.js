@@ -1,28 +1,7 @@
 import {Unifier, Variable, open} from '../unify.js';
-import walk from './walk.js';
+import walk, {Circular, setObject} from './walk.js';
 
 const empty = {};
-
-class Circular {
-  constructor(value) {
-    this.value = value;
-  }
-}
-
-const setObject = (seen, s, t) => {
-  if (seen.has(s)) {
-    seen.get(s).actions.forEach(([object, key]) => {
-      if (object instanceof Map) {
-        object.set(key, t);
-      } else {
-        const d = Object.getOwnPropertyDescriptor(object, key);
-        d.value = t;
-        Object.defineProperty(object, key, d);
-      }
-    });
-  }
-  seen.set(s, {value: t});
-};
 
 function postProcess(context) {
   const {stackOut, ignoreSymbols} = context,
