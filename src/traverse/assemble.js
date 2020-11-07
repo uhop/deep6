@@ -132,7 +132,6 @@ const assemble = (source, env, options) => {
   const context = options.context || {},
     stackOut = [];
   context.stackOut = stackOut;
-  context.seen = options.circular ? new Map() : null;
   context.env = env;
 
   walk(source, {

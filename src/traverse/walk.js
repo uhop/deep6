@@ -13,8 +13,9 @@ class Circular {
 }
 
 const setObject = (seen, source, value) => {
-  if (seen.has(source)) {
-    seen.get(source).actions.forEach(([object, key]) => {
+  const record = seen.get(source);
+  if (record) {
+    record.actions.forEach(([object, key]) => {
       if (object instanceof Map) {
         object.set(key, value);
       } else {
@@ -66,8 +67,8 @@ const postMapCircular = (source, context) => {
 
 const buildNewMap = (keys, stackOut, wrap) => {
   const t = new Map();
-  for (const key of keys) {
-    t.set(key, stackOut.pop());
+  for (const k of keys) {
+    t.set(k, stackOut.pop());
   }
   stackOut.push(wrap ? wrap(t) : t);
 };
@@ -88,8 +89,8 @@ const processObject = (postProcess, postProcessSeen) => (object, context) => {
   Array.isArray(object) && delete descriptors.length;
   let keys = Object.keys(descriptors);
   if (symbols) keys = keys.concat(Object.getOwnPropertySymbols(descriptors));
-  for (const key of keys) {
-    const d = descriptors[key];
+  for (const k of keys) {
+    const d = descriptors[k];
     !(d.get || d.set) && stack.push(d.value);
   }
 };
@@ -141,12 +142,12 @@ const getObjectData = (object, context) => {
 
 const buildNewObject = (source, descriptors, keys, stackOut, wrap) => {
   const t = Array.isArray(source) ? [] : Object.create(Object.getPrototypeOf(source));
-  for (const key of keys) {
-    const d = descriptors[key];
+  for (const k of keys) {
+    const d = descriptors[k];
     if (!(d.get || d.set)) {
       d.value = stackOut.pop();
     }
-    Object.defineProperty(t, key, d);
+    Object.defineProperty(t, k, d);
   }
   stackOut.push(wrap ? wrap(t) : t);
 };
@@ -208,8 +209,9 @@ const walk = (o, options) => {
     filters = options.filters || defaultFilters,
     context = options.context || {},
     stack = [o],
-    seen = new Set();
+    seen = options.circular ? new Map() : null;
   context.stack = stack;
+  context.seen = seen;
   context.symbols = options.symbols;
   main: while (stack.length) {
     o = stack.pop();
@@ -218,12 +220,12 @@ const walk = (o, options) => {
       continue;
     }
     // process circular dependencies
-    if (options.circular) {
+    if (seen) {
       if (seen.has(o)) {
         doCircular(o, context);
         continue;
       }
-      seen.add(o);
+      seen.set(o, null);
     }
     // process registered constructors
     for (let i = 0; i < registry.length; i += 2) {
