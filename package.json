@@ -3,8 +3,8 @@
   "version": "1.1.0",
   "description": "No dependency mini-library: unification, deep equivalence, deep cloning.",
   "type": "module",
-  "module": "src/unify.js",
-  "main": "cjs/unify.js",
+  "module": "src/index.js",
+  "main": "cjs/index.js",
   "exports": {
     ".": {
       "require": "./cjs/index.js",
