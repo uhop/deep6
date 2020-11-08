@@ -33,14 +33,6 @@ function postProcessMapSeen(context) {
   postMapCircular(this.s, context);
 }
 
-const processPromise = (val, context) =>
-  context.stackOut.push(
-    val.then(
-      value => value,
-      error => Promise.reject(error)
-    )
-  );
-
 const registry = [
     walk.Command,
     processCommand,
@@ -49,11 +41,15 @@ const registry = [
     Variable,
     processVariable,
     Unifier,
-    (val, context) => context.stackOut.push(val),
+    processOther,
     Date,
     (val, context) => context.stackOut.push(new Date(val.getTime())),
     RegExp,
-    (val, context) => context.stackOut.push(new RegExp(val.source, (val.global ? 'g' : '') + (val.multiline ? 'm' : '') + (val.ignoreCase ? 'i' : '')))
+    (val, context) => context.stackOut.push(new RegExp(val.source, (val.global ? 'g' : '') + (val.multiline ? 'm' : '') + (val.ignoreCase ? 'i' : ''))),
+    Map,
+    processMap(postProcessMap, postProcessMapSeen),
+    Promise,
+    processOther
   ],
   filters = [];
 
@@ -61,9 +57,7 @@ const registry = [
 
 const addType = (Type, process) => registry.push(Type, process || ((val, context) => context.stackOut.push(new Type(val))));
 
-addType(Map, processMap(postProcessMap, postProcessMapSeen));
 addType(Set);
-addType(Promise, processPromise);
 
 typeof Int8Array == 'function' && addType(Int8Array);
 typeof Uint8Array == 'function' && addType(Uint8Array);

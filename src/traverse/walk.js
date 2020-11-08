@@ -127,7 +127,7 @@ const postObjectCircular = (source, descriptors, keys, context) => {
   const o = wrap ? wrap(t) : t;
   setObject(seen, source, o);
   stackOut.push(o);
-}
+};
 
 const getObjectData = (object, context) => {
   const descriptors = Object.getOwnPropertyDescriptors(object);
@@ -170,16 +170,12 @@ class Command {
 
 const processCommand = (val, context) => val.f(context);
 
-const defaultRegistry = [Command, processCommand, Array, processObject(), Date, nop, RegExp, nop],
+const defaultRegistry = [Command, processCommand, Array, processObject(), Date, nop, RegExp, nop, Map, processMap(), Set, nop, Promise, nop],
   defaultFilters = [];
 
 // add more types
 
 const addType = (Type, process) => defaultRegistry.push(Type, process || nop);
-
-addType(Map, processMap());
-addType(Set);
-addType(Promise);
 
 typeof Int8Array == 'function' && addType(Int8Array);
 typeof Uint8Array == 'function' && addType(Uint8Array);

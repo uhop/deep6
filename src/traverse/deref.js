@@ -40,6 +40,12 @@ const registry = [
     Date,
     processOther,
     RegExp,
+    processOther,
+    Map,
+    processMap(postProcessMap),
+    Set,
+    processOther,
+    Promise,
     processOther
   ],
   filters = [];
@@ -47,10 +53,6 @@ const registry = [
 // add more types
 
 const addType = (Type, process) => registry.push(Type, process || processOther);
-
-addType(Map, processMap(postProcessMap));
-addType(Set);
-addType(Promise);
 
 typeof Int8Array == 'function' && addType(Int8Array);
 typeof Uint8Array == 'function' && addType(Uint8Array);
