@@ -1,14 +1,14 @@
 {
   "name": "deep6",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "No dependency mini-library: unification, deep equivalence, deep cloning.",
   "type": "module",
   "module": "src/unify.js",
   "main": "cjs/unify.js",
   "exports": {
     ".": {
-      "require": "./cjs/unify.js",
-      "default": "./src/unify.js"
+      "require": "./cjs/index.js",
+      "default": "./src/index.js"
     },
     "./*": {
       "require": "./cjs/*",
@@ -17,6 +17,10 @@
     "./env.js": {
       "require": "./cjs/env.js",
       "default": "./src/env.js"
+    },
+    "./index.js": {
+      "require": "./cjs/index.js",
+      "default": "./src/index.js"
     },
     "./unify.js": {
       "require": "./cjs/unify.js",
@@ -42,46 +46,49 @@
       "require": "./cjs/unifiers/ref.js",
       "default": "./src/unifiers/ref.js"
     },
-    "./utils/assemble.js": {
-      "require": "./cjs/utils/assemble.js",
-      "default": "./src/utils/assemble.js"
+    "./traverse/assemble.js": {
+      "require": "./cjs/traverse/assemble.js",
+      "default": "./src/traverse/assemble.js"
     },
-    "./utils/clone.js": {
-      "require": "./cjs/utils/clone.js",
-      "default": "./src/utils/clone.js"
+    "./traverse/clone.js": {
+      "require": "./cjs/traverse/clone.js",
+      "default": "./src/traverse/clone.js"
     },
-    "./utils/deref.js": {
-      "require": "./cjs/utils/deref.js",
-      "default": "./src/utils/deref.js"
+    "./traverse/deref.js": {
+      "require": "./cjs/traverse/deref.js",
+      "default": "./src/traverse/deref.js"
     },
-    "./utils/preprocess.js": {
-      "require": "./cjs/utils/preprocess.js",
-      "default": "./src/utils/preprocess.js"
+    "./traverse/preprocess.js": {
+      "require": "./cjs/traverse/preprocess.js",
+      "default": "./src/traverse/preprocess.js"
     },
-    "./utils/replace.js": {
-      "require": "./cjs/utils/replace.js",
-      "default": "./src/utils/replace.js"
+    "./traverse/walk.js": {
+      "require": "./cjs/traverse/walk.js",
+      "default": "./src/traverse/walk.js"
     },
-    "./utils/walk.js": {
-      "require": "./cjs/utils/walk.js",
-      "default": "./src/utils/walk.js"
+    "./utils/replaceVars.js": {
+      "require": "./cjs/utils/replaceVars.js",
+      "default": "./src/utils/replaceVars.js"
     },
+    "./cjs": "./cjs/index.js",
     "./cjs/*": "./cjs/*",
     "./cjs/env.js": "./cjs/env.js",
+    "./cjs/index.js": "./cjs/index.js",
     "./cjs/unify.js": "./cjs/unify.js",
     "./cjs/unifiers/matchConditions.js": "./cjs/unifiers/matchConditions.js",
     "./cjs/unifiers/matchInstanceOf.js": "./cjs/unifiers/matchInstanceOf.js",
     "./cjs/unifiers/matchString.js": "./cjs/unifiers/matchString.js",
     "./cjs/unifiers/matchTypeOf.js": "./cjs/unifiers/matchTypeOf.js",
     "./cjs/unifiers/ref.js": "./cjs/unifiers/ref.js",
-    "./cjs/utils/assemble.js": "./cjs/utils/assemble.js",
-    "./cjs/utils/clone.js": "./cjs/utils/clone.js",
-    "./cjs/utils/deref.js": "./cjs/utils/deref.js",
-    "./cjs/utils/preprocess.js": "./cjs/utils/preprocess.js",
-    "./cjs/utils/replace.js": "./cjs/utils/replace.js",
-    "./cjs/utils/walk.js": "./cjs/utils/walk.js"
+    "./cjs/traverse/assemble.js": "./cjs/traverse/assemble.js",
+    "./cjs/traverse/clone.js": "./cjs/traverse/clone.js",
+    "./cjs/traverse/deref.js": "./cjs/traverse/deref.js",
+    "./cjs/traverse/preprocess.js": "./cjs/traverse/preprocess.js",
+    "./cjs/traverse/walk.js": "./cjs/traverse/walk.js",
+    "./cjs/utils/replaceVars.js": "./cjs/utils/replaceVars.js"
   },
   "scripts": {
+    "start": "node tests/server.js --trace",
     "test": "node tests/tests.js",
     "debug": "node --inspect-brk tests/tests.js",
     "prepareDist": "node scripts/prepareDist.js",
