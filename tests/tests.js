@@ -1002,7 +1002,7 @@ const tests = [
     unify.registry.pop();
     unify.registry.pop();
   },
-  function test_replace() {
+  function test_replaceVars() {
     const x = v('x'),
       y = v('y'),
       val = v('val'),
