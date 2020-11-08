@@ -21,11 +21,64 @@
 
 ## Intro
 
-TBD
+```js
+import equal, {match, clone, any} from 'deep6';
+
+const x = {a: 1, b: 2, c: ['hi!', 42, null, {}]};
+
+// deep equality
+equal(x, {b: 2, a: 1, c: ['hi!', 42, null, {}]});     // true
+equal(x, {b: 2, a: 1, c: ['hi!', 42, null, {z: 1}]}); // false
+
+// pattern matching
+match(x, {a: 1});         // true
+match(x, {z: 1});         // false
+match(x, {a: 1, c: any}); // true
+match(x, {a: 1, c: []});  // false
+match(x, {a: 1, d: any}); // false
+
+// deep cloning
+const y = clone(x);
+equal(x, y);              // true
+
+// circular dependencies are fine
+const z = {},
+  w = {};
+z.z = z;
+w.z = w;
+const p = clone(w);
+equal(z, w);              // true
+equal(z, p);              // true
+
+// more standard types
+const m = {a: new Map(), b: Buffer.from([99, 98, 97])};
+m.a.set('a', [Symbol(), new Set([1, 2, 3])]);
+m.a.set('b', [/^abc/i, new Date()]);
+const n = clone(m);
+equal(m, n);              // true
+
+// advanced: symbols
+const s = Symbol(),
+  t = {[s]: 42, [Symbol.for('deep6')]: 33},
+  u = {[s]: 42, [Symbol.for('deep6')]: 33},
+  v = clone(u, {symbols: true});
+equal(t, u, {symbols: true}); // true
+equal(t, v, {symbols: true}); // true
+
+// advanced: clone non-enumerable properties
+const r = {a: 1};
+Object.defineProperty(r, 'b', {value: 2, enumerable: false});
+const q = clone(r, {allProps: true});
+r === q;                  // false
+equal(r, {a: 1});         // true
+equal(r, {a: 1, b: 2});   // false
+r.a === q.a;              // true
+r.b === q.b;              // true
+```
 
 ## Docs
 
-All pertinent information is in the wiki.
+All pertinent information is in the [wiki](https://github.com/uhop/deep6/wiki).
 
 ## Installation and use
 
