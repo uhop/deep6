@@ -259,9 +259,15 @@ const objectOps = {
   exact: {
     exact: {
       precheck: (l, r, env) => {
-        let keys = Object.keys(l);
-        if (env.symbols) keys = keys.concat(Object.getOwnPropertySymbols(l));
-        return keys.every(k => hasOwnProperty.call(r, k));
+        let lKeys = Object.keys(l),
+          rKeys = Object.keys(r);
+        if (lKeys.length != rKeys.length) return false;
+        if (env.symbols) {
+          lKeys = lKeys.concat(Object.getOwnPropertySymbols(l));
+          rKeys = rKeys.concat(Object.getOwnPropertySymbols(r));
+        }
+        if (lKeys.length != rKeys.length) return false;
+        return lKeys.every(k => hasOwnProperty.call(r, k));
       }
     },
     open: {},
