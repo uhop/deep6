@@ -1,7 +1,7 @@
 # deep6 [![NPM version][npm-image]][npm-url]
 
-[npm-image]:      https://img.shields.io/npm/v/deep6.svg
-[npm-url]:        https://npmjs.org/package/deep6
+[npm-image]: https://img.shields.io/npm/v/deep6.svg
+[npm-url]:   https://npmjs.org/package/deep6
 
 `deep6` is a no-dependency ES6 mini-library:
 
@@ -13,11 +13,13 @@
   * Use it in Node or browsers without transpiling.
   * Natively supports `Map`, `Set`, typed arrays.
   * Natively supports symbols and property descriptors.
-  * Provides CommonJS modules for convenience.
-* Unification.
-  * Identifying and capturing object fragments.
+  * Presented as ES6 modules, yet provides CommonJS modules for convenience.
 * Efficient non-recursive algorithms.
   * ~500 tests to ensure correctness.
+  * Support for circular dependencies.
+  * Support for "loose" comparisons.
+* Unification.
+  * Identifying and capturing object fragments.
 
 ## Intro
 
@@ -100,6 +102,7 @@ const matchString = require('deep6/cjs/unifiers/matchString').default;
 
 ## Release History
 
+- 1.1.1 *reformulated `any` as a well-known symbol.*
 - 1.1.0 *separated from [yopl](https://npmjs.org/package/yopl), extensive refactoring.*
 - 1.0.1 *added the exports statement.*
 - 1.0.0 *the first 1.0 release.*

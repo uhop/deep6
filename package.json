@@ -1,6 +1,6 @@
 {
   "name": "deep6",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "No dependency mini-library: unification, deep equivalence, deep cloning.",
   "type": "module",
   "module": "src/index.js",
