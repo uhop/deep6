@@ -1,6 +1,6 @@
 // Env
 
-const keyDepth = Symbol('depth');
+const keyDepth = Symbol.for('deep6.env.depth');
 
 const collectSymbols = object => {
   const symbols = new Set();
@@ -126,7 +126,7 @@ const isUnifier = x => x instanceof Unifier;
 
 // AnyVar
 
-const _ = {},
+const _ = Symbol.for('deep6.any'),
   any = _;
 
 // Variable
