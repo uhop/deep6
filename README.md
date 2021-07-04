@@ -102,6 +102,7 @@ const matchString = require('deep6/cjs/unifiers/matchString').default;
 
 ## Release History
 
+- 1.1.3 *updated dev deps.*
 - 1.1.2 *updated dev deps.*
 - 1.1.1 *reformulated `any` as a well-known symbol.*
 - 1.1.0 *separated from [yopl](https://npmjs.org/package/yopl), extensive refactoring.*
