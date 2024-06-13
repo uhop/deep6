@@ -100,8 +100,13 @@ const {equal, clone} = require('deep6/cjs');
 const matchString = require('deep6/cjs/unifiers/matchString').default;
 ```
 
+## License
+
+BSD-3-Clause
+
 ## Release History
 
+- 1.1.4 *updated dev deps.*
 - 1.1.3 *updated dev deps.*
 - 1.1.2 *updated dev deps.*
 - 1.1.1 *reformulated `any` as a well-known symbol.*

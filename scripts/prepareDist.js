@@ -9,7 +9,7 @@ const __dirname = path.dirname(__filename);
 
 const main = async () => {
   const cjsDir = path.join(__dirname, '../cjs');
-  await fsp.rmdir(cjsDir, {recursive: true});
+  await fsp.rm(cjsDir, {recursive: true, force: true});
   await fsp.mkdir(cjsDir);
   await fsp.writeFile(path.join(cjsDir, 'package.json'), '{"type":"commonjs"}');
 };
