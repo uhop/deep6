@@ -3,98 +3,15 @@
   "version": "1.1.4",
   "description": "deep6 is a no-dependency ES6 mini-library for advanced deep equivalence, unification, and cloning of JavaScript structures. Supports extensible pattern matching, circular reference handling, Map, Set, typed arrays, symbols, and property descriptors.",
   "type": "module",
-  "module": "src/index.js",
-  "main": "cjs/index.js",
+  "main": "src/index.js",
   "exports": {
-    ".": {
-      "require": "./cjs/index.js",
-      "default": "./src/index.js"
-    },
-    "./*": {
-      "require": "./cjs/*",
-      "default": "./src/*"
-    },
-    "./env.js": {
-      "require": "./cjs/env.js",
-      "default": "./src/env.js"
-    },
-    "./index.js": {
-      "require": "./cjs/index.js",
-      "default": "./src/index.js"
-    },
-    "./unify.js": {
-      "require": "./cjs/unify.js",
-      "default": "./src/unify.js"
-    },
-    "./unifiers/matchConditions.js": {
-      "require": "./cjs/unifiers/matchConditions.js",
-      "default": "./src/unifiers/matchConditions.js"
-    },
-    "./unifiers/matchInstanceOf.js": {
-      "require": "./cjs/unifiers/matchInstanceOf.js",
-      "default": "./src/unifiers/matchInstanceOf.js"
-    },
-    "./unifiers/matchString.js": {
-      "require": "./cjs/unifiers/matchString.js",
-      "default": "./src/unifiers/matchString.js"
-    },
-    "./unifiers/matchTypeOf.js": {
-      "require": "./cjs/unifiers/matchTypeOf.js",
-      "default": "./src/unifiers/matchTypeOf.js"
-    },
-    "./unifiers/ref.js": {
-      "require": "./cjs/unifiers/ref.js",
-      "default": "./src/unifiers/ref.js"
-    },
-    "./traverse/assemble.js": {
-      "require": "./cjs/traverse/assemble.js",
-      "default": "./src/traverse/assemble.js"
-    },
-    "./traverse/clone.js": {
-      "require": "./cjs/traverse/clone.js",
-      "default": "./src/traverse/clone.js"
-    },
-    "./traverse/deref.js": {
-      "require": "./cjs/traverse/deref.js",
-      "default": "./src/traverse/deref.js"
-    },
-    "./traverse/preprocess.js": {
-      "require": "./cjs/traverse/preprocess.js",
-      "default": "./src/traverse/preprocess.js"
-    },
-    "./traverse/walk.js": {
-      "require": "./cjs/traverse/walk.js",
-      "default": "./src/traverse/walk.js"
-    },
-    "./utils/replaceVars.js": {
-      "require": "./cjs/utils/replaceVars.js",
-      "default": "./src/utils/replaceVars.js"
-    },
-    "./cjs": "./cjs/index.js",
-    "./cjs/*": "./cjs/*",
-    "./cjs/env.js": "./cjs/env.js",
-    "./cjs/index.js": "./cjs/index.js",
-    "./cjs/unify.js": "./cjs/unify.js",
-    "./cjs/unifiers/matchConditions.js": "./cjs/unifiers/matchConditions.js",
-    "./cjs/unifiers/matchInstanceOf.js": "./cjs/unifiers/matchInstanceOf.js",
-    "./cjs/unifiers/matchString.js": "./cjs/unifiers/matchString.js",
-    "./cjs/unifiers/matchTypeOf.js": "./cjs/unifiers/matchTypeOf.js",
-    "./cjs/unifiers/ref.js": "./cjs/unifiers/ref.js",
-    "./cjs/traverse/assemble.js": "./cjs/traverse/assemble.js",
-    "./cjs/traverse/clone.js": "./cjs/traverse/clone.js",
-    "./cjs/traverse/deref.js": "./cjs/traverse/deref.js",
-    "./cjs/traverse/preprocess.js": "./cjs/traverse/preprocess.js",
-    "./cjs/traverse/walk.js": "./cjs/traverse/walk.js",
-    "./cjs/utils/replaceVars.js": "./cjs/utils/replaceVars.js"
+    ".": "./src/index.js",
+    "./*": "./src/*"
   },
   "scripts": {
     "start": "node tests/server.js --trace",
     "test": "node tests/tests.js",
-    "debug": "node --inspect-brk tests/tests.js",
-    "prepareDist": "node scripts/prepareDist.js",
-    "babel": "babel src --out-dir cjs",
-    "build": "npm run prepareDist && npm run babel",
-    "prepublishOnly": "npm run build"
+    "debug": "node --inspect-brk tests/tests.js"
   },
   "repository": {
     "type": "git",
@@ -102,39 +19,32 @@
   },
   "keywords": [
     "deep",
-    "unification",
-    "equivalence",
-    "comparison",
     "deep equivalence",
+    "deep equality",
+    "deep compare",
+    "unification",
+    "unify",
+    "pattern matching",
+    "pattern match",
+    "wildcard",
     "clone",
     "deep clone",
     "deep cloning",
-    "traversing"
+    "copy",
+    "deep copy",
+    "traversing",
+    "traverse",
+    "walk",
+    "logical variables",
+    "es6",
+    "no dependencies"
   ],
   "author": "Eugene Lazutkin <eugene.lazutkin@gmail.com> (https://www.lazutkin.com/)",
   "funding": "https://github.com/sponsors/uhop",
   "license": "BSD-3-Clause",
-  "devDependencies": {
-    "@babel/cli": "^7.24.7",
-    "@babel/core": "^7.24.7",
-    "@babel/preset-env": "^7.24.7"
-  },
   "files": [
     "/src",
-    "/cjs",
     "llms.txt",
     "llms-full.txt"
-  ],
-  "babel": {
-    "presets": [
-      [
-        "@babel/preset-env",
-        {
-          "targets": {
-            "node": "current"
-          }
-        }
-      ]
-    ]
-  }
+  ]
 }

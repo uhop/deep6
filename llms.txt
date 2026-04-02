@@ -94,11 +94,16 @@ Extensible pattern matching components:
 - `ref()` — reference variable for cross-pattern matching
 
 ```js
+// ESM
 import matchString from 'deep6/unifiers/matchString.js';
 import matchTypeOf from 'deep6/unifiers/matchTypeOf.js';
 import matchInstanceOf from 'deep6/unifiers/matchInstanceOf.js';
 import matchCondition from 'deep6/unifiers/matchCondition.js';
 import ref from 'deep6/unifiers/ref.js';
+
+// CommonJS
+const {equal, clone, match, any} = require('deep6');
+const matchString = require('deep6/unifiers/matchString.js');
 ```
 
 ## Registry and filters

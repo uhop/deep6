@@ -17,8 +17,6 @@ npm install
 
 - **Install:** `npm install`
 - **Test:** `npm test`
-- **Build:** `npm run build` — regenerates CommonJS files in `cjs/` from ES6 sources in `src/`
-- **Prepare dist:** `npm run prepareDist`
 - **Debug:** `npm run debug` — run tests with Node inspector
 
 ## Project structure
@@ -46,11 +44,11 @@ deep6/
 │       └── replaceVars.js   # Variable replacement utility
 ├── tests/                # Test files
 │   ├── tests.js          # Main test suite (~500 tests)
-│   ├── server.js         # Test server for browser testing
-│   └── tests.html        # Browser test runner
+│   └── utils/
+│       └── replaceVars.js   # Variable replacement utility
+├── tests/                # Test files (tests.js, server.js, tests.html)
 ├── scripts/              # Build scripts
 │   └── prepareDist.js    # Distribution preparation
-├── cjs/                  # CommonJS output (auto-generated via Babel)
 └── .github/              # CI workflows, funding, dependabot
 ```
 
@@ -64,11 +62,9 @@ deep6/
 ## Critical rules
 
 - **ES6 modules.** Use `import`/`export` syntax in source.
-- **Dual module support.** Both ES6 (`src/`) and CommonJS (`cjs/`). Run `npm run build` to regenerate `cjs/`.
 - **Zero runtime dependencies.** Do not add packages to `dependencies`.
 - **Do not modify or delete test expectations** without understanding why they changed.
 - **Do not add comments or remove comments** unless explicitly asked.
-- **Keep `src/` and `cjs/` in sync.**
 
 ## Architecture
 
@@ -203,7 +199,6 @@ clone.registry.push(MyClass, (val, context) => /* clone */);
 
 - **Zero dependencies.** Do not add runtime dependencies.
 - All public API is in `src/`.
-- The `cjs/` directory is auto-generated — don't edit manually.
 - Tests verify correctness against ~500 assertions.
 - The project supports modern environments: Node.js, browsers, Deno, Bun.
 

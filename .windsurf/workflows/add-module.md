@@ -23,9 +23,7 @@ Follow these steps when adding a new unifier or utility.
 7. Update `llms.txt` and `llms-full.txt` with a description and example.
 8. Update `AGENTS.md` if the architecture quick reference needs updating.
    // turbo
-9. Run build: `npm run build` to regenerate cjs/
-   // turbo
-10. Verify: `npm test`
+9. Verify: `npm test`
 
 ## Unifier (e.g., `src/unifiers/foo.js`)
 
@@ -42,9 +40,7 @@ Follow these steps when adding a new unifier or utility.
 7. Update `llms.txt` and `llms-full.txt`.
 8. Update `AGENTS.md` if needed.
    // turbo
-9. Run build: `npm run build`
-   // turbo
-10. Verify: `npm test`
+9. Verify: `npm test`
 
 ## Traverse module (e.g., `src/traverse/foo.js`)
 
@@ -60,6 +56,4 @@ Follow these steps when adding a new unifier or utility.
 7. Update `llms.txt` and `llms-full.txt`.
 8. Update `AGENTS.md` if needed.
    // turbo
-9. Run build: `npm run build`
-   // turbo
-10. Verify: `npm test`
+9. Verify: `npm test`

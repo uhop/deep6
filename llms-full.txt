@@ -11,7 +11,11 @@ npm i deep6
 ## Quick start
 
 ```js
+// ESM
 import equal, {clone, match, any} from 'deep6';
+
+// CommonJS
+const {equal, clone, match, any} = require('deep6');
 
 const x = {a: 1, b: 2, c: ['hi!', 42, null, {}]};
 
@@ -295,8 +299,6 @@ src/
 ## Commands
 
 - `npm test` — run tests
-- `npm run build` — regenerate cjs/ from src/
-- `npm run prepareDist` — prepare distribution
 - `npm run debug` — debug with Node inspector
 
 ## Code Style

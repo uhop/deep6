@@ -8,11 +8,10 @@ deep6 is a no-dependency ES6 mini-library for advanced deep equivalence, unifica
 ## Critical rules
 
 - **ES6 modules.** The project is `"type": "module"`. Use `import`/`export` syntax.
-- **Zero runtime dependencies.** Do not add packages to `dependencies`. Only `devDependencies` are allowed.
-- **Dual module support.** Provides both ES6 modules (`src/`) and CommonJS (`cjs/`). The `cjs/` directory is auto-generated via Babel.
+- **Zero runtime dependencies.** Do not add packages to `dependencies`.
 - **Do not modify or delete test expectations** without understanding why they changed.
 - **Do not add comments or remove comments** unless explicitly asked.
-- **Keep `src/` and `cjs/` in sync.** Run `npm run build` to regenerate CommonJS files.
+- **Keep `src/` in sync.** Run `npm run build` to regenerate files.
 
 ## Code style
 
@@ -43,10 +42,7 @@ deep6 is a no-dependency ES6 mini-library for advanced deep equivalence, unifica
 ## Verification commands
 
 - `npm test` — run the test suite.
-- `npm run build` — regenerate `cjs/` from `src/` using Babel.
-- `npm run prepareDist` — prepare distribution files.
-- `npm run lint` — Prettier check (if configured).
-- `npm run lint:fix` — Prettier write (if configured).
+- `npm run debug` — run tests with Node inspector.
 
 ## File layout
 
@@ -56,8 +52,6 @@ deep6 is a no-dependency ES6 mini-library for advanced deep equivalence, unifica
 - Unifiers: `src/unifiers/` (matchString.js, matchTypeOf.js, matchInstanceOf.js, matchCondition.js, ref.js)
 - Utils: `src/utils/` (replaceVars.js)
 - Tests: `tests/tests.js` (main test file), `tests/server.js`
-- Build: `scripts/prepareDist.js`
-- CJS output: `cjs/` (auto-generated, do not edit directly)
 
 ## When reading the codebase
 

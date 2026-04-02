@@ -25,10 +25,7 @@ src/                      # ES6 source code
 └── utils/
     └── replaceVars.js    # Variable replacement utility
 tests/                    # Test files (tests.js, server.js, tests.html)
-scripts/                  # Build scripts
-└── prepareDist.js        # Distribution preparation
-cjs/                      # CommonJS output (auto-generated via Babel)
-.github/                  # CI workflows, Dependabot config, funding
+.github/                  # CI workflows, funding, dependabot
 ```
 
 ## Core concepts
@@ -166,9 +163,6 @@ import matchTypeOf from 'deep6/unifiers/matchTypeOf.js';
 import matchInstanceOf from 'deep6/unifiers/matchInstanceOf.js';
 import matchCondition from 'deep6/unifiers/matchCondition.js';
 import ref from 'deep6/unifiers/ref.js';
-
-// CommonJS
-const {equal, clone, match, any} = require('deep6/cjs');
 ```
 
 ## Testing
@@ -183,23 +177,3 @@ const {equal, clone, match, any} = require('deep6/cjs');
 
 - **Framework:** tape6
 - **Run all:** `npm test`
-- **Run browser tests:** `npm start` (opens tests/server.js)
-- **Run single file:** `node tests/tests.js`
-- **Debug:** `npm run debug` (Node inspector)
-
-## Build system
-
-```
-scripts/prepareDist.js ── copies files, prepares dist
-├── src/ → cjs/ (via Babel)
-```
-
-Babel config in `package.json`:
-- Preset: `@babel/preset-env`
-- Target: `node: "current"`
-
-Commands:
-- `npm run prepareDist` — prepare distribution
-- `npm run babel` — transpile to CommonJS
-- `npm run build` — full build (prepareDist + babel)
-- `npm run prepublishOnly` — runs build before publish

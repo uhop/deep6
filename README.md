@@ -13,7 +13,7 @@
   * Use it in Node or browsers without transpiling.
   * Natively supports `Map`, `Set`, typed arrays.
   * Natively supports symbols and property descriptors.
-  * Presented as ES6 modules, yet provides CommonJS modules for convenience.
+  * Presented as ES6 modules.
 * Efficient non-recursive algorithms.
   * ~500 tests to ensure correctness.
   * Support for circular dependencies.
@@ -95,9 +95,9 @@ import matchString from 'deep6/unifiers/matchString';
 ```
 
 ```js
-// CommonJS modules
-const {equal, clone} = require('deep6/cjs');
-const matchString = require('deep6/cjs/unifiers/matchString').default;
+// CommonJS module
+const {equal, clone} = require('deep6');
+const matchString = require('deep6/unifiers/matchString');
 ```
 
 ## License

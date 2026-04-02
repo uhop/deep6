@@ -13,7 +13,7 @@ Run through this checklist before publishing a new version.
 3. Check that `.windsurfrules`, `.clinerules`, `.cursorrules` are in sync with `AGENTS.md`.
 4. Check that `llms.txt` and `llms-full.txt` are up to date with any API changes.
 5. Verify `package.json`:
-   - `files` array includes all necessary entries (`src`, `cjs`, `llms.txt`, `llms-full.txt`).
+   - `files` array includes all necessary entries (`src`, `llms.txt`, `llms-full.txt`).
    - `exports` map is correct.
    - `description` and `keywords` are current.
 6. Check that the copyright year in `LICENSE` includes the current year.
@@ -23,8 +23,4 @@ Run through this checklist before publishing a new version.
    // turbo
 10. Run the full test suite: `npm test`
    // turbo
-11. Run build: `npm run build` to regenerate cjs/
-   // turbo
-12. Verify tests still pass after build: `npm test`
-   // turbo
-13. Dry-run publish to verify package contents: `npm pack --dry-run`
+11. Dry-run publish to verify package contents: `npm pack --dry-run`
