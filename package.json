@@ -112,6 +112,7 @@
     "traversing"
   ],
   "author": "Eugene Lazutkin <eugene.lazutkin@gmail.com> (https://www.lazutkin.com/)",
+  "funding": "https://github.com/sponsors/uhop",
   "license": "BSD-3-Clause",
   "devDependencies": {
     "@babel/cli": "^7.24.7",
