@@ -1,0 +1,68 @@
+<!-- Canonical source: AGENTS.md — keep this file in sync -->
+# deep6 — AI Agent Rules
+
+## Project identity
+
+deep6 is a no-dependency ES6 mini-library for advanced deep equivalence, unification, and cloning of JavaScript structures. It supports extensible pattern matching, deep cloning with circular reference handling, and traversing complex objects including Map, Set, typed arrays, symbols, and property descriptors.
+
+## Critical rules
+
+- **ES6 modules.** The project is `"type": "module"`. Use `import`/`export` syntax.
+- **Zero runtime dependencies.** Do not add packages to `dependencies`. Only `devDependencies` are allowed.
+- **Dual module support.** Provides both ES6 modules (`src/`) and CommonJS (`cjs/`). The `cjs/` directory is auto-generated via Babel.
+- **Do not modify or delete test expectations** without understanding why they changed.
+- **Do not add comments or remove comments** unless explicitly asked.
+- **Keep `src/` and `cjs/` in sync.** Run `npm run build` to regenerate CommonJS files.
+
+## Code style
+
+- 2-space indentation.
+- Single quotes for strings.
+- No semicolons (enforced by Prettier).
+- See `.prettierrc` for formatting settings.
+
+## Architecture quick reference
+
+- **Main entry:** `src/index.js` exports `equal`, `clone`, `match`, `any`, `_`.
+- **Unification core:** `src/unify.js` — the heart of the library. Uses a non-recursive stack-based algorithm.
+- **Environment:** `src/env.js` — `Env`, `Variable`, `Unifier` classes for unification state management.
+- **Traversing:** `src/traverse/` — object walking and cloning.
+  - `walk.js` — generic non-recursive object walker with registry/filter system.
+  - `clone.js` — deep cloning using the walker.
+  - `preprocess.js` — pattern preprocessing for matching.
+  - `assemble.js` — object assembly utilities.
+  - `deref.js` — dereferencing utilities.
+- **Unifiers:** `src/unifiers/` — pattern matching components.
+  - `matchString.js` — regex-based string matching.
+  - `matchTypeOf.js` — type-based matching.
+  - `matchInstanceOf.js` — instanceof-based matching.
+  - `matchCondition.js` — conditional matching.
+  - `ref.js` — reference variables.
+- **Utils:** `src/utils/` — utility functions.
+
+## Verification commands
+
+- `npm test` — run the test suite.
+- `npm run build` — regenerate `cjs/` from `src/` using Babel.
+- `npm run prepareDist` — prepare distribution files.
+- `npm run lint` — Prettier check (if configured).
+- `npm run lint:fix` — Prettier write (if configured).
+
+## File layout
+
+- Entry point: `src/index.js`
+- Core: `src/unify.js`, `src/env.js`
+- Traverse: `src/traverse/` (walk.js, clone.js, preprocess.js, assemble.js, deref.js)
+- Unifiers: `src/unifiers/` (matchString.js, matchTypeOf.js, matchInstanceOf.js, matchCondition.js, ref.js)
+- Utils: `src/utils/` (replaceVars.js)
+- Tests: `tests/tests.js` (main test file), `tests/server.js`
+- Build: `scripts/prepareDist.js`
+- CJS output: `cjs/` (auto-generated, do not edit directly)
+
+## When reading the codebase
+
+- Start with `ARCHITECTURE.md` for the module map and dependency graph.
+- `src/unify.js` is the core — read it first to understand the unification algorithm.
+- `src/env.js` defines `Env`, `Variable`, and `Unifier` classes.
+- `src/traverse/walk.js` is the foundation for all traversal operations.
+- Read `README.md` for usage examples.

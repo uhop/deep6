@@ -1,0 +1,148 @@
+# deep6
+
+> No-dependency ES6 mini-library for advanced deep equivalence, unification, and cloning of JavaScript structures. Supports extensible pattern matching, circular reference handling, and complex objects including Map, Set, typed arrays, symbols, and property descriptors.
+
+## Install
+
+```bash
+npm i deep6
+```
+
+## Quick start
+
+```js
+import equal, {clone, match, any} from 'deep6';
+
+const x = {a: 1, b: 2, c: ['hi!', 42, null, {}]};
+
+// deep equality
+equal(x, {b: 2, a: 1, c: ['hi!', 42, null, {}]});     // true
+
+// pattern matching
+match(x, {a: 1});         // true
+match(x, {a: 1, c: any}); // true
+
+// deep cloning
+const y = clone(x);
+equal(x, y);              // true
+
+// circular dependencies are fine
+const z = {}, w = {};
+z.z = z;
+w.z = w;
+const p = clone(w);
+equal(z, w);              // true
+equal(z, p);              // true
+
+// advanced: symbols and non-enumerable properties
+const r = {a: 1};
+Object.defineProperty(r, 'b', {value: 2, enumerable: false});
+const q = clone(r, {allProps: true});
+```
+
+## API
+
+### equal(a, b, options)
+
+Deep equivalence check. Returns `true` if structures are deeply equal.
+
+Options:
+- `circular: true` — handle circular references (default: true)
+- `symbols: true` — compare symbol properties
+- `loose: true` — use loose equality for primitives (`==`)
+- `ignoreFunctions: true` — ignore function properties
+
+### clone(object, options)
+
+Deep cloning. Returns a deep copy of the object.
+
+Options:
+- `circular: true` — handle circular references (default: true)
+- `symbols: true` — clone symbol properties
+- `allProps: true` — clone non-enumerable properties
+
+### match(object, pattern)
+
+Pattern matching. Returns `true` if object matches pattern (open match by default).
+
+Pattern features:
+- `any` or `_` — wildcard that matches any value
+- Object keys can be missing in target (open matching)
+- Use `open()` for explicit open matching
+- Use `soft()` for bidirectional open matching
+
+### unify(a, b, env, options)
+
+Core unification algorithm. Returns `Env` on success, `null` on failure.
+
+```js
+import unify, {Variable, variable} from 'deep6/unify.js';
+
+const v = variable();
+const env = unify({a: 1, b: v}, {a: 1, b: 2});
+// env.get(v) === 2
+```
+
+### Unifiers
+
+Extensible pattern matching components:
+
+- `matchString(regexp, matches, props)` — regex-based string matching
+- `matchTypeOf(type)` — match by `typeof` value
+- `matchInstanceOf(constructor)` — match by `instanceof` check
+- `matchCondition(predicate)` — match by custom predicate
+- `ref()` — reference variable for cross-pattern matching
+
+```js
+import matchString from 'deep6/unifiers/matchString.js';
+import matchTypeOf from 'deep6/unifiers/matchTypeOf.js';
+import matchInstanceOf from 'deep6/unifiers/matchInstanceOf.js';
+import matchCondition from 'deep6/unifiers/matchCondition.js';
+import ref from 'deep6/unifiers/ref.js';
+```
+
+## Registry and filters
+
+Both `unify` and `clone` support extensible registries:
+
+```js
+import unify from 'deep6/unify.js';
+import clone from 'deep6/traverse/clone.js';
+
+// Add custom type unifier
+unify.registry.push(MyClass, (l, r) => /* compare */);
+
+// Add custom type cloner
+clone.registry.push(MyClass, (val, context) => /* clone */);
+```
+
+## Common patterns
+
+### Deep equality with special types
+
+```js
+equal(new Date('2020-01-01'), new Date('2020-01-01')); // true
+equal(/abc/gi, /abc/gi); // true
+equal(new Map([['a', 1]]), new Map([['a', 1]])); // true
+```
+
+### Pattern matching with wildcards
+
+```js
+match({a: 1, b: {c: 2}}, {a: 1});           // true (open match)
+match({a: 1, b: {c: 2}}, {a: 1, b: any});   // true
+match({a: 'hello'}, {a: matchString(/^h/i)}); // true
+```
+
+### Cloning with options
+
+```js
+const x = {a: 1, [Symbol('s')]: 2};
+const y = clone(x, {symbols: true});
+```
+
+## Links
+
+- Docs: https://github.com/uhop/deep6/wiki
+- npm: https://www.npmjs.com/package/deep6
+- Full LLM reference: https://github.com/uhop/deep6/blob/master/llms-full.txt

@@ -1,0 +1,368 @@
+# deep6 — Full LLM Reference
+
+> No-dependency ES6 mini-library for advanced deep equivalence, unification, and cloning of JavaScript structures. Supports extensible pattern matching, circular reference handling, and complex objects including Map, Set, typed arrays, symbols, and property descriptors.
+
+## Install
+
+```bash
+npm i deep6
+```
+
+## Quick start
+
+```js
+import equal, {clone, match, any} from 'deep6';
+
+const x = {a: 1, b: 2, c: ['hi!', 42, null, {}]};
+
+// deep equality
+equal(x, {b: 2, a: 1, c: ['hi!', 42, null, {}]});     // true
+
+// pattern matching
+match(x, {a: 1});         // true
+match(x, {a: 1, c: any}); // true
+
+// deep cloning
+const y = clone(x);
+equal(x, y);              // true
+```
+
+## API Reference
+
+### equal(a, b, options)
+
+Deep equivalence check using unification. Returns `true` if structures can be unified.
+
+```js
+equal({a: 1}, {a: 1});                      // true
+equal({a: 1, b: 2}, {b: 2, a: 1});         // true (order independent)
+equal(new Date('2020-01-01'), new Date('2020-01-01')); // true
+equal(/abc/gi, /abc/gi);                   // true
+```
+
+Options:
+- `circular: true` — handle circular references (default: true)
+- `symbols: true` — compare symbol properties
+- `loose: true` — use loose equality (`==`) for primitives
+- `ignoreFunctions: true` — ignore function properties
+- `signedZero: true` — distinguish +0 from -0
+
+### clone(object, options)
+
+Deep cloning with circular reference support.
+
+```js
+const x = {a: new Map(), b: Buffer.from([1, 2, 3])};
+const y = clone(x);
+equal(x, y);  // true
+```
+
+Options:
+- `circular: true` — handle circular references (default: true)
+- `symbols: true` — clone symbol properties
+- `allProps: true` — clone non-enumerable properties
+
+### match(object, pattern)
+
+Pattern matching with wildcards. Returns `true` if object matches pattern.
+
+```js
+match({a: 1, b: 2}, {a: 1});           // true (open match)
+match({a: 1, b: 2}, {a: 1, c: any});   // false (c missing)
+match({a: 1, b: 2}, {a: 1, b: any});   // true
+```
+
+Default options: `openObjects: true`, `openMaps: true`, `openSets: true`, `circular: true`
+
+### unify(a, b, env, options)
+
+Core unification algorithm. Returns `Env` on success, `null` on failure.
+
+```js
+import unify, {Variable, variable, any, _} from 'deep6/unify.js';
+
+const v = variable();
+const env = unify({a: 1, b: v}, {a: 1, b: 2});
+// env.get(v) === 2
+```
+
+Options:
+- `openObjects: true` — target can have extra keys
+- `openMaps: true` — maps can have extra entries
+- `openSets: true` — sets can have extra entries
+- `openArrays: true` — arrays can have extra elements
+- `circular: true` — handle circular references
+- `loose: true` — use loose equality
+- `ignoreFunctions: true` — ignore functions
+- `symbols: true` — process symbol properties
+
+### Wildcards
+
+`any` (or `_`) matches any value:
+
+```js
+import {match, any, _} from 'deep6';
+
+match({a: 1, b: 2}, {a: any});      // true
+match({a: 1, b: 2}, {a: 1, b: _});  // true
+```
+
+### Wrap types
+
+`open()` and `soft()` control matching strictness:
+
+```js
+import {match, open, soft} from 'deep6';
+
+// open: pattern keys must exist, target can have extras
+match({a: 1, b: 2}, open({a: 1}));  // true
+
+// soft: bidirectional open matching
+match(soft({a: 1}), {a: 1, b: 2});   // true
+```
+
+### Variable
+
+Logical variable for capturing values during unification:
+
+```js
+import {Variable, variable} from 'deep6/unify.js';
+
+const v = variable();
+const env = unify({a: 1, b: v}, {a: 1, b: 2});
+
+v.isBound(env);     // true
+v.get(env);        // 2
+```
+
+### Env
+
+Unification environment managing variable bindings:
+
+```js
+import {Env} from 'deep6/env.js';
+
+const env = new Env();
+// env.depth, env.variables, env.values
+// env.push(), env.pop(), env.revert(depth)
+// env.bindVar(name1, name2), env.bindVal(name, val)
+// env.get(name), env.isBound(name), env.isAlias(name1, name2)
+```
+
+### Unifier
+
+Base class for custom unification behavior:
+
+```js
+import {Unifier} from 'deep6/env.js';
+
+class MyMatcher extends Unifier {
+  unify(val, ls, rs, env) {
+    // return true for match, false for failure
+    // push to ls/rs to continue unification
+  }
+}
+```
+
+## Unifiers
+
+### matchString(regexp, matches, props)
+
+Regex-based string matching:
+
+```js
+import matchString from 'deep6/unifiers/matchString.js';
+
+const m = matchString(/^hello (\w+)$/, ['name'], {index: true, input: true});
+match({greeting: 'hello world'}, {greeting: m});  // captures name
+```
+
+### matchTypeOf(type)
+
+Match by `typeof`:
+
+```js
+import matchTypeOf from 'deep6/unifiers/matchTypeOf.js';
+
+match({x: 42}, {x: matchTypeOf('number')});  // true
+match({x: 'hi'}, {x: matchTypeOf('string')}); // true
+```
+
+### matchInstanceOf(constructor)
+
+Match by `instanceof`:
+
+```js
+import matchInstanceOf from 'deep6/unifiers/matchInstanceOf.js';
+
+match({d: new Date()}, {d: matchInstanceOf(Date)});     // true
+match({r: /abc/}, {r: matchInstanceOf(RegExp)});       // true
+```
+
+### matchCondition(predicate)
+
+Match by custom predicate:
+
+```js
+import matchCondition from 'deep6/unifiers/matchCondition.js';
+
+const isPositive = matchCondition(x => typeof x === 'number' && x > 0);
+match({n: 5}, {n: isPositive});   // true
+match({n: -1}, {n: isPositive});    // false
+```
+
+### ref()
+
+Reference variable for cross-pattern matching:
+
+```js
+import ref from 'deep6/unifiers/ref.js';
+
+const r = ref();
+match({a: 1, b: 1}, {a: r, b: r});  // true (a and b are equal)
+```
+
+## Walker and Cloning
+
+### walk(object, options)
+
+Generic non-recursive object walker:
+
+```js
+import walk from 'deep6/traverse/walk.js';
+
+walk(myObject, {
+  processObject: (obj, context) => { /* handle object */ },
+  processOther: (val, context) => { /* handle primitive */ },
+  registry: [[Date, (d, ctx) => ctx.stackOut.push(d)]],
+  circular: true
+});
+```
+
+### clone.registry and unify.registry
+
+Extensible registries for custom types:
+
+```js
+import unify from 'deep6/unify.js';
+import clone from 'deep6/traverse/clone.js';
+
+// Add unifier for custom type
+unify.registry.push(MyClass, (l, r, ls, rs, env) => {
+  // return true for match, false for failure
+});
+
+// Add cloner for custom type
+clone.registry.push(MyClass, (val, context) => {
+  context.stackOut.push(new MyClass(val));
+});
+```
+
+### preprocess(pattern, options)
+
+Pattern preprocessing for matching:
+
+```js
+import preprocess from 'deep6/traverse/preprocess.js';
+
+const processed = preprocess({a: 1}, {openObjects: true});
+// Returns Wrap instance with type metadata
+```
+
+## Project Structure
+
+```
+src/
+├── index.js          # Main entry: equal, clone, match, any, _
+├── env.js            # Env, Variable, Unifier, any, _
+├── unify.js          # Core unification algorithm
+├── traverse/
+│   ├── walk.js       # Generic walker
+│   ├── clone.js      # Deep cloning
+│   ├── preprocess.js # Pattern preprocessing
+│   ├── assemble.js   # Object assembly
+│   └── deref.js      # Dereferencing
+├── unifiers/
+│   ├── matchString.js
+│   ├── matchTypeOf.js
+│   ├── matchInstanceOf.js
+│   ├── matchCondition.js
+│   └── ref.js
+└── utils/
+    └── replaceVars.js
+```
+
+## Commands
+
+- `npm test` — run tests
+- `npm run build` — regenerate cjs/ from src/
+- `npm run prepareDist` — prepare distribution
+- `npm run debug` — debug with Node inspector
+
+## Code Style
+
+- ES6 modules (`"type": "module"`)
+- 2-space indentation
+- Single quotes
+- No semicolons (Prettier)
+- Zero runtime dependencies
+
+## Supported Types
+
+Built-in support for:
+- Primitives (including NaN, +0/-0 handling)
+- Objects and Arrays
+- Map and Set
+- Date and RegExp
+- All typed arrays (Int8Array, Uint8Array, etc.)
+- DataView and ArrayBuffer
+- Symbols (optional)
+- Property descriptors
+- Circular references
+- Functions (configurable)
+
+## Common Patterns
+
+### Capturing values
+
+```js
+import {unify, variable} from 'deep6/unify.js';
+
+const name = variable();
+const env = unify({user: {name: 'Alice', age: 30}}, {user: {name, age: 30}});
+// name.get(env) === 'Alice'
+```
+
+### Nested pattern matching
+
+```js
+match(
+  {users: [{name: 'Alice'}, {name: 'Bob'}]},
+  {users: [{name: any}, {name: any}]}
+);  // true
+```
+
+### Custom unifier
+
+```js
+import {Unifier} from 'deep6/env.js';
+
+class Range extends Unifier {
+  constructor(min, max) {
+    super();
+    this.min = min;
+    this.max = max;
+  }
+  unify(val, ls, rs) {
+    return typeof val === 'number' && val >= this.min && val <= this.max;
+  }
+}
+
+match({age: 25}, {age: new Range(18, 65)});  // true
+```
+
+## Links
+
+- GitHub: https://github.com/uhop/deep6
+- npm: https://www.npmjs.com/package/deep6
+- Wiki: https://github.com/uhop/deep6/wiki
