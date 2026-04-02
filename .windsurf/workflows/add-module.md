@@ -12,18 +12,20 @@ Follow these steps when adding a new unifier or utility.
    - ES6 modules (`import`/`export`).
    - Zero runtime dependencies.
    - Follow existing code style (2-space indent, single quotes, no semicolons).
-2. Create `tests/tests.js` additions with automated tests.
+2. Add tests in `tests/tests.js`.
    - Import the module under test with relative paths.
    - Test normal operation, edge cases.
+3. Create a wiki page (e.g., `wiki/foo.md`) with usage documentation.
+4. Add a link in `wiki/Home.md` under the appropriate section.
    // turbo
-3. Run tests: `npm test`
-4. Update `ARCHITECTURE.md` — add the utility to the project layout tree and dependency graph.
-5. Update `llms.txt` and `llms-full.txt` with a description and example.
-6. Update `AGENTS.md` if the architecture quick reference needs updating.
+5. Run tests: `npm test`
+6. Update `ARCHITECTURE.md` — add the utility to the project layout tree and dependency graph.
+7. Update `llms.txt` and `llms-full.txt` with a description and example.
+8. Update `AGENTS.md` if the architecture quick reference needs updating.
    // turbo
-7. Run build: `npm run build` to regenerate cjs/
+9. Run build: `npm run build` to regenerate cjs/
    // turbo
-8. Verify: `npm test`
+10. Verify: `npm test`
 
 ## Unifier (e.g., `src/unifiers/foo.js`)
 
@@ -34,13 +36,15 @@ Follow these steps when adding a new unifier or utility.
 2. Add tests in `tests/tests.js`.
    // turbo
 3. Run tests: `npm test`
-4. Update `ARCHITECTURE.md` — add to project layout, unifier list, and dependency graph.
-5. Update `llms.txt` and `llms-full.txt`.
-6. Update `AGENTS.md` if needed.
+4. Create a wiki page (e.g., `wiki/foo.md`) with usage documentation.
+5. Add a link in `wiki/Home.md` under the Unifiers section.
+6. Update `ARCHITECTURE.md` — add to project layout, unifier list, and dependency graph.
+7. Update `llms.txt` and `llms-full.txt`.
+8. Update `AGENTS.md` if needed.
    // turbo
-7. Run build: `npm run build`
+9. Run build: `npm run build`
    // turbo
-8. Verify: `npm test`
+10. Verify: `npm test`
 
 ## Traverse module (e.g., `src/traverse/foo.js`)
 
@@ -50,10 +54,12 @@ Follow these steps when adding a new unifier or utility.
 2. Add tests in `tests/tests.js`.
    // turbo
 3. Run tests: `npm test`
-4. Update `ARCHITECTURE.md` — add to project layout and dependency graph.
-5. Update `llms.txt` and `llms-full.txt`.
-6. Update `AGENTS.md` if needed.
+4. Create a wiki page (e.g., `wiki/foo.md`) with usage documentation.
+5. Add a link in `wiki/Home.md` under the Traverse section.
+6. Update `ARCHITECTURE.md` — add to project layout and dependency graph.
+7. Update `llms.txt` and `llms-full.txt`.
+8. Update `AGENTS.md` if needed.
    // turbo
-7. Run build: `npm run build`
+9. Run build: `npm run build`
    // turbo
-8. Verify: `npm test`
+10. Verify: `npm test`

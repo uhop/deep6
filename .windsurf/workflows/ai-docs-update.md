@@ -18,8 +18,9 @@ Update all AI-facing files after changes to the public API, modules, or project 
 5. Update `llms-full.txt`:
    - Full API reference with all components, options, and examples.
    - Include any new unifiers or utilities.
-6. Update `ARCHITECTURE.md` if project structure or module dependencies changed.
-7. Update `AGENTS.md` if critical rules, commands, or architecture quick reference changed.
-8. Sync `.windsurfrules`, `.cursorrules`, `.clinerules` if `AGENTS.md` changed:
+6. Update `wiki/Home.md` if the overview or structure changed.
+7. Update `ARCHITECTURE.md` if project structure or module dependencies changed.
+8. Update `AGENTS.md` if critical rules, commands, or architecture quick reference changed.
+9. Sync `.windsurfrules`, `.cursorrules`, `.clinerules` if `AGENTS.md` changed:
    - These three files should be identical copies of the condensed rules.
-9. Track progress with the todo list and provide a summary when done.
+10. Track progress with the todo list and provide a summary when done.
