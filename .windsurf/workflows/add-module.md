@@ -11,7 +11,7 @@ Follow these steps when adding a new unifier or utility.
 1. Create `src/utils/foo.js` with the implementation.
    - ES6 modules (`import`/`export`).
    - Zero runtime dependencies.
-   - Follow existing code style (2-space indent, single quotes, no semicolons).
+   - Follow existing code style (2-space indent, single quotes, semicolons required).
 2. Add tests in `tests/tests.js`.
    - Import the module under test with relative paths.
    - Test normal operation, edge cases.

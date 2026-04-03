@@ -2,6 +2,31 @@
 
 > `deep6` is a no-dependency ES6 mini-library for advanced deep equivalence, unification, and cloning of JavaScript structures. It supports extensible pattern matching, deep cloning with circular reference handling, and traversing complex objects including Map, Set, typed arrays, symbols, and property descriptors.
 
+## AI Documentation
+
+- **Architecture:** [ARCHITECTURE.md](./ARCHITECTURE.md) — Module map, dependency graph, algorithm details
+- **Quick API:** [llms.txt](./llms.txt) — Concise API reference for LLMs
+- **Full API:** [llms-full.txt](./llms-full.txt) — Complete API reference with examples
+- **Codebase Quick Ref:** [CODEBASE.md](./CODEBASE.md) — One-liner, entry points, key patterns
+- **Usage:** [README.md](./README.md) — Installation and examples
+
+## Workflows
+
+Available in `.windsurf/workflows/`:
+
+- **`add-module.md`** — Checklist for adding new unifiers, utilities, or traverse modules
+- **`ai-docs-update.md`** — Update all AI-facing docs after API changes
+- **`release-check.md`** — Pre-release verification checklist
+
+## Skills
+
+Domain-specific knowledge in `.windsurf/skills/` and `.cursor/skills/`:
+
+- **`write-tests/`** — How to write tests for deep6 modules
+- **`add-unifier/`** — How to create new unifier modules
+- **`debug-unification/`** — How to debug unification failures
+- **`add-type-support/`** — How to add support for new types to registries
+
 For project structure, module dependencies, and the architecture overview see [ARCHITECTURE.md](./ARCHITECTURE.md).
 For detailed usage docs and API references see the [wiki](https://github.com/uhop/deep6/wiki).
 
@@ -56,7 +81,7 @@ deep6/
 
 - **ES6 modules** (`"type": "module"` in package.json).
 - **Zero runtime dependencies.** Only `devDependencies` are allowed.
-- **Prettier** for formatting (see `.prettierrc`): 2-space indent, single quotes, no semicolons.
+- **Prettier** for formatting (see `.prettierrc`): 2-space indent, single quotes, semicolons required.
 - The package is `deep6`. No external dependencies.
 
 ## Critical rules
@@ -204,8 +229,16 @@ clone.registry.push(MyClass, (val, context) => /* clone */);
 
 ## When reading the codebase
 
-- Start with `ARCHITECTURE.md` for the module map and dependency graph.
-- `src/unify.js` is the core — read it first to understand the unification algorithm.
-- `src/env.js` defines the unification environment and variable classes.
-- `src/traverse/walk.js` is the foundation for all traversal operations.
-- `README.md` contains usage examples.
+- Start with this file ([AGENTS.md](./AGENTS.md)) for rules and constraints
+- Consult [ARCHITECTURE.md](./ARCHITECTURE.md) for module relationships
+- Use [llms.txt](./llms.txt) for quick API lookup
+- Reference [CODEBASE.md](./CODEBASE.md) for algorithm details
+- Follow workflows in `.windsurf/workflows/` for common tasks
+- Run `npm test` after any code changes
+
+### Core files to understand
+
+- `src/unify.js` — Core unification algorithm (non-recursive stack-based)
+- `src/env.js` — Unification environment and variable classes
+- `src/traverse/walk.js` — Foundation for all traversal operations
+- `src/index.js` — Main entry point and public API
