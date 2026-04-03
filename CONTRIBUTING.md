@@ -16,7 +16,8 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for the module map and dependency graph
 
 1. Make your changes in `src/`.
 2. Test: `npm test`
-3. Lint: `npm run lint:fix`
+3. Type check: `npm run ts-check`
+4. Lint: `npm run lint:fix`
 
 ## Code style
 

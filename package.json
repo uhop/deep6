@@ -12,6 +12,7 @@
     "start": "node tests/server.js --trace",
     "test": "node tests/tests.js",
     "debug": "node --inspect-brk tests/tests.js",
+    "ts-check": "tsc --noEmit",
     "lint": "prettier --check .",
     "lint:fix": "prettier --write ."
   },

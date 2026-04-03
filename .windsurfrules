@@ -43,6 +43,7 @@ deep6 is a no-dependency ES6 mini-library for advanced deep equivalence, unifica
 
 - `npm test` — run the test suite.
 - `npm run debug` — run tests with Node inspector.
+- `npm run ts-check` — TypeScript type checking.
 - `npm run lint` — Prettier check.
 - `npm run lint:fix` — Prettier write.
 

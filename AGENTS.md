@@ -43,6 +43,7 @@ npm install
 - **Install:** `npm install`
 - **Test:** `npm test`
 - **Debug:** `npm run debug` — run tests with Node inspector
+- **Type check:** `npm run ts-check` — TypeScript type checking
 - **Lint:** `npm run lint` — Prettier check
 - **Lint fix:** `npm run lint:fix` — Prettier write
 
