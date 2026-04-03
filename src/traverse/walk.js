@@ -34,7 +34,10 @@ const processCircular = (value, context) => context.stackOut.push(new Circular(v
 
 const processMap = (postProcess, postProcessSeen) => (object, context) => {
   const stack = context.stack;
-  postProcess && stack.push(new Command(postProcessSeen ? (context.seen ? postProcessSeen : postProcess) : postProcess, object));
+  if (postProcess) {
+    const processor = context.seen && postProcessSeen ? postProcessSeen : postProcess;
+    stack.push(new Command(processor, object));
+  }
   for (const value of object.values()) {
     stack.push(value);
   }

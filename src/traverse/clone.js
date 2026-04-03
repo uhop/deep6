@@ -45,7 +45,7 @@ const registry = [
     Date,
     (val, context) => context.stackOut.push(new Date(val.getTime())),
     RegExp,
-    (val, context) => context.stackOut.push(new RegExp(val.source, (val.global ? 'g' : '') + (val.multiline ? 'm' : '') + (val.ignoreCase ? 'i' : ''))),
+    (val, context) => context.stackOut.push(new RegExp(val.source, val.flags)),
     Map,
     processMap(postProcessMap, postProcessMapSeen),
     Promise,
