@@ -1,4 +1,4 @@
-const {equal, match, clone, any} = require('deep6/cjs');
+const {equal, match, clone, any} = require('deep6');
 
 const x = {a: 1, b: 2, c: ['hi!', 42, null, {}]};
 
