@@ -15,14 +15,12 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for the module map and dependency graph
 ## Development workflow
 
 1. Make your changes in `src/`.
-2. Build: `npm run build` — regenerates `cjs/` from `src/`.
-3. Test: `npm test`
-4. Lint: `npm run lint:fix` (if configured)
+2. Test: `npm test`
+3. Lint: `npm run lint:fix`
 
 ## Code style
 
 - ES6 modules (`import`/`export`) in source.
-- CommonJS output in `cjs/` (auto-generated).
 - Formatted with Prettier — see `.prettierrc` for settings.
 - Zero runtime dependencies. Do not add packages to `dependencies`.
 

@@ -17,7 +17,7 @@ deep6 is a no-dependency ES6 mini-library for advanced deep equivalence, unifica
 
 - 2-space indentation.
 - Single quotes for strings.
-- No semicolons (enforced by Prettier).
+- Semicolons are required (enforced by Prettier).
 - See `.prettierrc` for formatting settings.
 
 ## Architecture quick reference
@@ -43,6 +43,8 @@ deep6 is a no-dependency ES6 mini-library for advanced deep equivalence, unifica
 
 - `npm test` — run the test suite.
 - `npm run debug` — run tests with Node inspector.
+- `npm run lint` — Prettier check.
+- `npm run lint:fix` — Prettier write.
 
 ## File layout
 

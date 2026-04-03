@@ -43,6 +43,8 @@ npm install
 - **Install:** `npm install`
 - **Test:** `npm test`
 - **Debug:** `npm run debug` — run tests with Node inspector
+- **Lint:** `npm run lint` — Prettier check
+- **Lint fix:** `npm run lint:fix` — Prettier write
 
 ## Project structure
 
@@ -69,12 +71,8 @@ deep6/
 │       └── replaceVars.js   # Variable replacement utility
 ├── tests/                # Test files
 │   ├── tests.js          # Main test suite (~500 tests)
-│   └── utils/
-│       └── replaceVars.js   # Variable replacement utility
-├── tests/                # Test files (tests.js, server.js, tests.html)
-├── scripts/              # Build scripts
-│   └── prepareDist.js    # Distribution preparation
-└── .github/              # CI workflows, funding, dependabot
+│   └── server.js         # Test server
+├── .github/              # CI workflows, funding, dependabot
 ```
 
 ## Code style
