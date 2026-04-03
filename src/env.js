@@ -90,14 +90,14 @@ class Env {
   }
   // helpers
   isBound(name) {
-    return name in env.values;
+    return name in this.values;
   }
   isAlias(name1, name2) {
-    const u = env.variables[name2];
+    const u = this.variables[name2];
     return u && u[name1] === 1;
   }
   get(name) {
-    return env.values[name];
+    return this.values[name];
   }
   // debugging
   getAllValues() {
