@@ -88,7 +88,7 @@ export declare class Command {
  * });
  * ```
  */
-export declare const walk: (val: unknown, options?: WalkOptions) => void;
+export declare const walk: (o: unknown, options?: WalkOptions) => void;
 
 // Registry and filters
 
@@ -165,11 +165,11 @@ export declare const postObjectCircular: (
 
 /**
  * Extracts property descriptors and keys
- * @param source - Object to analyze
+ * @param object - Object to analyze
  * @param context - Walk context
  */
 export declare const getObjectData: (
-  source: unknown,
+  object: unknown,
   context: WalkContext
 ) => {descriptors: Record<string | symbol, PropertyDescriptor>; keys: Array<string | symbol>};
 
@@ -190,10 +190,10 @@ export declare const buildNewObject: (
 ) => void;
 
 /** Processor for Variable instances */
-export declare const processVariable: (value: unknown, context: WalkContext) => void;
+export declare const processVariable: (val: unknown, context: WalkContext) => void;
 
 /** Processor for Command objects */
-export declare const processCommand: (value: unknown, context: WalkContext) => void;
+export declare const processCommand: (val: unknown, context: WalkContext) => void;
 
 /**
  * Sets up circular reference handling

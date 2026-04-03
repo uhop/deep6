@@ -34,7 +34,7 @@ export interface DerefContext {
  * directly in-place. Unlike assemble which creates a new structure,
  * deref modifies the existing one.
  *
- * @param val - Value to dereference (modified in-place)
+ * @param source - Value to dereference (modified in-place)
  * @param env - Environment with bindings, or options
  * @param options - Optional dereference options
  * @returns Same value with variables replaced
@@ -50,6 +50,6 @@ export interface DerefContext {
  * // obj === {a: 42, b: ['hello', 42]}
  * ```
  */
-export declare const deref: (val: unknown, env?: Env | DerefContext, options?: DerefContext) => unknown;
+export declare const deref: (source: unknown, env?: Env | DerefContext, options?: DerefContext) => unknown;
 
 export default deref;

@@ -58,7 +58,7 @@ export declare const filters: Array<(val: unknown, context: CloneContext) => voi
  * Clones objects, arrays, and all supported types while handling
  * circular references correctly. Can clone with custom options.
  *
- * @param a - Value to clone
+ * @param source - Value to clone
  * @param contextOrEnv - Optional environment or context (deprecated)
  * @param options - Cloning options
  * @returns Deep clone of the value
@@ -74,4 +74,4 @@ export declare const filters: Array<(val: unknown, context: CloneContext) => voi
  * const clonedWithSymbols = clone(original, {symbols: true});
  * ```
  */
-export declare const clone: <T>(a: T, contextOrEnv?: Env | CloneOptions, options?: CloneOptions) => T;
+export declare const clone: <T>(source: T, contextOrEnv?: Env | CloneOptions, options?: CloneOptions) => T;

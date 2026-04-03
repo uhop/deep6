@@ -33,7 +33,7 @@ export interface AssembleContext {
  * Traverses a structure and replaces variables with their bound values
  * from the environment. Creates a new structure with all variables resolved.
  *
- * @param val - Value to assemble (may contain variables)
+ * @param source - Value to assemble (may contain variables)
  * @param env - Environment containing variable bindings, or options
  * @param options - Optional assembly options
  * @returns New value with all variables replaced by their bound values
@@ -49,6 +49,6 @@ export interface AssembleContext {
  * // assembled === {a: 42, b: ['hello', 42]}
  * ```
  */
-export declare const assemble: (val: unknown, env?: Env | AssembleContext, options?: AssembleContext) => unknown;
+export declare const assemble: (source: unknown, env?: Env | AssembleContext, options?: AssembleContext) => unknown;
 
 export default assemble;

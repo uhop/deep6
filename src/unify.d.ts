@@ -33,8 +33,8 @@ export interface UnifyOptions {
  * Attempts to unify two values, optionally binding variables in the process.
  * Returns an environment with variable bindings if successful, or null if unification fails.
  *
- * @param a - First value to unify
- * @param b - Second value to unify
+ * @param l - First value to unify
+ * @param r - Second value to unify
  * @param env - Optional existing environment for variable bindings
  * @param options - Unification options
  * @returns Environment with bindings if successful, null otherwise
@@ -48,7 +48,7 @@ export interface UnifyOptions {
  * console.log(x.get(env)); // 42
  * ```
  */
-export declare const unify: (a: unknown, b: unknown, env?: Env | null, options?: UnifyOptions) => Env | null;
+export declare const unify: (l: unknown, r: unknown, env?: Env | null, options?: UnifyOptions) => Env | null;
 
 /**
  * Registry of type-specific unifiers
