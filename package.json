@@ -11,7 +11,9 @@
   "scripts": {
     "start": "node tests/server.js --trace",
     "test": "node tests/tests.js",
-    "debug": "node --inspect-brk tests/tests.js"
+    "debug": "node --inspect-brk tests/tests.js",
+    "lint": "prettier --check .",
+    "lint:fix": "prettier --write ."
   },
   "repository": {
     "type": "git",
@@ -46,5 +48,9 @@
     "/src",
     "llms.txt",
     "llms-full.txt"
-  ]
+  ],
+  "devDependencies": {
+    "prettier": "^3.8.1",
+    "typescript": "^6.0.2"
+  }
 }
