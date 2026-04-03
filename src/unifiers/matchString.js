@@ -30,4 +30,5 @@ class MatchString extends Unifier {
 
 const matchString = (regexp, matches, props) => new MatchString(regexp, matches, props);
 
+export {matchString};
 export default matchString;

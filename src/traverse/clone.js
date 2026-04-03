@@ -105,5 +105,5 @@ const clone = (source, env, options) => {
 clone.registry = registry;
 clone.filters = filters;
 
-export {registry, filters};
+export {registry, filters, clone};
 export default clone;

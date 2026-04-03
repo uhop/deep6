@@ -13,4 +13,5 @@ class MatchTypeOf extends Unifier {
 
 const matchTypeOf = types => new MatchTypeOf(types);
 
+export {matchTypeOf};
 export default matchTypeOf;

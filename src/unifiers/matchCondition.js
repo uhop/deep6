@@ -13,4 +13,5 @@ class MatchCondition extends Unifier {
 
 const matchCondition = f => new MatchCondition(f);
 
+export {matchCondition};
 export default matchCondition;

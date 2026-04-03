@@ -108,5 +108,5 @@ const preprocess = (source, options) => {
 preprocess.registry = registry;
 preprocess.filters = filters;
 
-export {registry, filters};
+export {registry, filters, preprocess};
 export default preprocess;

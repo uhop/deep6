@@ -257,6 +257,7 @@ export {
   getObjectData,
   buildNewObject,
   processVariable,
-  processCommand
+  processCommand,
+  walk
 };
 export default walk;

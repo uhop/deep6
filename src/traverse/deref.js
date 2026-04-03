@@ -100,5 +100,5 @@ const deref = (source, env, options) => {
 deref.registry = registry;
 deref.filters = filters;
 
-export {registry, filters};
+export {registry, filters, deref};
 export default deref;

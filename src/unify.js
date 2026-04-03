@@ -161,22 +161,28 @@ const mapOps = {
     }
   }
 };
-mapOps.exact.exact.compare = mapOps.exact.open.compare = mapOps.exact.soft.compare = (l, r, ls, rs) => {
-  for (const [key, value] of r) {
-    if (!l.has(key)) return false;
-    ls.push(l.get(key));
-    rs.push(value);
-  }
-  return true;
-};
-mapOps.open.open.compare = mapOps.open.soft.compare = mapOps.soft.soft.compare = (l, r, ls, rs) => {
-  for (const [key, value] of r) {
-    if (!l.has(key)) continue;
-    ls.push(l.get(key));
-    rs.push(value);
-  }
-  return true;
-};
+mapOps.exact.exact.compare =
+  mapOps.exact.open.compare =
+  mapOps.exact.soft.compare =
+    (l, r, ls, rs) => {
+      for (const [key, value] of r) {
+        if (!l.has(key)) return false;
+        ls.push(l.get(key));
+        rs.push(value);
+      }
+      return true;
+    };
+mapOps.open.open.compare =
+  mapOps.open.soft.compare =
+  mapOps.soft.soft.compare =
+    (l, r, ls, rs) => {
+      for (const [key, value] of r) {
+        if (!l.has(key)) continue;
+        ls.push(l.get(key));
+        rs.push(value);
+      }
+      return true;
+    };
 mapOps.exact.soft.update = mapOps.open.soft.update = function () {
   for (const [key, value] of this.l) {
     !this.r.has(key) && this.r.set(key, value);
@@ -231,8 +237,13 @@ const setOps = {
     }
   }
 };
-setOps.exact.exact.compare = setOps.exact.open.compare = setOps.exact.soft.compare = setOps.open.open.compare = setOps.open.soft.compare = setOps.soft.soft.compare = () =>
-  true;
+setOps.exact.exact.compare =
+  setOps.exact.open.compare =
+  setOps.exact.soft.compare =
+  setOps.open.open.compare =
+  setOps.open.soft.compare =
+  setOps.soft.soft.compare =
+    () => true;
 setOps.exact.soft.update = setOps.open.soft.update = function () {
   for (const key of this.l) {
     this.r.add(key);
@@ -298,29 +309,35 @@ const objectOps = {
     }
   }
 };
-objectOps.exact.exact.compare = objectOps.exact.open.compare = objectOps.exact.soft.compare = (l, r, ls, rs, env) => {
-  let keys = Object.keys(r);
-  if (env.symbols) keys = keys.concat(Object.getOwnPropertySymbols(r));
-  return keys.every(k => {
-    if (hasOwnProperty.call(l, k)) {
-      ls.push(l[k]);
-      rs.push(r[k]);
+objectOps.exact.exact.compare =
+  objectOps.exact.open.compare =
+  objectOps.exact.soft.compare =
+    (l, r, ls, rs, env) => {
+      let keys = Object.keys(r);
+      if (env.symbols) keys = keys.concat(Object.getOwnPropertySymbols(r));
+      return keys.every(k => {
+        if (hasOwnProperty.call(l, k)) {
+          ls.push(l[k]);
+          rs.push(r[k]);
+          return true;
+        }
+        return false;
+      });
+    };
+objectOps.open.open.compare =
+  objectOps.open.soft.compare =
+  objectOps.soft.soft.compare =
+    (l, r, ls, rs, env) => {
+      let keys = Object.keys(r);
+      if (env.symbols) keys = keys.concat(Object.getOwnPropertySymbols(r));
+      for (const k of keys) {
+        if (hasOwnProperty.call(l, k)) {
+          ls.push(l[k]);
+          rs.push(r[k]);
+        }
+      }
       return true;
-    }
-    return false;
-  });
-};
-objectOps.open.open.compare = objectOps.open.soft.compare = objectOps.soft.soft.compare = (l, r, ls, rs, env) => {
-  let keys = Object.keys(r);
-  if (env.symbols) keys = keys.concat(Object.getOwnPropertySymbols(r));
-  for (const k of keys) {
-    if (hasOwnProperty.call(l, k)) {
-      ls.push(l[k]);
-      rs.push(r[k]);
-    }
-  }
-  return true;
-};
+    };
 objectOps.exact.soft.update = objectOps.open.soft.update = function () {
   let keys = Object.keys(this.l);
   if (this.e.symbols) keys = keys.concat(Object.getOwnPropertySymbols(this.l));
@@ -442,5 +459,5 @@ const unify = (l, r, env, options) => {
 unify.registry = registry;
 unify.filters = filters;
 
-export {_, Env, Unifier, isUnifier, Variable, variable, isVariable, _ as any, open, soft, isOpen, isSoft, isWrapped};
+export {_, Env, Unifier, isUnifier, Variable, variable, isVariable, _ as any, open, soft, isOpen, isSoft, isWrapped, unify};
 export default unify;
