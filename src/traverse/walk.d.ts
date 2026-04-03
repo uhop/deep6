@@ -2,139 +2,147 @@
 // Generated from src/traverse/walk.js
 
 /**
- * Context object passed to walk processors
+ * Context for walk traversal
  */
 export interface WalkContext {
-  /** Processing stack for values to visit */
+  /** Stack of values to process */
   stack?: unknown[];
   /** Output stack for processed values */
   stackOut: unknown[];
-  /** Map for tracking circular references */
+  /** Map tracking circular references */
   seen?: Map<unknown, {value?: unknown; actions?: Array<[unknown, unknown]>}>;
-  /** Optional wrapper function for Maps */
+  /** Wrapper for Maps */
   wrapMap?: (map: Map<unknown, unknown>) => unknown;
-  /** Optional wrapper function for Arrays */
+  /** Wrapper for Arrays */
   wrapArray?: (array: unknown[]) => unknown;
-  /** Optional wrapper function for Objects */
+  /** Wrapper for Objects */
   wrapObject?: (object: unknown) => unknown;
-  /** Handle circular references (default: false) */
+  /** Enable circular reference handling */
   circular?: boolean;
-  /** Include symbol properties (default: false) */
+  /** Include symbol properties */
   symbols?: boolean;
-  /** Include non-enumerable properties (default: false) */
+  /** Include non-enumerable properties */
   allProps?: boolean;
-  /** Use loose equality for primitives (default: false) */
-  loose?: boolean;
-  /** Ignore function properties (default: false) */
-  ignoreFunctions?: boolean;
   /** Additional context properties */
   [key: string]: unknown;
 }
 
 /**
- * Wrapper for circular reference detection during traversal
+ * Options for walk traversal
+ */
+export interface WalkOptions {
+  /** Custom object processor */
+  processObject?: (object: unknown, context: WalkContext) => void;
+  /** Custom value processor */
+  processOther?: (value: unknown, context: WalkContext) => void;
+  /** Custom circular reference processor */
+  processCircular?: (value: unknown, context: WalkContext) => void;
+  /** Registry of type handlers */
+  registry?: Array<[new (...args: any[]) => unknown, (val: unknown, context: WalkContext) => void]>;
+  /** Filter functions */
+  filters?: Array<(val: unknown, context: WalkContext) => boolean>;
+  /** Enable circular reference handling */
+  circular?: boolean;
+  /** Include symbol properties */
+  symbols?: boolean;
+  /** Include non-enumerable properties */
+  allProps?: boolean;
+  /** Custom context object */
+  context?: Record<string, unknown>;
+}
+
+/**
+ * Marker for circular references
  */
 export declare class Circular {
-  /** The value that was already seen */
+  /** The already-seen value */
   value: unknown;
-
   constructor(value: unknown);
 }
 
 /**
- * Command object for deferred processing during traversal
+ * Deferred processing command
  */
 export declare class Command {
   /** Function to execute */
   f: (context: WalkContext) => void;
-  /** Left argument */
-  l: unknown;
-  /** Right argument (optional) */
-  r?: unknown;
-  /** Environment (optional) */
-  e?: unknown;
-
-  constructor(f: (context: WalkContext) => void, l: unknown, r?: unknown, e?: unknown);
+  /** Source object being processed */
+  s: unknown;
+  constructor(f: (context: WalkContext) => void, s: unknown);
 }
 
 /**
- * Core walker function for traversing object structures
+ * Walks an object tree non-recursively
  *
- * Non-recursive stack-based traversal that handles circular references
- * and supports extensible type registries and filters.
+ * Traverses values using a stack-based approach with support for
+ * circular references, custom type registries, and filters.
  *
  * @param val - Value to traverse
- * @param context - Traversal context with options and processors
- * @param registry - Array of [Constructor, processor] pairs for type handling
+ * @param options - Walk options and processors
  *
  * @example
  * ```ts
- * const context = {
- *   stackOut: [],
- *   circular: true,
- *   symbols: false
- * };
- *
- * walk(value, context, [
- *   [Date, (val, ctx) => ctx.stackOut.push(new Date(val.getTime()))],
- *   [Array, processArray],
- *   [Object, processObject]
- * ]);
+ * walk(value, {
+ *   processOther: (v, ctx) => ctx.stackOut.push(v),
+ *   circular: true
+ * });
  * ```
  */
-export declare const walk: (
-  val: unknown,
-  context: WalkContext,
-  registry: Array<[new (...args: any[]) => unknown, (val: unknown, context: WalkContext) => void]>
-) => void;
+export declare const walk: (val: unknown, options?: WalkOptions) => void;
 
-// Utility processors for building custom walkers
+// Registry and filters
 
 /**
- * Default processor for unknown types - pushes value as-is
- * @param value - Value to process
- * @param context - Walk context
+ * Default registry of type handlers
  */
+export declare const registry: Array<[new (...args: any[]) => unknown, (val: unknown, context: WalkContext) => void]>;
+
+/**
+ * Default filter functions
+ */
+export declare const filters: Array<(val: unknown, context: WalkContext) => boolean>;
+
+// Utility processors
+
+/** Processor for non-object values */
 export declare const processOther: (value: unknown, context: WalkContext) => void;
 
-/**
- * Processor for circular references - wraps in Circular object
- * @param value - Value that was already seen
- * @param context - Walk context
- */
+/** Processor for circular references */
 export declare const processCircular: (value: unknown, context: WalkContext) => void;
 
 /**
  * Creates a Map processor
- * @param postProcess - Optional post-processing function
- * @param postProcessSeen - Optional post-processing for circular refs
- * @returns Map processor function
+ * @param postProcess - Post-processor for normal flow
+ * @param postProcessSeen - Post-processor for circular refs
  */
 export declare const processMap: (
   postProcess?: (context: WalkContext) => void,
   postProcessSeen?: (context: WalkContext) => void
 ) => (object: Map<unknown, unknown>, context: WalkContext) => void;
 
-/**
- * Handles circular references in Maps
- * @param source - Original Map being processed
- * @param context - Walk context
- */
+/** Handles circular references in Maps */
 export declare const postMapCircular: (source: Map<unknown, unknown>, context: WalkContext) => void;
 
 /**
  * Builds a new Map from processed values
  * @param keys - Keys for the new Map
- * @param stackOut - Output stack containing values
+ * @param stackOut - Output stack with values
  * @param wrap - Optional wrapper function
  */
 export declare const buildNewMap: (keys: Iterable<unknown>, stackOut: unknown[], wrap?: (map: Map<unknown, unknown>) => unknown) => void;
 
 /**
+ * Replaces values in stack with an object
+ * @param upTo - Number of values to replace
+ * @param object - Object to push
+ * @param stackOut - Output stack
+ */
+export declare const replaceObject: (upTo: number, object: unknown, stackOut: unknown[]) => void;
+
+/**
  * Creates an Object processor
- * @param postProcess - Optional post-processing function
- * @param postProcessSeen - Optional post-processing for circular refs
- * @returns Object processor function
+ * @param postProcess - Post-processor for normal flow
+ * @param postProcessSeen - Post-processor for circular refs
  */
 export declare const processObject: (
   postProcess?: (context: WalkContext) => void,
@@ -143,7 +151,7 @@ export declare const processObject: (
 
 /**
  * Handles circular references in Objects
- * @param source - Original object being processed
+ * @param source - Original object
  * @param descriptors - Property descriptors
  * @param keys - Property keys
  * @param context - Walk context
@@ -156,10 +164,9 @@ export declare const postObjectCircular: (
 ) => void;
 
 /**
- * Extracts property descriptors and keys from an object
+ * Extracts property descriptors and keys
  * @param source - Object to analyze
  * @param context - Walk context
- * @returns Object with descriptors and keys
  */
 export declare const getObjectData: (
   source: unknown,
@@ -168,11 +175,11 @@ export declare const getObjectData: (
 
 /**
  * Builds a new object from processed values
- * @param source - Original object (for prototype)
+ * @param source - Original object
  * @param descriptors - Property descriptors
  * @param keys - Property keys
- * @param stackOut - Output stack containing values
- * @param wrapper - Optional wrapper function
+ * @param stackOut - Output stack
+ * @param wrapper - Optional wrapper
  */
 export declare const buildNewObject: (
   source: unknown,
@@ -182,16 +189,18 @@ export declare const buildNewObject: (
   wrapper?: (object: unknown) => unknown
 ) => void;
 
-/**
- * Processor for Variable instances - handles variable binding
- * @param value - Variable to process
- * @param context - Walk context
- */
+/** Processor for Variable instances */
 export declare const processVariable: (value: unknown, context: WalkContext) => void;
 
-/**
- * Processor for Command objects - executes deferred commands
- * @param value - Command to execute
- * @param context - Walk context
- */
+/** Processor for Command objects */
 export declare const processCommand: (value: unknown, context: WalkContext) => void;
+
+/**
+ * Sets up circular reference handling
+ * @param seen - Seen values map
+ * @param source - Source object
+ * @param value - Value to set
+ */
+export declare const setObject: (seen: Map<unknown, {value?: unknown; actions?: Array<[unknown, unknown]>}>, source: unknown, value: unknown) => void;
+
+export default walk;

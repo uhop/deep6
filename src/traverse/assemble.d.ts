@@ -33,9 +33,9 @@ export interface AssembleContext {
  * Traverses a structure and replaces variables with their bound values
  * from the environment. Creates a new structure with all variables resolved.
  *
- * @param env - Environment containing variable bindings
  * @param val - Value to assemble (may contain variables)
- * @param context - Optional assembly context
+ * @param env - Environment containing variable bindings, or options
+ * @param options - Optional assembly options
  * @returns New value with all variables replaced by their bound values
  *
  * @example
@@ -45,8 +45,10 @@ export interface AssembleContext {
  * const env = unify({x: 42, y: 'hello'}, {x, y});
  *
  * const pattern = {a: x, b: [y, x]};
- * const assembled = assemble(env, pattern);
+ * const assembled = assemble(pattern, env);
  * // assembled === {a: 42, b: ['hello', 42]}
  * ```
  */
-export declare const assemble: (env: Env, val: unknown, context?: AssembleContext) => unknown;
+export declare const assemble: (val: unknown, env?: Env | AssembleContext, options?: AssembleContext) => unknown;
+
+export default assemble;

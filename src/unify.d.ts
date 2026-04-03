@@ -103,3 +103,49 @@ export declare const isSoft: (o: unknown) => boolean;
  * @returns True if value is a wrapper
  */
 export declare const isWrapped: (o: unknown) => boolean;
+
+// Re-exports from env.js
+
+/**
+ * Wildcard symbol that matches any value
+ * @see any
+ */
+export declare const _: unique symbol;
+
+/**
+ * Wildcard symbol that matches any value
+ */
+export declare const any: typeof _;
+
+export type {Env} from './env.js';
+
+/**
+ * Base class for custom unification behavior
+ */
+export type {Unifier} from './env.js';
+
+/**
+ * Type guard to check if a value is a Unifier instance
+ * @param x - Value to check
+ * @returns True if x is a Unifier
+ */
+export declare const isUnifier: (x: unknown) => x is import('./env.js').Unifier;
+
+/**
+ * Logical variable for unification
+ */
+export type {Variable} from './env.js';
+
+/**
+ * Type guard to check if a value is a Variable instance
+ * @param x - Value to check
+ * @returns True if x is a Variable
+ */
+export declare const isVariable: (x: unknown) => x is import('./env.js').Variable;
+
+/**
+ * Factory function to create a new Variable
+ * @param name - Optional variable name/identifier
+ * @returns A new Variable instance
+ */
+export declare const variable: (name?: string | symbol) => import('./env.js').Variable;

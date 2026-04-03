@@ -31,13 +31,13 @@ export interface DerefContext {
  * Dereferences variables in a value using environment bindings
  *
  * Traverses a structure and replaces variables with their bound values
- * directly in the original structure (in-place modification). Unlike
- * assemble which creates a new structure, deref modifies the existing one.
+ * directly in-place. Unlike assemble which creates a new structure,
+ * deref modifies the existing one.
  *
- * @param env - Environment containing variable bindings
- * @param val - Value to dereference (will be modified in-place)
- * @param context - Optional deref context
- * @returns The same value with variables replaced by their bound values
+ * @param val - Value to dereference (modified in-place)
+ * @param env - Environment with bindings, or options
+ * @param options - Optional dereference options
+ * @returns Same value with variables replaced
  *
  * @example
  * ```ts
@@ -46,8 +46,10 @@ export interface DerefContext {
  * const env = unify({x: 42, y: 'hello'}, {x, y});
  *
  * const obj = {a: x, b: [y, x]};
- * deref(env, obj);  // Modifies obj in place
+ * deref(obj, env);  // Modifies obj in place
  * // obj === {a: 42, b: ['hello', 42]}
  * ```
  */
-export declare const deref: (env: Env, val: unknown, context?: DerefContext) => unknown;
+export declare const deref: (val: unknown, env?: Env | DerefContext, options?: DerefContext) => unknown;
+
+export default deref;

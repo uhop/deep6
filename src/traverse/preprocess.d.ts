@@ -7,28 +7,49 @@ import type {Unifier, Variable} from '../env.js';
  * Options for pattern preprocessing
  */
 export interface PreprocessOptions {
-  /** Allow open object matching (default: true) */
+  /** Allow open object matching */
   openObjects?: boolean;
-  /** Allow open Map matching (default: true) */
+  /** Allow open array matching */
+  openArrays?: boolean;
+  /** Allow open Map matching */
   openMaps?: boolean;
-  /** Allow open Set matching (default: true) */
+  /** Allow open Set matching */
   openSets?: boolean;
-  /** Handle circular references (default: true) */
+  /** Handle circular references */
   circular?: boolean;
-  /** Include symbol properties (default: false) */
+  /** Include symbol properties */
   symbols?: boolean;
-  /** Use loose equality for primitives (default: false) */
-  loose?: boolean;
-  /** Ignore function properties (default: false) */
-  ignoreFunctions?: boolean;
+  /** Include non-enumerable properties */
+  allProps?: boolean;
+  /** Custom context object */
+  context?: Record<string, unknown>;
+  /** Custom object processor */
+  processObject?: (object: unknown, context: unknown) => void;
+  /** Custom value processor */
+  processOther?: (value: unknown, context: unknown) => void;
+  /** Custom circular reference processor */
+  processCircular?: (value: unknown, context: unknown) => void;
+  /** Registry of type handlers */
+  registry?: Array<[new (...args: any[]) => unknown, (val: unknown, context: unknown) => void]>;
+  /** Filter functions */
+  filters?: Array<(val: unknown, context: unknown) => boolean>;
 }
+
+/**
+ * Registry of type-specific preprocessors
+ */
+export declare const registry: Array<[new (...args: any[]) => unknown, (val: unknown, context: unknown) => void]>;
+
+/**
+ * Filter functions for custom processing
+ */
+export declare const filters: Array<(val: unknown, context: unknown) => boolean>;
 
 /**
  * Preprocesses a pattern for unification
  *
- * Transforms plain objects into unification-aware structures,
- * handling open/closed matching modes and preparing patterns
- * for the unification algorithm.
+ * Wraps objects, arrays, Maps and Sets with open/soft markers
+ * based on options. Used internally by match().
  *
  * @param pattern - Pattern to preprocess
  * @param options - Preprocessing options
@@ -38,21 +59,11 @@ export interface PreprocessOptions {
  * ```ts
  * // Open matching (default)
  * const openPattern = preprocess({a: 1}, {openObjects: true});
- * // Will match {a: 1, b: 2} (additional properties allowed)
  *
  * // Closed matching
  * const closedPattern = preprocess({a: 1}, {openObjects: false});
- * // Will only match {a: 1} exactly
- *
- * // Complex pattern with options
- * const complexPattern = preprocess({
- *   users: open([{name: 'John'}]),  // Open array
- *   data: soft({key: 'value'})      // Soft object
- * }, {
- *   openObjects: true,
- *   openArrays: true,
- *   circular: true
- * });
  * ```
  */
 export declare const preprocess: (pattern: unknown, options?: PreprocessOptions) => unknown;
+
+export default preprocess;
