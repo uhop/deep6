@@ -51,7 +51,7 @@ const sendFile = (res, fileName, ext, justHeaders) => {
 const bailOut = (res, code = 404) => {
   res.writeHead(code).end();
   traceCalls && console.log('-', code);
-}
+};
 
 const server = http.createServer(async (req, res) => {
   traceCalls && console.log(req.method, req.url);

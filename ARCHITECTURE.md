@@ -57,7 +57,7 @@ The main unification loop (`src/unify.js:346-438`) processes pairs of values fro
 
 ```js
 import {match, open} from 'deep6';
-match({a: 1, b: 2}, open({a: 1}));  // true (b is ignored)
+match({a: 1, b: 2}, open({a: 1})); // true (b is ignored)
 ```
 
 ### Pattern matching
@@ -66,7 +66,7 @@ match({a: 1, b: 2}, open({a: 1}));  // true (b is ignored)
 
 ```js
 import {match, any} from 'deep6';
-match({a: 1, b: 2}, {a: any});     // true
+match({a: 1, b: 2}, {a: any}); // true
 match({a: 1, b: 2}, {a: 1, c: 1}); // false (c missing)
 ```
 
@@ -83,8 +83,12 @@ Preprocessing (`src/traverse/preprocess.js`) transforms plain objects into `Wrap
 
 ```js
 walk(object, {
-  processObject: (obj, ctx) => { /* handle object */ },
-  processOther: (val, ctx) => { /* handle primitive */ },
+  processObject: (obj, ctx) => {
+    /* handle object */
+  },
+  processOther: (val, ctx) => {
+    /* handle primitive */
+  },
   registry: [[Date, (d, ctx) => ctx.stackOut.push(d)]],
   circular: true
 });
@@ -100,6 +104,7 @@ walk(object, {
 4. **Symbol support** — optional cloning of symbol properties
 
 Options:
+
 - `circular: true` — handle circular references
 - `symbols: true` — clone symbol properties
 - `allProps: true` — clone non-enumerable properties

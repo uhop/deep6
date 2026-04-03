@@ -40,23 +40,30 @@ import ref from 'deep6/unifiers/ref.js';
 ## Core Concepts
 
 ### Unification
+
 Bidirectional matching with variable binding. The algorithm is non-recursive (stack-based) and handles:
+
 - Direct equality, wildcards (`any`/`_`), variable binding
 - Circular references, custom unifiers, registered types
 - Generic object property comparison
 
 ### Wrap Types
+
 - `open(obj)` — Target can have extra keys not in pattern
 - `soft(obj)` — Bidirectional open matching, updates both objects
 
 ### Walker
+
 Generic non-recursive object walker with registry/filter system:
+
 - Registry: type-specific handlers `[[Type, processor], ...]`
 - Filters: custom processing predicates
 - Circular detection via `seen` Map
 
 ### Cloning
+
 Uses walker with post-processing for deep cloning:
+
 - Handles all standard JS types
 - Preserves property descriptors and symbols
 - Circular reference handling via `Circular` marker
@@ -64,15 +71,19 @@ Uses walker with post-processing for deep cloning:
 ## API Quick Reference
 
 ### equal(a, b, options)
+
 Deep equivalence. Options: `circular`, `symbols`, `loose`, `ignoreFunctions`, `signedZero`
 
 ### clone(object, options)
+
 Deep cloning. Options: `circular`, `symbols`, `allProps`
 
 ### match(object, pattern)
+
 Pattern matching with wildcards. Default: `openObjects`, `openMaps`, `openSets`
 
 ### unify(a, b, env, options)
+
 Core unification. Returns `Env` on success, `null` on failure.
 
 ## Testing

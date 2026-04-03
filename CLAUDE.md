@@ -27,11 +27,11 @@ Domain-specific knowledge in `.windsurf/skills/`:
 
 ## Commands
 
-| Command | Description |
-|---------|-------------|
-| `npm test` | Run test suite (~500 tests) |
-| `npm run debug` | Debug with Node inspector |
-| `npm start` | Run test server for browser tests |
+| Command         | Description                       |
+| --------------- | --------------------------------- |
+| `npm test`      | Run test suite (~500 tests)       |
+| `npm run debug` | Debug with Node inspector         |
+| `npm start`     | Run test server for browser tests |
 
 ## Project Identity
 

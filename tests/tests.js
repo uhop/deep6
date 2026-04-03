@@ -388,7 +388,8 @@ const tests = [
     const set2 = new Set([5]);
     eval(TEST('unify(new Set([1, 2, 3]), soft(set2))'));
     eval(TEST('unify(new Set([1, 2, 3, 5]), set2)'));
-    const set3 = new Set([4]), set4 = new Set([5]);
+    const set3 = new Set([4]),
+      set4 = new Set([5]);
     eval(TEST('!unify(set3, set4)'));
     eval(TEST('unify(soft(set3), soft(set4))'));
     eval(TEST('unify(set3, set4)'));
@@ -1029,9 +1030,9 @@ const tests = [
     const x = Object.create(null),
       y = Object.create(null),
       z = Object.create(null);
-    (x.a = 1), (x.b = []), (x.c = null);
-    (y.a = 1), (y.b = []), (y.c = null);
-    (z.a = 2), (z.b = []), (z.c = null);
+    ((x.a = 1), (x.b = []), (x.c = null));
+    ((y.a = 1), (y.b = []), (y.c = null));
+    ((z.a = 2), (z.b = []), (z.c = null));
 
     let env = unify(x, y);
     eval(TEST('env'));

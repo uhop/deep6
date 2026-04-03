@@ -38,24 +38,21 @@ Add support for a new type to the unification and cloning registries.
 ## Example: Adding Date Support
 
 **Unifier** (`src/unify.js`):
+
 ```js
-registry.push(
-  Date,
-  (l, r) => l instanceof Date && r instanceof Date && l.getTime() == r.getTime()
-);
+registry.push(Date, (l, r) => l instanceof Date && r instanceof Date && l.getTime() == r.getTime());
 ```
 
 **Cloner** (`src/traverse/clone.js`):
+
 ```js
-registry.push(
-  Date,
-  (val, context) => context.stackOut.push(new Date(val.getTime()))
-);
+registry.push(Date, (val, context) => context.stackOut.push(new Date(val.getTime())));
 ```
 
 ## Example: Adding Set Support
 
 **Unifier** (`src/unify.js`):
+
 ```js
 const unifySet = (l, r, ls, rs, env) => {
   if (!(l instanceof Set) || !(r instanceof Set) || l.size != r.size) return false;
@@ -68,6 +65,7 @@ registry.push(Set, unifySet);
 ```
 
 **Cloner** (`src/traverse/clone.js`):
+
 ```js
 registry.push(Set, (val, context) => context.stackOut.push(new Set(val)));
 ```
@@ -75,6 +73,7 @@ registry.push(Set, (val, context) => context.stackOut.push(new Set(val)));
 ## Typed Arrays Pattern
 
 For typed arrays, use a factory function:
+
 ```js
 const unifyTypedArrays = Type => (l, r, ls, rs, env) => {
   if (!(l instanceof Type) || !(r instanceof Type) || l.length != r.length) return false;
@@ -90,6 +89,7 @@ typeof Int8Array == 'function' && addType(Int8Array);
 ## Custom Class Pattern
 
 For custom classes, extend `Unifier`:
+
 ```js
 import {Unifier} from 'deep6/env.js';
 

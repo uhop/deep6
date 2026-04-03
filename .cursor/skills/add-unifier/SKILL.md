@@ -16,6 +16,7 @@ Create a new unifier that extends deep6's pattern matching capabilities.
    - Export a factory function and the class
 
 2. **Example structure**:
+
    ```js
    import {Unifier, isVariable} from '../env.js';
 
@@ -80,6 +81,7 @@ Create a new unifier that extends deep6's pattern matching capabilities.
 ## Key Patterns
 
 ### Simple predicate
+
 ```js
 unify(val, ls, rs, env) {
   return typeof val === 'number' && val > 0;
@@ -87,6 +89,7 @@ unify(val, ls, rs, env) {
 ```
 
 ### Capture values
+
 ```js
 unify(val, ls, rs, env) {
   ls.push(this.capture);
@@ -96,6 +99,7 @@ unify(val, ls, rs, env) {
 ```
 
 ### Delegate to unification
+
 ```js
 unify(val, ls, rs, env) {
   ls.push(this.pattern);

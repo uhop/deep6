@@ -137,15 +137,15 @@ import equal, {clone, match, any} from '../src/index.js';
 const x = {a: 1, b: 2, c: ['hi!', 42, null, {}]};
 
 // deep equality
-equal(x, {b: 2, a: 1, c: ['hi!', 42, null, {}]});     // true
+equal(x, {b: 2, a: 1, c: ['hi!', 42, null, {}]}); // true
 
 // pattern matching
-match(x, {a: 1});         // true
+match(x, {a: 1}); // true
 match(x, {a: 1, c: any}); // true
 
 // deep cloning
 const y = clone(x);
-equal(x, y);              // true
+equal(x, y); // true
 ```
 
 - Tests are in `tests/tests.js`.
@@ -173,8 +173,8 @@ const env = unify({a: 1, b: v}, {a: 1, b: 2});
 ```js
 import {match, any, _} from 'deep6';
 
-match({a: 1, b: 2}, {a: any});      // true
-match({a: 1, b: 2}, {a: 1, b: _});   // true
+match({a: 1, b: 2}, {a: any}); // true
+match({a: 1, b: 2}, {a: 1, b: _}); // true
 ```
 
 ### Pattern matching
@@ -184,8 +184,8 @@ match({a: 1, b: 2}, {a: 1, b: _});   // true
 ```js
 import {match, any} from 'deep6';
 
-match({a: 1, b: {c: 2}}, {a: 1});           // true (open match)
-match({a: 1, b: {c: 2}}, {a: 1, b: any});   // true
+match({a: 1, b: {c: 2}}, {a: 1}); // true (open match)
+match({a: 1, b: {c: 2}}, {a: 1, b: any}); // true
 ```
 
 ### Deep cloning
@@ -201,6 +201,7 @@ const y = clone(x);
 ```
 
 Options:
+
 - `circular: true` — handle circular references (default: true)
 - `symbols: true` — clone symbol properties
 - `allProps: true` — clone non-enumerable properties
