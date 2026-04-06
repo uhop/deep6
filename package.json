@@ -1,7 +1,7 @@
 {
   "name": "deep6",
-  "version": "1.1.4",
-  "description": "deep6 is a no-dependency ES6 mini-library for advanced deep equivalence, unification, and cloning of JavaScript structures. Supports extensible pattern matching, circular reference handling, Map, Set, typed arrays, symbols, and property descriptors.",
+  "version": "1.2.0",
+  "description": "deep6 is a no-dependency ES6 mini-library for advanced deep equivalence, unification, and cloning of JavaScript structures. Supports extensible pattern matching, circular reference handling, Map, Set, URL, typed arrays, symbols, and property descriptors.",
   "type": "module",
   "main": "src/index.js",
   "exports": {
