@@ -91,7 +91,7 @@ deep6/
 - **Zero runtime dependencies.** Do not add packages to `dependencies`.
 - **Do not modify or delete test expectations** without understanding why they changed.
 - **Do not add comments or remove comments** unless explicitly asked.
-- **Keep `src/` in sync.** Run `npm test` to verify after changes.
+- **Keep `src/` in sync.** Run `npm test` and `npm run lint:fix` after changes.
 
 ## Architecture
 
@@ -237,7 +237,7 @@ clone.registry.push(MyClass, (val, context) => /* clone */);
 - Use [llms.txt](./llms.txt) for quick API lookup
 - Reference [CODEBASE.md](./CODEBASE.md) for algorithm details
 - Follow workflows in `.windsurf/workflows/` for common tasks
-- Run `npm test` after any code changes
+- Run `npm test` and `npm run lint:fix` after any changes
 
 ### Core files to understand
 

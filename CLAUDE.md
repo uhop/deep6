@@ -100,4 +100,4 @@ When working on deep6:
 3. Use [llms.txt](./llms.txt) for quick API lookup
 4. Reference [CODEBASE.md](./CODEBASE.md) for algorithm details
 5. Follow workflows in `.windsurf/workflows/` or `.claude/commands/` for common tasks
-6. Run `npm test` after any code changes
+6. Run `npm test` and `npm run lint:fix` after any changes
