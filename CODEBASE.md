@@ -161,4 +161,4 @@ clone.registry.push(MyClass, (val, ctx) => ctx.stackOut.push(new MyClass(val.val
 
 ## Supported Types
 
-Primitives, Objects, Arrays, Map, Set, Date, RegExp, all Typed Arrays, DataView, ArrayBuffer, Symbols (optional), Property Descriptors, Circular References, Functions (configurable).
+Primitives, Objects, Arrays, Map, Set, Date, RegExp, URL, all Typed Arrays, DataView, ArrayBuffer, Symbols (optional), Property Descriptors, Circular References, Functions (configurable).

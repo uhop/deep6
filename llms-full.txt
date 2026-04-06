@@ -318,6 +318,7 @@ Built-in support for:
 - Date and RegExp
 - All typed arrays (Int8Array, Uint8Array, etc.)
 - DataView and ArrayBuffer
+- URL
 - Symbols (optional)
 - Property descriptors
 - Circular references
