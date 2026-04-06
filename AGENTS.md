@@ -80,7 +80,7 @@ deep6/
 
 - **ES6 modules** (`"type": "module"` in package.json).
 - **Zero runtime dependencies.** Only `devDependencies` are allowed.
-- **Prettier** for formatting (see `.prettierrc`): 2-space indent, single quotes, semicolons required.
+- **Prettier** for formatting (see `.prettierrc`): 2-space indent, single quotes, semicolons required, no trailing commas.
 - The package is `deep6`. No external dependencies.
 
 ## Critical rules
@@ -89,6 +89,7 @@ deep6/
 - **Zero runtime dependencies.** Do not add packages to `dependencies`.
 - **Do not modify or delete test expectations** without understanding why they changed.
 - **Do not add comments or remove comments** unless explicitly asked.
+- **Keep `src/` in sync.** Run `npm test` to verify after changes.
 
 ## Architecture
 

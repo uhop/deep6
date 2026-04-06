@@ -177,8 +177,3 @@ import ref from 'deep6/unifiers/ref.js';
 - **Run browser tests:** `npm start` (opens tests/server.js)
 - **Run single file:** `node tests/tests.js`
 - **Debug:** `npm run debug` (Node inspector)
-
-## Testing
-
-- **Framework:** tape6
-- **Run all:** `npm test`

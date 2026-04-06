@@ -11,7 +11,7 @@ deep6 is a no-dependency ES6 mini-library for advanced deep equivalence, unifica
 - **Zero runtime dependencies.** Do not add packages to `dependencies`.
 - **Do not modify or delete test expectations** without understanding why they changed.
 - **Do not add comments or remove comments** unless explicitly asked.
-- **Keep `src/` in sync.** Run `npm run build` to regenerate files.
+- **Keep `src/` in sync.** Run `npm test` to verify after changes.
 
 ## Code style
 
