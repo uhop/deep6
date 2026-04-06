@@ -86,14 +86,17 @@ const varFromUnify = new Variable('test');
 
 // --- traverse/walk.js types ---
 
-walk({a: 1}, {
-  processObject: (obj: unknown, ctx: WalkContext) => {},
-  processOther: (val: unknown, ctx: WalkContext) => {},
-  processCircular: (val: unknown, ctx: WalkContext) => {},
-  circular: true,
-  symbols: true,
-  allProps: true
-});
+walk(
+  {a: 1},
+  {
+    processObject: (obj: unknown, ctx: WalkContext) => {},
+    processOther: (val: unknown, ctx: WalkContext) => {},
+    processCircular: (val: unknown, ctx: WalkContext) => {},
+    circular: true,
+    symbols: true,
+    allProps: true
+  }
+);
 
 const circ = new Circular({});
 const cmd = new Command(() => {}, {});
