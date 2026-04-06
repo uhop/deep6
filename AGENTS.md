@@ -71,8 +71,10 @@ deep6/
 │   └── utils/
 │       └── replaceVars.js   # Variable replacement utility
 ├── tests/                # Test files
-│   ├── tests.js          # Main test suite (~500 tests)
-│   └── server.js         # Test server
+│   ├── tests.js          # Test dispatcher (~550 tests)
+│   ├── harness.js        # Shared test harness
+│   ├── test-*.js         # Test groups (env, unify, match, registry, unifiers, traverse, index)
+│   └── server.js         # Browser test server
 ├── .github/              # CI workflows, funding, dependabot
 ```
 
@@ -148,7 +150,7 @@ const y = clone(x);
 equal(x, y); // true
 ```
 
-- Tests are in `tests/tests.js`.
+- Tests are split by group in `tests/test-*.js`, run via `tests/tests.js`.
 - Tests run with `npm test`.
 - Browser tests: open `tests/tests.html` or run `npm start`.
 
@@ -225,7 +227,7 @@ clone.registry.push(MyClass, (val, context) => /* clone */);
 
 - **Zero dependencies.** Do not add runtime dependencies.
 - All public API is in `src/`.
-- Tests verify correctness against ~500 assertions.
+- Tests verify correctness against ~550 assertions.
 - The project supports modern environments: Node.js, browsers, Deno, Bun.
 
 ## When reading the codebase

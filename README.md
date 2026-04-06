@@ -15,7 +15,7 @@
   - Natively supports symbols and property descriptors.
   - Presented as ES6 modules.
 - Efficient non-recursive algorithms.
-  - ~500 tests to ensure correctness.
+  - ~550 tests to ensure correctness.
   - Support for circular dependencies.
   - Support for "loose" comparisons.
 - Unification.

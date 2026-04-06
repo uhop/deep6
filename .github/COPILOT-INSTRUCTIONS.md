@@ -88,7 +88,7 @@ Core unification. Returns `Env` on success, `null` on failure.
 
 ## Testing
 
-- All tests in `tests/tests.js` (~500 assertions)
+- Tests split by group in `tests/test-*.js`, run via `tests/tests.js` (~550 assertions)
 - Run: `npm test`
 - Debug: `npm run debug`
 

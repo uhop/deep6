@@ -51,6 +51,7 @@ Options:
 - `symbols: true` — compare symbol properties
 - `loose: true` — use loose equality for primitives (`==`)
 - `ignoreFunctions: true` — ignore function properties
+- `signedZero: true` — distinguish +0 from -0
 
 ### clone(object, options)
 

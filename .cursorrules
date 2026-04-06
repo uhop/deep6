@@ -54,7 +54,7 @@ deep6 is a no-dependency ES6 mini-library for advanced deep equivalence, unifica
 - Traverse: `src/traverse/` (walk.js, clone.js, preprocess.js, assemble.js, deref.js)
 - Unifiers: `src/unifiers/` (matchString.js, matchTypeOf.js, matchInstanceOf.js, matchCondition.js, ref.js)
 - Utils: `src/utils/` (replaceVars.js)
-- Tests: `tests/tests.js` (main test file), `tests/server.js`
+- Tests: `tests/tests.js` (dispatcher), split by group in `tests/test-*.js`
 
 ## When reading the codebase
 

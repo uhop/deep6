@@ -33,7 +33,7 @@ Domain-specific knowledge in `.windsurf/skills/`, `.cursor/skills/`, and `.claud
 
 | Command         | Description                       |
 | --------------- | --------------------------------- |
-| `npm test`      | Run test suite (~500 tests)       |
+| `npm test`      | Run test suite (~550 tests)       |
 | `npm run debug` | Debug with Node inspector         |
 | `npm start`     | Run test server for browser tests |
 

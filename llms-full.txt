@@ -306,7 +306,7 @@ src/
 - ES6 modules (`"type": "module"`)
 - 2-space indentation
 - Single quotes
-- No semicolons (Prettier)
+- Semicolons required (Prettier)
 - Zero runtime dependencies
 
 ## Supported Types
