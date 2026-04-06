@@ -33,6 +33,25 @@ export default [
     const s = Symbol();
     eval(TEST('equal({[s]: 1}, {[s]: 1}, {symbols: true})'));
   },
+  function test_equal_url() {
+    if (typeof URL != 'function') return;
+    eval(TEST("equal(new URL('https://example.com/'), new URL('https://example.com/'))"));
+    eval(TEST("!equal(new URL('https://example.com/'), new URL('https://other.com/'))"));
+  },
+  function test_match_url() {
+    if (typeof URL != 'function') return;
+    eval(TEST("match({link: new URL('https://example.com/')}, {link: new URL('https://example.com/')})"));
+    eval(TEST("!match({link: new URL('https://example.com/')}, {link: new URL('https://other.com/')})"));
+  },
+  function test_clone_url_in_object() {
+    if (typeof URL != 'function') return;
+    const source = {link: new URL('https://example.com/path')};
+    const result = clone(source);
+    eval(TEST('result.link instanceof URL'));
+    eval(TEST('result.link !== source.link'));
+    eval(TEST('result.link.href === source.link.href'));
+    eval(TEST('equal(source, result)'));
+  },
   function test_match_api() {
     eval(TEST('match({a: 1, b: 2}, {a: 1})'));
     eval(TEST('!match({a: 1}, {a: 1, b: 2})'));

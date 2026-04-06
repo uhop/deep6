@@ -54,6 +54,7 @@ const registry = [
 
 const addType = (Type, process) => registry.push(Type, process || processOther);
 
+typeof URL == 'function' && addType(URL);
 typeof Int8Array == 'function' && addType(Int8Array);
 typeof Uint8Array == 'function' && addType(Uint8Array);
 typeof Uint8ClampedArray == 'function' && addType(Uint8ClampedArray);
