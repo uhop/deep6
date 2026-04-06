@@ -26,16 +26,19 @@ Add support for a new type to deep6's unify and clone registries: $ARGUMENTS
 ## Example patterns
 
 **Date unifier:**
+
 ```js
 registry.push(Date, (l, r) => l instanceof Date && r instanceof Date && l.getTime() == r.getTime());
 ```
 
 **Date cloner:**
+
 ```js
 registry.push(Date, (val, context) => context.stackOut.push(new Date(val.getTime())));
 ```
 
 **Custom class (extend Unifier):**
+
 ```js
 import {Unifier} from 'deep6/env.js';
 class MyClassMatcher extends Unifier {

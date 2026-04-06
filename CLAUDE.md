@@ -80,16 +80,16 @@ import ref from 'deep6/unifiers/ref.js';
 
 Available via `/project:command-name` in Claude Code:
 
-| Command                | Description                                    |
-| ---------------------- | ---------------------------------------------- |
-| `add-module`           | Checklist for adding new modules               |
-| `add-unifier`          | Create a new unifier module                    |
-| `add-type-support`     | Add support for new types to registries        |
-| `write-tests`          | Write or update tests for a module             |
-| `debug-unification`    | Debug unification failures                     |
-| `ai-docs-update`       | Update all AI-facing docs after API changes    |
-| `release-check`        | Pre-release verification checklist             |
-| `sync-ai-rules`        | Sync all AI agent rules files to match AGENTS.md |
+| Command             | Description                                      |
+| ------------------- | ------------------------------------------------ |
+| `add-module`        | Checklist for adding new modules                 |
+| `add-unifier`       | Create a new unifier module                      |
+| `add-type-support`  | Add support for new types to registries          |
+| `write-tests`       | Write or update tests for a module               |
+| `debug-unification` | Debug unification failures                       |
+| `ai-docs-update`    | Update all AI-facing docs after API changes      |
+| `release-check`     | Pre-release verification checklist               |
+| `sync-ai-rules`     | Sync all AI agent rules files to match AGENTS.md |
 
 ## For AI Assistants
 
