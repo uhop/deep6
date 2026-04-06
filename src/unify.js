@@ -24,18 +24,17 @@ class Wrap extends Unifier {
       value = isWrapped ? val.object : val;
     if (!value || typeof value != 'object' || Array.isArray(this.object) !== Array.isArray(value)) return false;
     if (Array.isArray(this.object)) {
-      if (!Array.isArray(value)) return false;
       return isWrapped
         ? unifyObjects(this.object, this.type, this, val.object, val.type, val, ls, rs, env)
         : unifyObjects(this.object, this.type, this, val, env.openArrays ? 'open' : 'exact', null, ls, rs, env);
     }
-    if (typeof Map == 'function' && this.object instanceof Map) {
+    if (this.object instanceof Map) {
       if (!(value instanceof Map)) return false;
       return isWrapped
         ? unifyMaps(this.object, this.type, this, val.object, val.type, val, ls, rs, env)
         : unifyMaps(this.object, this.type, this, val, env.openMaps ? 'open' : 'exact', null, ls, rs, env);
     }
-    if (typeof Set == 'function' && this.object instanceof Set) {
+    if (this.object instanceof Set) {
       if (!(value instanceof Set)) return false;
       return isWrapped
         ? unifySets(this.object, this.type, this, val.object, val.type, val, ls, rs, env)
@@ -98,9 +97,10 @@ const unifyDataView = (l, r, ls, rs, env) => {
 };
 typeof DataView == 'function' && registry.push(DataView, unifyDataView);
 
+const unifyUint8Array = unifyTypedArrays(Uint8Array);
 const unifyArrayBuffer = (l, r, ls, rs, env) => {
   if (!(l instanceof ArrayBuffer) || !(r instanceof ArrayBuffer) || l.byteLength != r.byteLength) return false;
-  return unifyTypedArrays(Uint8Array)(new Uint8Array(l), new Uint8Array(r), ls, rs, env);
+  return unifyUint8Array(new Uint8Array(l), new Uint8Array(r), ls, rs, env);
 };
 typeof ArrayBuffer == 'function' && typeof Uint8Array == 'function' && registry.push(ArrayBuffer, unifyArrayBuffer);
 
@@ -191,7 +191,11 @@ mapOps.exact.soft.update = mapOps.open.soft.update = function () {
 const unifyMaps = (l, lt, lm, r, rt, rm, ls, rs, env) => {
   const ols = ls;
   if (lt > rt) {
-    [l, lt, lm, ls, r, rt, rm, rs] = [r, rt, rm, rs, l, lt, lm, ls];
+    let tmp;
+    tmp = l; l = r; r = tmp;
+    tmp = lt; lt = rt; rt = tmp;
+    tmp = lm; lm = rm; rm = tmp;
+    tmp = ls; ls = rs; rs = tmp;
   }
   const ops = mapOps[lt][rt];
   if (ops.precheck && !ops.precheck(l, r)) return false;
@@ -252,7 +256,11 @@ setOps.exact.soft.update = setOps.open.soft.update = function () {
 const unifySets = (l, lt, lm, r, rt, rm, ls, rs, env) => {
   const ols = ls;
   if (lt > rt) {
-    [l, lt, lm, ls, r, rt, rm, rs] = [r, rt, rm, rs, l, lt, lm, ls];
+    let tmp;
+    tmp = l; l = r; r = tmp;
+    tmp = lt; lt = rt; rt = tmp;
+    tmp = lm; lm = rm; rm = tmp;
+    tmp = ls; ls = rs; rs = tmp;
   }
   const ops = setOps[lt][rt];
   if (ops.precheck && !ops.precheck(l, r)) return false;
@@ -277,7 +285,10 @@ const objectOps = {
           rKeys = rKeys.concat(Object.getOwnPropertySymbols(r));
         }
         if (lKeys.length != rKeys.length) return false;
-        return lKeys.every(k => hasOwnProperty.call(r, k));
+        for (let i = 0; i < lKeys.length; ++i) {
+          if (!hasOwnProperty.call(r, lKeys[i])) return false;
+        }
+        return true;
       }
     },
     open: {},
@@ -314,14 +325,13 @@ objectOps.exact.exact.compare =
     (l, r, ls, rs, env) => {
       let keys = Object.keys(r);
       if (env.symbols) keys = keys.concat(Object.getOwnPropertySymbols(r));
-      return keys.every(k => {
-        if (hasOwnProperty.call(l, k)) {
-          ls.push(l[k]);
-          rs.push(r[k]);
-          return true;
-        }
-        return false;
-      });
+      for (let i = 0; i < keys.length; ++i) {
+        const k = keys[i];
+        if (!hasOwnProperty.call(l, k)) return false;
+        ls.push(l[k]);
+        rs.push(r[k]);
+      }
+      return true;
     };
 objectOps.open.open.compare =
   objectOps.open.soft.compare =
@@ -348,7 +358,11 @@ objectOps.exact.soft.update = objectOps.open.soft.update = function () {
 const unifyObjects = (l, lt, lm, r, rt, rm, ls, rs, env) => {
   const ols = ls;
   if (lt > rt) {
-    [l, lt, lm, ls, r, rt, rm, rs] = [r, rt, rm, rs, l, lt, lm, ls];
+    let tmp;
+    tmp = l; l = r; r = tmp;
+    tmp = lt; lt = rt; rt = tmp;
+    tmp = lm; lm = rm; rm = tmp;
+    tmp = ls; ls = rs; rs = tmp;
   }
   const ops = objectOps[lt][rt];
   if (ops.precheck && !ops.precheck(l, r, env)) return false;
@@ -370,36 +384,39 @@ const unify = (l, r, env, options) => {
   env = Object.assign(env, options);
   // options: openObjects, openArrays, openMaps, openSets, circular, loose, ignoreFunctions, signedZero, symbols.
   const ls = [l],
-    rs = [r],
-    lSeen = new Map(),
+    rs = [r];
+  let lSeen, rSeen;
+  if (env.circular) {
+    lSeen = new Map();
     rSeen = new Map();
+  }
   main: while (ls.length) {
     // perform a command, or extract a pair
     l = ls.pop();
-    if (l instanceof Command) {
+    if (typeof l == 'object' && l instanceof Command) {
       l.f();
       continue;
     }
     r = rs.pop();
     // direct equality
     if (l === r) {
-      if (env.circular && l && typeof l == 'object' && lSeen.has(l) ^ rSeen.has(r)) return null;
+      if (lSeen && l && typeof l == 'object' && lSeen.has(l) ^ rSeen.has(r)) return null;
       if (env.signedZero && l === 0 && 1 / l !== 1 / r) return null;
       continue;
     }
     // anyvar
     if (l === _ || r === _) continue;
     // process variables (variables have priority)
-    if (l instanceof Variable) {
+    if (typeof l == 'object' && l instanceof Variable) {
       if (l.unify(r, ls, rs, env)) continue;
       return null;
     }
-    if (r instanceof Variable) {
+    if (typeof r == 'object' && r instanceof Variable) {
       if (r.unify(l, ls, rs, env)) continue;
       return null;
     }
     // process circular dependencies
-    if (env.circular) {
+    if (lSeen) {
       const lIndex = lSeen.get(l);
       if (typeof lIndex == 'number') {
         if (lIndex === rSeen.get(r)) continue main;
@@ -412,11 +429,11 @@ const unify = (l, r, env, options) => {
       r && typeof r == 'object' && rSeen.set(r, rSeen.size);
     }
     // invoke custom unifiers
-    if (l instanceof Unifier) {
+    if (typeof l == 'object' && l instanceof Unifier) {
       if (l.unify(r, ls, rs, env)) continue;
       return null;
     }
-    if (r instanceof Unifier) {
+    if (typeof r == 'object' && r instanceof Unifier) {
       if (r.unify(l, ls, rs, env)) continue;
       return null;
     }
