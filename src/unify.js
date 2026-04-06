@@ -192,10 +192,18 @@ const unifyMaps = (l, lt, lm, r, rt, rm, ls, rs, env) => {
   const ols = ls;
   if (lt > rt) {
     let tmp;
-    tmp = l; l = r; r = tmp;
-    tmp = lt; lt = rt; rt = tmp;
-    tmp = lm; lm = rm; rm = tmp;
-    tmp = ls; ls = rs; rs = tmp;
+    tmp = l;
+    l = r;
+    r = tmp;
+    tmp = lt;
+    lt = rt;
+    rt = tmp;
+    tmp = lm;
+    lm = rm;
+    rm = tmp;
+    tmp = ls;
+    ls = rs;
+    rs = tmp;
   }
   const ops = mapOps[lt][rt];
   if (ops.precheck && !ops.precheck(l, r)) return false;
@@ -257,10 +265,18 @@ const unifySets = (l, lt, lm, r, rt, rm, ls, rs, env) => {
   const ols = ls;
   if (lt > rt) {
     let tmp;
-    tmp = l; l = r; r = tmp;
-    tmp = lt; lt = rt; rt = tmp;
-    tmp = lm; lm = rm; rm = tmp;
-    tmp = ls; ls = rs; rs = tmp;
+    tmp = l;
+    l = r;
+    r = tmp;
+    tmp = lt;
+    lt = rt;
+    rt = tmp;
+    tmp = lm;
+    lm = rm;
+    rm = tmp;
+    tmp = ls;
+    ls = rs;
+    rs = tmp;
   }
   const ops = setOps[lt][rt];
   if (ops.precheck && !ops.precheck(l, r)) return false;
@@ -359,10 +375,18 @@ const unifyObjects = (l, lt, lm, r, rt, rm, ls, rs, env) => {
   const ols = ls;
   if (lt > rt) {
     let tmp;
-    tmp = l; l = r; r = tmp;
-    tmp = lt; lt = rt; rt = tmp;
-    tmp = lm; lm = rm; rm = tmp;
-    tmp = ls; ls = rs; rs = tmp;
+    tmp = l;
+    l = r;
+    r = tmp;
+    tmp = lt;
+    lt = rt;
+    rt = tmp;
+    tmp = lm;
+    lm = rm;
+    rm = tmp;
+    tmp = ls;
+    ls = rs;
+    rs = tmp;
   }
   const ops = objectOps[lt][rt];
   if (ops.precheck && !ops.precheck(l, r, env)) return false;
