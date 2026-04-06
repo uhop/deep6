@@ -13,7 +13,7 @@ const collectSymbols = object => {
 };
 
 const ensure = (object, depth) => {
-  while (object[keyDepth] > depth) object = object.getPrototypeOf(object);
+  while (object[keyDepth] > depth) object = Object.getPrototypeOf(object);
   if (object[keyDepth] < depth) {
     object = Object.create(object);
     object[keyDepth] = depth;

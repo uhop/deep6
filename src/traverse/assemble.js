@@ -52,7 +52,7 @@ function postProcessSeen(context) {
   }
 }
 
-const postProcessMap = context => {
+function postProcessMap(context) {
   const stackOut = context.stackOut,
     s = this.s;
   let j = stackOut.length - 1;
@@ -65,7 +65,7 @@ const postProcessMap = context => {
   } else {
     replaceObject(j, s, stackOut);
   }
-};
+}
 
 function postProcessMapSeen(context) {
   const stackOut = context.stackOut,

@@ -61,8 +61,7 @@ const registry = [
     Date,
     (l, r) => l instanceof Date && r instanceof Date && l.getTime() == r.getTime(),
     RegExp,
-    (l, r) =>
-      l instanceof RegExp && r instanceof RegExp && l.source == r.source && l.global == r.global && l.multiline == r.multiline && l.ignoreCase == r.ignoreCase
+    (l, r) => l instanceof RegExp && r instanceof RegExp && l.source == r.source && l.flags == r.flags
   ],
   filters = [];
 

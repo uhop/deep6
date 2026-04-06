@@ -22,7 +22,7 @@ function postProcessMap(context) {
   const stackOut = context.stackOut,
     s = this.s;
   let j = stackOut.length - 1;
-  for (const key of s) {
+  for (const key of s.keys()) {
     s.set(key, stackOut[j--]);
   }
   replaceObject(j, s, stackOut);
