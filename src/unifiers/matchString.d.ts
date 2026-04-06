@@ -6,63 +6,50 @@ import type {Unifier} from '../env.js';
 /**
  * RegExp-based string matching unifier
  *
- * Matches strings against regular expressions and optionally captures
- * match groups and properties for variable binding.
- *
- * @example
- * ```ts
- * // Match email and capture parts
- * const emailMatcher = matchString(
- *   /^(.+)\@(.+)$/,
- *   'matches',  // variable to store full match array
- *   'props'     // variable to store match properties
- * );
- * ```
+ * Matches values against a regular expression. Optionally captures
+ * the match array and match properties (index, input) for variable binding.
  */
 export declare class MatchString extends Unifier {
   /** Regular expression to match against */
   regexp: RegExp;
-  /** Variable name to capture match array (optional) */
+  /** Pattern to unify with the match result array (optional) */
   matches?: unknown;
-  /** Variable name to capture match properties (optional) */
+  /** Pattern to unify with match properties {index, input} (optional) */
   props?: unknown;
 
   /**
-   * Creates a new string matcher
    * @param regexp - Regular expression to match
-   * @param matches - Variable to store match array (optional)
-   * @param props - Variable to store match properties (optional)
+   * @param matches - Pattern to unify with match array (optional)
+   * @param props - Pattern to unify with {index, input} (optional)
    */
   constructor(regexp: RegExp, matches?: unknown, props?: unknown);
 
   /**
-   * Attempts to unify a value with the regex pattern
-   * @param val - Value to match (must be string-like)
-   * @param ls - Left argument stack for variable bindings
-   * @param rs - Right argument stack for values
-   * @returns True if value matches the pattern
+   * Tests a value against the regex and pushes capture bindings
+   * @param val - Value to match (coerced to string)
+   * @param ls - Left argument stack
+   * @param rs - Right argument stack
+   * @returns Truthy if the regex matches
    */
   unify(val: unknown, ls: unknown[], rs: unknown[]): boolean;
 }
 
 /**
- * Creates a string pattern matcher
+ * Creates a regex string matcher
  *
  * @param regexp - Regular expression to match against
- * @param matches - Variable name to capture full match array (optional)
- * @param props - Variable name to capture match properties (optional)
- * @returns A new MatchString unifier instance
+ * @param matches - Pattern to unify with the full match array (optional)
+ * @param props - Pattern to unify with {index, input} (optional)
+ * @returns A new MatchString instance
  *
  * @example
  * ```ts
- * // Simple pattern matching
- * const matcher = matchString(/^hello/i);
+ * // Simple matching
+ * matchString(/^hello/i);
  *
- * // With capture groups
- * const matcherWithCaptures = matchString(
- *   /^(\w+)\s+(\w+)$/,
- *   'names'  // Will capture ['First', 'Last']
- * );
+ * // With captures bound to a variable array
+ * const names = [any, variable('first'), variable('last')];
+ * matchString(/^(\w+)\s+(\w+)$/, names);
  * ```
  */
 export declare const matchString: (regexp: RegExp, matches?: unknown, props?: unknown) => MatchString;

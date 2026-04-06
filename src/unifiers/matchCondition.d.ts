@@ -4,71 +4,41 @@
 import type {Unifier, Env} from '../env.js';
 
 /**
- * Conditional matching unifier
+ * Predicate-based matching unifier
  *
- * Matches values based on a custom predicate function.
- * Provides maximum flexibility for complex matching logic.
- *
- * @example
- * ```ts
- * // Match positive numbers
- * const positiveMatcher = matchCondition((val) => typeof val === 'number' && val > 0);
- *
- * // Match strings with specific length
- * const lengthMatcher = matchCondition((val) => typeof val === 'string' && val.length > 5);
- *
- * // Match objects with specific property
- * const hasIdMatcher = matchCondition((val) => val && typeof val === 'object' && 'id' in val);
- * ```
+ * Delegates matching to a user-supplied function that receives
+ * the full unification context (value, stacks, environment).
  */
 export declare class MatchCondition extends Unifier {
-  /** Predicate function to test values */
+  /** Predicate function */
   f: (val: unknown, ls: unknown[], rs: unknown[], env: Env) => boolean;
 
   /**
-   * Creates a new conditional matcher
-   * @param f - Predicate function that returns true if value matches
+   * @param f - Predicate that returns true if the value matches
    */
   constructor(f: (val: unknown, ls: unknown[], rs: unknown[], env: Env) => boolean);
 
   /**
-   * Attempts to unify a value using the predicate function
+   * Delegates to the predicate function
    * @param val - Value to test
    * @param ls - Left argument stack
    * @param rs - Right argument stack
    * @param env - Unification environment
-   * @returns True if the predicate function returns true
+   * @returns Result of the predicate
    */
   unify(val: unknown, ls: unknown[], rs: unknown[], env: Env): boolean;
 }
 
 /**
- * Creates a conditional pattern matcher
+ * Creates a predicate matcher
  *
- * @param f - Predicate function that determines if a value matches
- * @returns A new MatchCondition unifier instance
+ * @param f - Predicate function `(val, ls, rs, env) => boolean`
+ * @returns A new MatchCondition instance
  *
  * @example
  * ```ts
- * // Match even numbers
- * const evenMatcher = matchCondition((val) => typeof val === 'number' && val % 2 === 0);
- *
- * // Match non-empty arrays
- * const nonEmptyArrayMatcher = matchCondition((val) => Array.isArray(val) && val.length > 0);
- *
- * // Match objects with nested structure
- * const nestedMatcher = matchCondition((val) =>
- *   val && typeof val === 'object' &&
- *   'user' in val &&
- *   typeof val.user === 'object' &&
- *   'name' in val.user
- * );
- *
- * // Complex condition with environment access
- * const envMatcher = matchCondition((val, ls, rs, env) => {
- *   // Can access environment for complex logic
- *   return someComplexCondition(val, env);
- * });
+ * const isPositive = matchCondition(val => typeof val === 'number' && val > 0);
+ * match({n: 5}, {n: isPositive}); // true
  * ```
  */
 export declare const matchCondition: (f: (val: unknown, ls: unknown[], rs: unknown[], env: Env) => boolean) => MatchCondition;

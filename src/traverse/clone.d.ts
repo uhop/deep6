@@ -2,76 +2,56 @@
 // Generated from src/traverse/clone.js
 
 import type {Env} from '../env.js';
+import type {WalkContext} from './walk.js';
 
 /**
  * Options for deep cloning
  */
 export interface CloneOptions {
-  /** Handle circular references (default: true) */
+  /** Handle circular references (default: true in main API) */
   circular?: boolean;
-  /** Include symbol properties (default: false) */
+  /** Clone symbol properties (default: false) */
   symbols?: boolean;
-  /** Include non-enumerable properties (default: false) */
+  /** Clone non-enumerable properties (default: false) */
   allProps?: boolean;
-  /** Use loose equality for primitives (default: false) */
-  loose?: boolean;
-  /** Ignore function properties (default: false) */
-  ignoreFunctions?: boolean;
-  /** Custom context object for cloning */
+  /** Custom context object */
   context?: Record<string, unknown>;
   /** Custom object processor */
-  processObject?: (object: unknown, context: CloneContext) => void;
-  /** Custom value processor */
-  processOther?: (value: unknown, context: CloneContext) => void;
+  processObject?: (object: unknown, context: WalkContext) => void;
+  /** Custom non-object value processor */
+  processOther?: (value: unknown, context: WalkContext) => void;
   /** Custom circular reference processor */
-  processCircular?: (value: unknown, context: CloneContext) => void;
+  processCircular?: (value: unknown, context: WalkContext) => void;
+  /** Custom type handler registry (flat array of [Constructor, handler] pairs) */
+  registry?: unknown[];
+  /** Custom filter functions — return true to indicate value was handled */
+  filters?: Array<(val: unknown, context: WalkContext) => boolean>;
 }
 
 /**
- * Context object passed to clone processors
- */
-export interface CloneContext {
-  /** Output stack for cloned values */
-  stackOut: unknown[];
-  /** Optional environment for variable handling */
-  env?: Env | null;
-  /** Additional context properties */
-  [key: string]: unknown;
-}
-
-/**
- * Registry of type-specific cloners
+ * Flat array of type-specific cloner pairs: [Constructor, handler, Constructor, handler, ...]
  *
- * Array of [Constructor, clonerFunction] pairs for custom type handling.
- * Can be extended to add support for additional types.
+ * Use `registry.push(Type, handler)` to register a custom type cloner.
+ * Handler signature: `(val, context) => void` (push result to context.stackOut)
  */
-export declare const registry: Array<[new (...args: any[]) => unknown, (val: unknown, context: CloneContext) => void]>;
+export declare const registry: unknown[];
 
 /**
- * Array of filter functions for custom processing
+ * Filter functions for custom clone processing — return true to indicate value was handled
  */
-export declare const filters: Array<(val: unknown, context: CloneContext) => void>;
+export declare const filters: Array<(val: unknown, context: WalkContext) => boolean>;
 
 /**
- * Creates a deep clone of a value
- *
- * Clones objects, arrays, and all supported types while handling
- * circular references correctly. Can clone with custom options.
+ * Deep clones a value with circular reference handling
  *
  * @param source - Value to clone
- * @param contextOrEnv - Optional environment or context (deprecated)
- * @param options - Cloning options
- * @returns Deep clone of the value
- *
- * @example
- * ```ts
- * const original = {a: 1, b: {c: 2}};
- * const cloned = clone(original);
- * cloned.b.c = 3;
- * console.log(original.b.c); // 2 (unchanged)
- *
- * // With options
- * const clonedWithSymbols = clone(original, {symbols: true});
- * ```
+ * @param env - Optional Env for variable resolution, or options object
+ * @param options - Cloning options (when env is provided separately)
+ * @returns Deep copy of the value
  */
-export declare const clone: <T>(source: T, contextOrEnv?: Env | CloneOptions, options?: CloneOptions) => T;
+export declare const clone: (<T>(source: T, env?: Env | CloneOptions | null, options?: CloneOptions) => T) & {
+  registry: unknown[];
+  filters: Array<(val: unknown, context: WalkContext) => boolean>;
+};
+
+export default clone;

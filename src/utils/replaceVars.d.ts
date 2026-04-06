@@ -4,35 +4,22 @@
 import type {Env, Variable} from '../env.js';
 
 /**
- * Creates a template string function that replaces variables with their bound values
+ * Creates a tagged template function that substitutes variables from an environment
  *
- * Returns a function similar to template literals but with variable substitution.
- * Variables in the template are replaced with their bound values from the environment.
+ * Template interpolations can be Variable instances (resolved via `.get(env)`),
+ * strings/numbers/symbols (looked up in `env.values`), or other values (coerced to string).
  *
- * @param env - Unification environment containing variable bindings
- * @returns A template string function that performs variable substitution
+ * @param env - Unification environment with variable bindings
+ * @returns A tagged template literal function
  *
  * @example
  * ```ts
  * const x = variable('x');
- * const y = variable('y');
- * const env = unify({x: 42, y: 'world'}, {x: x, y: y});
- *
- * const template = replaceVars(env);
- *
- * // Using Variable instances
- * const result1 = template`The answer is ${x} and ${y}!`;
- * // result1 === "The answer is 42 and world!"
- *
- * // Using variable names as strings
- * const result2 = template`Values: ${'x'} and ${'y'}`;
- * // result2 === "Values: 42 and world"
- *
- * // Mixed with literals
- * const result3 = template`Sum: ${x} + ${10} = ${x + 10}`;
- * // result3 === "Sum: 42 + 10 = 52"
+ * const env = unify({a: x}, {a: 42});
+ * const t = replaceVars(env);
+ * t`The answer is ${x}!`; // "The answer is 42!"
  * ```
  */
-export declare const replaceVars: (env: Env) => (strings: TemplateStringsArray, ...vars: (Variable | string | number | symbol | unknown)[]) => string;
+export declare const replaceVars: (env: Env) => (strings: TemplateStringsArray, ...vars: unknown[]) => string;
 
 export default replaceVars;

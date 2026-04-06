@@ -1,8 +1,6 @@
 // Type definitions for deep6
 // Generated from src/index.js
 
-import type {Env} from './env.js';
-
 /**
  * Options for deep equality comparison
  */
@@ -11,24 +9,26 @@ export interface EqualOptions {
   circular?: boolean;
   /** Include symbol properties (default: false) */
   symbols?: boolean;
-  /** Include non-enumerable properties (default: false) */
-  allProps?: boolean;
   /** Use loose equality for primitives (default: false) */
   loose?: boolean;
   /** Ignore function properties (default: false) */
   ignoreFunctions?: boolean;
+  /** Distinguish +0 from -0 (default: false) */
+  signedZero?: boolean;
 }
 
 /**
  * Options for pattern matching
  */
 export interface MatchOptions {
-  /** Allow open object matching (default: true) */
+  /** Allow extra keys on target objects (default: true) */
   openObjects?: boolean;
-  /** Allow open Map matching (default: true) */
+  /** Allow extra entries in target Maps (default: true) */
   openMaps?: boolean;
-  /** Allow open Set matching (default: true) */
+  /** Allow extra entries in target Sets (default: true) */
   openSets?: boolean;
+  /** Allow extra elements in target arrays (default: false) */
+  openArrays?: boolean;
   /** Handle circular references (default: true) */
   circular?: boolean;
   /** Include symbol properties (default: false) */
@@ -40,86 +40,47 @@ export interface MatchOptions {
 }
 
 /**
- * Options for deep cloning
+ * Options for deep cloning via the main API
  */
 export interface CloneOptions {
   /** Handle circular references (default: true) */
   circular?: boolean;
-  /** Include symbol properties (default: false) */
+  /** Clone symbol properties (default: false) */
   symbols?: boolean;
-  /** Include non-enumerable properties (default: false) */
+  /** Clone non-enumerable properties (default: false) */
   allProps?: boolean;
-  /** Use loose equality for primitives (default: false) */
-  loose?: boolean;
-  /** Ignore function properties (default: false) */
-  ignoreFunctions?: boolean;
 }
 
 /**
- * Tests deep equality between two values
- *
- * @param a - First value to compare
- * @param b - Second value to compare
+ * Deep equality check using unification
+ * @param a - First value
+ * @param b - Second value
  * @param options - Comparison options
  * @returns True if values are deeply equal
- *
- * @example
- * ```ts
- * equal({a: 1, b: [2, 3]}, {b: [2, 3], a: 1}); // true
- * equal([1, 2, 3], [1, 2]); // false
- * ```
  */
-export declare const equal: <T>(a: T, b: unknown, options?: EqualOptions) => boolean;
+export declare const equal: (a: unknown, b: unknown, options?: EqualOptions) => boolean;
 
 /**
- * Creates a deep clone of a value
- *
+ * Deep clone of a value
  * @param a - Value to clone
  * @param options - Cloning options
- * @returns Deep clone of the value
- *
- * @example
- * ```ts
- * const original = {a: 1, b: {c: 2}};
- * const cloned = clone(original);
- * cloned.b.c = 3;
- * console.log(original.b.c); // 2 (unchanged)
- * ```
+ * @returns Deep copy of the value
  */
 export declare const clone: <T>(a: T, options?: CloneOptions) => T;
 
 /**
- * Tests if an object matches a pattern
- *
- * @param object - Object to test
+ * Pattern matching with wildcards
+ * @param object - Value to test
  * @param pattern - Pattern to match against
  * @param options - Matching options
  * @returns True if object matches the pattern
- *
- * @example
- * ```ts
- * match({a: 1, b: 2}, {a: 1}); // true (open match)
- * match({a: 1, b: 2}, {a: 1, b: any}); // true
- * match({a: 1}, {a: 1, b: any}); // false
- * ```
  */
 export declare const match: (object: unknown, pattern: unknown, options?: MatchOptions) => boolean;
 
-/**
- * Alias for match function
- * @see match
- */
+/** Alias for `match` */
 export declare const isShape: typeof match;
 
-/**
- * Wildcard symbol that matches any value in unification
- * Can be used as `any` or `_` interchangeably
- */
-export declare const any: unique symbol;
-export declare const _: typeof any;
+export {any, _} from './env.js';
 
-/**
- * Default export - deep equality function
- * @see equal
- */
+/** Default export — deep equality function */
 export default equal;

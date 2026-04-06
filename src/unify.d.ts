@@ -1,151 +1,95 @@
 // Type definitions for deep6 unification
 // Generated from src/unify.js
 
-import type {Env, Unifier, Variable} from './env.js';
+import {Env, Unifier, Variable} from './env.js';
 
 /**
  * Options for unification
  */
 export interface UnifyOptions {
-  /** Handle circular references (default: true) */
+  /** Handle circular references (default: false) */
   circular?: boolean;
   /** Include symbol properties (default: false) */
   symbols?: boolean;
-  /** Include non-enumerable properties (default: false) */
-  allProps?: boolean;
   /** Use loose equality for primitives (default: false) */
   loose?: boolean;
   /** Ignore function properties (default: false) */
   ignoreFunctions?: boolean;
-  /** Allow open array matching (default: false) */
-  openArrays?: boolean;
-  /** Allow open Map matching (default: false) */
-  openMaps?: boolean;
-  /** Allow open Set matching (default: false) */
-  openSets?: boolean;
-  /** Allow open object matching (default: false) */
+  /** Distinguish +0 from -0 (default: false) */
+  signedZero?: boolean;
+  /** Allow extra keys on target objects (default: false) */
   openObjects?: boolean;
+  /** Allow extra elements in target arrays (default: false) */
+  openArrays?: boolean;
+  /** Allow extra entries in target Maps (default: false) */
+  openMaps?: boolean;
+  /** Allow extra entries in target Sets (default: false) */
+  openSets?: boolean;
 }
 
 /**
- * Core unification function
+ * Core unification algorithm
  *
- * Attempts to unify two values, optionally binding variables in the process.
- * Returns an environment with variable bindings if successful, or null if unification fails.
+ * Attempts to unify two values, optionally binding variables.
+ * Returns an Env with bindings on success, or null on failure.
  *
- * @param l - First value to unify
- * @param r - Second value to unify
- * @param env - Optional existing environment for variable bindings
- * @param options - Unification options
- * @returns Environment with bindings if successful, null otherwise
- *
- * @example
- * ```ts
- * import {variable} from 'deep6/env.js';
- *
- * const x = variable('x');
- * const env = unify({a: x}, {a: 42});
- * console.log(x.get(env)); // 42
- * ```
+ * @param l - Left value
+ * @param r - Right value
+ * @param env - Existing environment, options object, or null
+ * @param options - Unification options (when env is provided separately)
+ * @returns Environment with bindings, or null on failure
  */
-export declare const unify: (l: unknown, r: unknown, env?: Env | null, options?: UnifyOptions) => Env | null;
+export declare const unify: (l: unknown, r: unknown, env?: Env | UnifyOptions | null, options?: UnifyOptions) => Env | null;
 
 /**
- * Registry of type-specific unifiers
+ * Flat array of type-specific unifier pairs: [Constructor, handler, Constructor, handler, ...]
  *
- * Array of [Constructor, unifierFunction] pairs for custom type handling.
- * Can be extended to add support for additional types.
+ * Use `registry.push(Type, handler)` to register a custom type handler.
+ * Handler signature: `(l, r, ls, rs, env) => boolean`
  */
-export declare const registry: Array<[new (...args: any[]) => unknown, (l: unknown, r: unknown, ls: unknown[], rs: unknown[], env: Env) => boolean]>;
+export declare const registry: unknown[];
 
 /**
- * Array of filter functions for custom processing
+ * Flat array of filter pairs: [predicate, handler, predicate, handler, ...]
+ *
+ * Use `filters.push(predicate, handler)` to register a custom filter.
  */
-export declare const filters: Array<(l: unknown, r: unknown, ls: unknown[], rs: unknown[], env: Env) => boolean>;
+export declare const filters: unknown[];
 
 /**
- * Creates an open wrapper for pattern matching
- *
- * Open patterns match the structure but allow additional properties.
- *
- * @param o - Object to wrap
- * @returns Open wrapper
+ * Wraps a value for open matching (target may have extra properties)
+ * @param o - Value to wrap
+ * @returns Open-wrapped value
  */
 export declare const open: <T>(o: T) => T;
 
 /**
- * Creates a soft wrapper for pattern matching
- *
- * Soft patterns are more permissive in matching.
- *
- * @param o - Object to wrap
- * @returns Soft wrapper
+ * Wraps a value for soft matching (bidirectional open, updates both sides)
+ * @param o - Value to wrap
+ * @returns Soft-wrapped value
  */
 export declare const soft: <T>(o: T) => T;
 
 /**
- * Checks if a value is an open wrapper
+ * Checks if a value is open-wrapped
  * @param o - Value to check
- * @returns True if value is an open wrapper
  */
 export declare const isOpen: (o: unknown) => boolean;
 
 /**
- * Checks if a value is a soft wrapper
+ * Checks if a value is soft-wrapped
  * @param o - Value to check
- * @returns True if value is a soft wrapper
  */
 export declare const isSoft: (o: unknown) => boolean;
 
 /**
- * Checks if a value is a wrapper (open or soft)
+ * Checks if a value is wrapped (open or soft)
  * @param o - Value to check
- * @returns True if value is a wrapper
  */
 export declare const isWrapped: (o: unknown) => boolean;
 
-// Re-exports from env.js
+// Re-exports from env.js (value exports, usable as constructors)
+export {Env, Unifier, Variable} from './env.js';
+export {_, any, isUnifier, isVariable, variable} from './env.js';
 
-/**
- * Wildcard symbol that matches any value
- * @see any
- */
-export declare const _: unique symbol;
-
-/**
- * Wildcard symbol that matches any value
- */
-export declare const any: typeof _;
-
-export type {Env} from './env.js';
-
-/**
- * Base class for custom unification behavior
- */
-export type {Unifier} from './env.js';
-
-/**
- * Type guard to check if a value is a Unifier instance
- * @param x - Value to check
- * @returns True if x is a Unifier
- */
-export declare const isUnifier: (x: unknown) => x is import('./env.js').Unifier;
-
-/**
- * Logical variable for unification
- */
-export type {Variable} from './env.js';
-
-/**
- * Type guard to check if a value is a Variable instance
- * @param x - Value to check
- * @returns True if x is a Variable
- */
-export declare const isVariable: (x: unknown) => x is import('./env.js').Variable;
-
-/**
- * Factory function to create a new Variable
- * @param name - Optional variable name/identifier
- * @returns A new Variable instance
- */
-export declare const variable: (name?: string | symbol) => import('./env.js').Variable;
+export default unify;

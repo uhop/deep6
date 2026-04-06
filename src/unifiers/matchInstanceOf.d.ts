@@ -6,62 +6,32 @@ import type {Unifier} from '../env.js';
 /**
  * Instanceof-based matching unifier
  *
- * Matches values based on constructor/prototype chain using instanceof.
- * Can match against a single constructor or multiple constructors.
- *
- * @example
- * ```ts
- * // Match Date instances
- * const dateMatcher = matchInstanceOf(Date);
- *
- * // Match Array or Set instances
- * const arrayOrSetMatcher = matchInstanceOf([Array, Set]);
- *
- * // Match custom class instances
- * class MyClass {}
- * const myClassMatcher = matchInstanceOf(MyClass);
- * ```
+ * Matches values by their prototype chain. Rejects falsy values and unbound Variables.
  */
 export declare class MatchInstanceOf extends Unifier {
   /** Array of constructors to match against */
   types: (new (...args: any[]) => unknown)[];
 
   /**
-   * Creates a new instanceof matcher
-   * @param types - Constructor(s) to match
+   * @param types - Constructor or array of constructors
    */
   constructor(types: (new (...args: any[]) => unknown) | (new (...args: any[]) => unknown)[]);
 
   /**
-   * Attempts to unify a value with the instanceof constraint
-   * @param val - Value to check instanceof against
+   * Tests if the value is an instance of one of the configured constructors
+   * @param val - Value to check
    * @param ls - Left argument stack (unused)
    * @param rs - Right argument stack (unused)
-   * @returns True if value is instance of one of the configured constructors
+   * @returns True if val is an instance of any configured type
    */
   unify(val: unknown, ls: unknown[], rs: unknown[]): boolean;
 }
 
 /**
- * Creates an instanceof-based pattern matcher
+ * Creates an instanceof matcher
  *
  * @param types - Constructor(s) to match against
- * @returns A new MatchInstanceOf unifier instance
- *
- * @example
- * ```ts
- * // Match built-in types
- * const dateMatcher = matchInstanceOf(Date);
- * const regexMatcher = matchInstanceOf(RegExp);
- *
- * // Match multiple types
- * const collectionMatcher = matchInstanceOf([Array, Set, Map]);
- *
- * // Match custom classes
- * class User {}
- * class Admin {}
- * const userMatcher = matchInstanceOf([User, Admin]);
- * ```
+ * @returns A new MatchInstanceOf instance
  */
 export declare const matchInstanceOf: (types: (new (...args: any[]) => unknown) | (new (...args: any[]) => unknown)[]) => MatchInstanceOf;
 export default matchInstanceOf;

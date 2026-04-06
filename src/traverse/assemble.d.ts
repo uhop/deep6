@@ -2,53 +2,58 @@
 // Generated from src/traverse/assemble.js
 
 import type {Env} from '../env.js';
+import type {WalkContext} from './walk.js';
 
 /**
- * Context object passed to assemble processors
+ * Options for assembly
  */
-export interface AssembleContext {
-  /** Output stack for assembled values */
-  stackOut: unknown[];
-  /** Processing stack for values to visit */
-  stack?: unknown[];
-  /** Map for tracking circular references */
-  seen?: Map<unknown, {value?: unknown; actions?: Array<[unknown, unknown]>}>;
+export interface AssembleOptions {
   /** Handle circular references (default: false) */
   circular?: boolean;
   /** Include symbol properties (default: false) */
   symbols?: boolean;
   /** Include non-enumerable properties (default: false) */
   allProps?: boolean;
-  /** Use loose equality for primitives (default: false) */
-  loose?: boolean;
-  /** Ignore function properties (default: false) */
-  ignoreFunctions?: boolean;
-  /** Additional context properties */
-  [key: string]: unknown;
+  /** Custom context object */
+  context?: Record<string, unknown>;
+  /** Custom object processor */
+  processObject?: (object: unknown, context: WalkContext) => void;
+  /** Custom non-object value processor */
+  processOther?: (value: unknown, context: WalkContext) => void;
+  /** Custom circular reference processor */
+  processCircular?: (value: unknown, context: WalkContext) => void;
+  /** Custom type handler registry (flat array of [Constructor, handler] pairs) */
+  registry?: unknown[];
+  /** Custom filter functions */
+  filters?: Array<(val: unknown, context: WalkContext) => boolean>;
 }
 
 /**
- * Assembles a value from an environment with variable bindings
+ * Flat array of type-specific assembler pairs: [Constructor, handler, ...]
  *
- * Traverses a structure and replaces variables with their bound values
- * from the environment. Creates a new structure with all variables resolved.
- *
- * @param source - Value to assemble (may contain variables)
- * @param env - Environment containing variable bindings, or options
- * @param options - Optional assembly options
- * @returns New value with all variables replaced by their bound values
- *
- * @example
- * ```ts
- * const x = variable('x');
- * const y = variable('y');
- * const env = unify({x: 42, y: 'hello'}, {x, y});
- *
- * const pattern = {a: x, b: [y, x]};
- * const assembled = assemble(pattern, env);
- * // assembled === {a: 42, b: ['hello', 42]}
- * ```
+ * Use `registry.push(Type, handler)` to register a custom assembler.
  */
-export declare const assemble: (source: unknown, env?: Env | AssembleContext, options?: AssembleContext) => unknown;
+export declare const registry: unknown[];
+
+/**
+ * Filter functions for custom assembly processing
+ */
+export declare const filters: Array<(val: unknown, context: WalkContext) => boolean>;
+
+/**
+ * Replaces variables with their bound values from an environment
+ *
+ * Creates a new structure only when values differ from the source.
+ * Unbound variables are kept as-is.
+ *
+ * @param source - Value containing variables to resolve
+ * @param env - Env with bindings, or options object
+ * @param options - Assembly options (when env is provided separately)
+ * @returns New value with variables replaced, or original if unchanged
+ */
+export declare const assemble: ((source: unknown, env?: Env | AssembleOptions | null, options?: AssembleOptions) => unknown) & {
+  registry: unknown[];
+  filters: Array<(val: unknown, context: WalkContext) => boolean>;
+};
 
 export default assemble;
