@@ -140,6 +140,15 @@ export default [
     eval(TEST('unify(result.get("b"), [2, 3])'));
     eval(TEST('result.get("b") !== source.get("b")'));
   },
+  function test_clone_url() {
+    if (typeof URL != 'function') return;
+    const source = new URL('https://example.com/path?q=1#frag');
+    const result = clone(source);
+    eval(TEST('result !== source'));
+    eval(TEST('result instanceof URL'));
+    eval(TEST('result.href === source.href'));
+    eval(TEST('unify(source, result)'));
+  },
   function test_clone_set() {
     const source = new Set([1, 'hello', true]);
     const result = clone(source);

@@ -64,6 +64,8 @@ const registry = [
   ],
   filters = [];
 
+typeof URL == 'function' && registry.push(URL, (l, r) => l instanceof URL && r instanceof URL && l.href == r.href);
+
 // possible well-known constructors
 
 const unifyTypedArrays = Type => (l, r, ls, rs, env) => {

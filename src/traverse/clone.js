@@ -53,6 +53,8 @@ const registry = [
   ],
   filters = [];
 
+typeof URL == 'function' && registry.push(URL, (val, context) => context.stackOut.push(new URL(val.href)));
+
 // add more types
 
 const addType = (Type, process) => registry.push(Type, process || ((val, context) => context.stackOut.push(new Type(val))));

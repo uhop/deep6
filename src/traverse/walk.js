@@ -173,8 +173,9 @@ class Command {
 
 const processCommand = (val, context) => val.f(context);
 
-const defaultRegistry = [Command, processCommand, Array, processObject(), Date, nop, RegExp, nop, Map, processMap(), Set, nop, Promise, nop],
-  defaultFilters = [];
+const defaultRegistry = [Command, processCommand, Array, processObject(), Date, nop, RegExp, nop, Map, processMap(), Set, nop, Promise, nop];
+typeof URL == 'function' && defaultRegistry.push(URL, nop);
+const defaultFilters = [];
 
 // add more types
 

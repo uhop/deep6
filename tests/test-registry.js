@@ -101,6 +101,16 @@ export default [
     eval(TEST('unify({a: 1}, {a: 1})'));
     eval(TEST('!unify({a: 2}, {a: 1})'));
   },
+  function test_urls() {
+    if (typeof URL != 'function') return;
+    eval(TEST("unify(new URL('https://example.com/'), new URL('https://example.com/'))"));
+    eval(TEST("!unify(new URL('https://example.com/'), new URL('https://other.com/'))"));
+    eval(TEST("!unify(new URL('https://example.com/?a=1&b=2'), new URL('https://example.com/?b=2&a=1'))"));
+    eval(TEST("unify(new URL('https://example.com/?a=1&b=2'), new URL('https://example.com/?a=1&b=2'))"));
+    eval(TEST("!unify(new URL('https://example.com/'), 'https://example.com/')"));
+    eval(TEST("unify(new URL('https://EXAMPLE.COM/'), new URL('https://example.com/'))"));
+    eval(TEST("!unify(new URL('https://example.com/path'), new URL('https://example.com/PATH'))"));
+  },
   function test_filters() {
     let counter = 0;
     function Foo(name) {
