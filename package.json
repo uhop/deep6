@@ -11,6 +11,8 @@
   "scripts": {
     "start": "node tests/server.js --trace",
     "test": "node tests/tests.js",
+    "test:bun": "bun run tests/tests.js",
+    "test:deno": "deno run --allow-read tests/tests.js",
     "debug": "node --inspect-brk tests/tests.js",
     "ts-check": "tsc --noEmit",
     "lint": "prettier --check .",
