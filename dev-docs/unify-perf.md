@@ -4,6 +4,10 @@ Analysis of the hot path in `src/unify.js` (the main loop), focusing on the most
 
 ## Implemented
 
+### 1. Registry fast-path for plain objects and arrays (HIGH) — DONE
+
+Before the registry loop, check `Object.getPrototypeOf` for both values. If both are plain objects (`Object.prototype` or `null` prototype) or arrays (`Array.prototype`), skip the registry entirely. This eliminates ~34 `instanceof` checks for the overwhelmingly common case. Filters are still checked regardless.
+
 ### 3. Guard `instanceof` with `typeof` (MEDIUM) — DONE
 
 Command, Variable (×2), Unifier (×2) checks now guarded with `typeof l == 'object'`. Primitives (number, string, boolean) skip all `instanceof` checks entirely.
@@ -33,21 +37,6 @@ Removed guards for `Map` and `Set` in `Wrap.unify`. The library targets ES6+ whe
 `unifyTypedArrays(Uint8Array)` is now pre-computed as `unifyUint8Array` instead of recreating the closure on each `unifyArrayBuffer` call.
 
 ## Remaining (not yet implemented)
-
-### 1. Registry linear scan — O(n) per pair (HIGH)
-
-The registry has ~17 type entries. For plain objects and arrays — the most common case — every entry is checked via `instanceof` and none match. This is the single largest per-pair overhead (~34 `instanceof` checks wasted).
-
-**Possible fix:** Fast-path plain objects and arrays before the registry:
-
-```js
-const lp = Object.getPrototypeOf(l);
-if ((lp === Object.prototype || lp === null || lp === Array.prototype) && /* same for r */) {
-  // skip registry, go straight to unifyObjects
-}
-```
-
-Tradeoff: registering `Object` itself in the registry would be skipped — an unusual case.
 
 ### 2. `Object.assign(env, options)` pollutes hidden class (MEDIUM)
 

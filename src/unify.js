@@ -471,12 +471,17 @@ const unify = (l, r, env, options) => {
     if (typeof l == 'number' && isNaN(l) && isNaN(r)) continue;
     // cut off impossible combinations
     if (typeof l != 'object' || !l || !r) return null;
-    // process registered constructors
-    const registry = unify.registry;
-    for (let i = 0; i < registry.length; i += 2) {
-      if (l instanceof registry[i] || r instanceof registry[i]) {
-        if (registry[i + 1](l, r, ls, rs, env)) continue main;
-        return null;
+    // fast path: plain objects and arrays skip registry
+    const lp = Object.getPrototypeOf(l), rp = Object.getPrototypeOf(r);
+    if (!((lp === Object.prototype || lp === null || lp === Array.prototype) &&
+          (rp === Object.prototype || rp === null || rp === Array.prototype))) {
+      // process registered constructors
+      const registry = unify.registry;
+      for (let i = 0; i < registry.length; i += 2) {
+        if (l instanceof registry[i] || r instanceof registry[i]) {
+          if (registry[i + 1](l, r, ls, rs, env)) continue main;
+          return null;
+        }
       }
     }
     // process registered filters
