@@ -48,10 +48,19 @@
   "author": "Eugene Lazutkin <eugene.lazutkin@gmail.com> (https://www.lazutkin.com/)",
   "funding": "https://github.com/sponsors/uhop",
   "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/uhop/deep6/issues"
+  },
+  "homepage": "https://github.com/uhop/deep6#readme",
+  "llms": "https://raw.githubusercontent.com/uhop/deep6/master/llms.txt",
+  "llmsFull": "https://raw.githubusercontent.com/uhop/deep6/master/llms-full.txt",
   "files": [
-    "/src",
+    "src",
+    "skills",
     "llms.txt",
-    "llms-full.txt"
+    "llms-full.txt",
+    "AGENTS.md",
+    "ARCHITECTURE.md"
   ],
   "devDependencies": {
     "prettier": "^3.8.1",
