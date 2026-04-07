@@ -1,6 +1,6 @@
 {
   "name": "deep6",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Zero-dependency ESM library for deep equality, deep clone, unification, and pattern matching with logical variables and wildcards. Handles circular references, Map, Set, URL, typed arrays, Date, RegExp, symbols, and property descriptors. Works in Node.js, Deno, Bun, and browsers.",
   "type": "module",
   "main": "src/index.js",

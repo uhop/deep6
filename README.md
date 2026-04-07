@@ -106,6 +106,7 @@ BSD-3-Clause
 
 ## Release History
 
+- 1.2.1 _AI-friendliness: added shippable `use-deep6` skill, `bugs`/`homepage`/`llms`/`llmsFull` fields in `package.json`, ship `AGENTS.md` and `ARCHITECTURE.md` to npm._
 - 1.2.0 _added `URL` support, bug fixes (RegExp flag comparison, Map assembly/deref, `env.ensure()`), performance optimizations, improved TypeScript typings, expanded tests (~573)._
 - 1.1.4 _updated dev deps._
 - 1.1.3 _updated dev deps._
