@@ -1,3 +1,4 @@
+// @ts-self-types="./unify.d.ts"
 import {_, Env, Variable, variable, isVariable, Unifier, isUnifier} from './env.js';
 
 // Command

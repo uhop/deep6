@@ -1,3 +1,4 @@
+// @ts-self-types="./walk.d.ts"
 import {_} from '../unify.js';
 
 const empty = {};

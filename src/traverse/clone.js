@@ -1,3 +1,4 @@
+// @ts-self-types="./clone.d.ts"
 import {Env, Unifier, Variable} from '../unify.js';
 import walk, {
   processOther,

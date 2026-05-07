@@ -1,3 +1,4 @@
+// @ts-self-types="./deref.d.ts"
 import {Env, Unifier, Variable} from '../unify.js';
 import walk, {processOther, processMap, replaceObject, processObject, getObjectData, processVariable, processCommand} from './walk.js';
 

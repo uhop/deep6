@@ -1,3 +1,4 @@
+// @ts-self-types="./index.d.ts"
 import {any, _} from './env.js';
 import unify from './unify.js';
 import originalClone from './traverse/clone.js';

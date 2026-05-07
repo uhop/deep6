@@ -1,3 +1,4 @@
+// @ts-self-types="./preprocess.d.ts"
 import {Unifier, Variable, open} from '../unify.js';
 import walk, {
   processOther,

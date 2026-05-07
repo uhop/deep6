@@ -1,3 +1,4 @@
+// @ts-self-types="./replaceVars.d.ts"
 import {isVariable} from '../env.js';
 
 const replaceVars =

@@ -33,7 +33,7 @@ For detailed usage docs and API references see the [wiki](https://github.com/uho
 ## Setup
 
 ```bash
-git clone git@github.com:uhop/deep6.git
+git clone https://github.com/uhop/deep6.git
 cd deep6
 npm install
 ```

@@ -1,3 +1,4 @@
+// @ts-self-types="./ref.d.ts"
 import {Variable} from '../env.js';
 
 class Ref extends Variable {

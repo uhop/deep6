@@ -1,3 +1,4 @@
+// @ts-self-types="./matchCondition.d.ts"
 import {Unifier} from '../env.js';
 
 class MatchCondition extends Unifier {

@@ -1,3 +1,4 @@
+// @ts-self-types="./matchString.d.ts"
 import {Unifier, isVariable} from '../env.js';
 
 class MatchString extends Unifier {

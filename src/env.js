@@ -1,3 +1,4 @@
+// @ts-self-types="./env.d.ts"
 // Env
 
 const keyDepth = Symbol.for('deep6.env.depth');

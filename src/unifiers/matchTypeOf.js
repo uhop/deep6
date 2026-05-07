@@ -1,3 +1,4 @@
+// @ts-self-types="./matchTypeOf.d.ts"
 import {Unifier, isVariable} from '../env.js';
 
 class MatchTypeOf extends Unifier {
