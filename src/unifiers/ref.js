@@ -19,5 +19,5 @@ class Ref extends Variable {
 const ref = (variable, value) => new Ref(variable, value);
 ref.Ref = Ref;
 
-export {ref};
+export {ref, Ref};
 export default ref;

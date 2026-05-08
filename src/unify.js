@@ -49,6 +49,14 @@ class Wrap extends Unifier {
 
 const isWrapped = o => o instanceof Wrap;
 
+// recursable: types whose unification recurses via children (and thus need cycle tracking)
+const isRecursable = o => {
+  if (!o || typeof o != 'object') return false;
+  if (o instanceof Map || o instanceof Wrap) return true;
+  const p = Object.getPrototypeOf(o);
+  return p === Object.prototype || p === null || p === Array.prototype;
+};
+
 const open = o => new Wrap('open', o);
 const isOpen = o => o instanceof Wrap && o.type === 'open';
 
@@ -442,18 +450,18 @@ const unify = (l, r, env, options) => {
       if (r.unify(l, ls, rs, env)) continue;
       return null;
     }
-    // process circular dependencies
-    if (lSeen) {
+    // process circular dependencies — only for types that recurse via children
+    // (plain objects, arrays, Maps). Atomic registered types (Date, RegExp, Set,
+    // typed arrays, ...) and Unifiers are leaf-like; tracking them would spuriously
+    // reject reuse of the same instance at multiple positions.
+    if (lSeen && isRecursable(l) && isRecursable(r)) {
       const lIndex = lSeen.get(l);
       if (typeof lIndex == 'number') {
         if (lIndex === rSeen.get(r)) continue main;
         return null;
-      } else {
-        if (rSeen.has(r)) return null;
-      }
-
-      l && typeof l == 'object' && lSeen.set(l, lSeen.size);
-      r && typeof r == 'object' && rSeen.set(r, rSeen.size);
+      } else if (rSeen.has(r)) return null;
+      lSeen.set(l, lSeen.size);
+      rSeen.set(r, rSeen.size);
     }
     // invoke custom unifiers
     if (typeof l == 'object' && l instanceof Unifier) {
@@ -495,8 +503,10 @@ const unify = (l, r, env, options) => {
         return null;
       }
     }
+    // reject mixed array/object before falling through to unifyObjects
+    if (Array.isArray(l) !== Array.isArray(r)) return null;
     // process naked objects and arrays
-    const objectType = env.openObjects ? 'open' : 'exact';
+    const objectType = (Array.isArray(l) ? env.openArrays : env.openObjects) ? 'open' : 'exact';
     if (!unifyObjects(l, objectType, null, r, objectType, null, ls, rs, env)) return null;
   }
   return env;

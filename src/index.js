@@ -7,7 +7,7 @@ import preprocess from './traverse/preprocess.js';
 const defaultOptions = {circular: true};
 const equal = (a, b, options = defaultOptions) => !!unify(a, b, null, options);
 
-const defaultMatchOptions = {openObjects: true, openMaps: true, openSets: true, circular: true};
+const defaultMatchOptions = {openObjects: true, openArrays: true, openMaps: true, openSets: true, circular: true};
 const match = (object, pattern, options = defaultMatchOptions) => {
   const processedPattern = preprocess(pattern, options),
     unifyOptions = {

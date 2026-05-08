@@ -25,7 +25,7 @@ class MatchString extends Unifier {
         rs.push({index: result.index, input: result.input});
       }
     }
-    return result;
+    return !!result;
   }
 }
 

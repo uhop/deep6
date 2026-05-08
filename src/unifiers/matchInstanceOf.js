@@ -8,7 +8,7 @@ class MatchInstanceOf extends Unifier {
   }
 
   unify(val, ls, rs) {
-    return val && !isVariable(val) && this.types.some(type => val instanceof type);
+    return !!(val && !isVariable(val) && this.types.some(type => val instanceof type));
   }
 }
 

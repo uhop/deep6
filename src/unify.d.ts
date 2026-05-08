@@ -1,7 +1,7 @@
 // Type definitions for deep6 unification
 // Generated from src/unify.js
 
-import {Env, Unifier, Variable} from './env.js';
+import {Env} from './env.js';
 
 /**
  * Options for unification
@@ -33,28 +33,25 @@ export interface UnifyOptions {
  * Attempts to unify two values, optionally binding variables.
  * Returns an Env with bindings on success, or null on failure.
  *
+ * `unify.registry` is a flat array of type-specific unifier pairs:
+ * `[Constructor, handler, Constructor, handler, ...]`. Push pairs to
+ * register custom type handlers; handler signature is
+ * `(l, r, ls, rs, env) => boolean`.
+ *
+ * `unify.filters` is a flat array of filter pairs:
+ * `[predicate, handler, predicate, handler, ...]`. Push pairs to register
+ * a custom filter.
+ *
  * @param l - Left value
  * @param r - Right value
  * @param env - Existing environment, options object, or null
  * @param options - Unification options (when env is provided separately)
  * @returns Environment with bindings, or null on failure
  */
-export declare const unify: (l: unknown, r: unknown, env?: Env | UnifyOptions | null, options?: UnifyOptions) => Env | null;
-
-/**
- * Flat array of type-specific unifier pairs: [Constructor, handler, Constructor, handler, ...]
- *
- * Use `registry.push(Type, handler)` to register a custom type handler.
- * Handler signature: `(l, r, ls, rs, env) => boolean`
- */
-export declare const registry: unknown[];
-
-/**
- * Flat array of filter pairs: [predicate, handler, predicate, handler, ...]
- *
- * Use `filters.push(predicate, handler)` to register a custom filter.
- */
-export declare const filters: unknown[];
+export declare const unify: ((l: unknown, r: unknown, env?: Env | UnifyOptions | null, options?: UnifyOptions) => Env | null) & {
+  registry: unknown[];
+  filters: unknown[];
+};
 
 /**
  * Wraps a value for open matching (target may have extra properties)

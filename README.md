@@ -53,7 +53,7 @@ equal(z, w); // true
 equal(z, p); // true
 
 // more standard types
-const m = {a: new Map(), b: Buffer.from([99, 98, 97])};
+const m = {a: new Map(), b: new Uint8Array([99, 98, 97])};
 m.a.set('a', [Symbol(), new Set([1, 2, 3])]);
 m.a.set('b', [/^abc/i, new Date()]);
 const n = clone(m);
@@ -89,16 +89,12 @@ npm install --save deep6
 ```
 
 ```js
-// ES6 modules
+// ES modules
 import equal, {clone} from 'deep6';
-import matchString from 'deep6/unifiers/matchString';
+import matchString from 'deep6/unifiers/matchString.js';
 ```
 
-```js
-// CommonJS module
-const {equal, clone} = require('deep6');
-const matchString = require('deep6/unifiers/matchString');
-```
+deep6 is ESM-only (`"type": "module"` in `package.json`). Requires Node 22+ or any modern browser; from CommonJS use a dynamic `import()`.
 
 ## License
 

@@ -62,14 +62,15 @@ Single source of truth: two `Map`s (one for parent, one for value)
 plus a thunk-based undo journal indexed by frame.
 
 ```js
-const _ = Symbol.for('deep6.any'), any = _;
+const _ = Symbol.for('deep6.any'),
+  any = _;
 
 class Env {
   constructor() {
-    this.parent = new Map();    // name → parent (absent ⇒ root, value-of-self)
-    this.values = new Map();    // root → value
-    this.journal = [];          // stack of undo thunks
-    this.frames = [];           // journal-length at each frame boundary
+    this.parent = new Map(); // name → parent (absent ⇒ root, value-of-self)
+    this.values = new Map(); // root → value
+    this.journal = []; // stack of undo thunks
+    this.frames = []; // journal-length at each frame boundary
     this.depth = 0;
   }
   push() {
@@ -90,34 +91,45 @@ class Env {
     while (this.parent.has(r)) r = this.parent.get(r);
     return r;
   }
-  isBound(name) { return this.values.has(this.find(name)); }
-  isAlias(a, b) { return this.find(a) === this.find(b); }
-  get(name) { return this.values.get(this.find(name)); }
+  isBound(name) {
+    return this.values.has(this.find(name));
+  }
+  isAlias(a, b) {
+    return this.find(a) === this.find(b);
+  }
+  get(name) {
+    return this.values.get(this.find(name));
+  }
   bindVal(name, val) {
     const r = this.find(name);
-    const had = this.values.has(r), old = this.values.get(r);
+    const had = this.values.has(r),
+      old = this.values.get(r);
     this.values.set(r, val);
-    this.journal.push(() => had ? this.values.set(r, old) : this.values.delete(r));
+    this.journal.push(() => (had ? this.values.set(r, old) : this.values.delete(r)));
   }
   bindVar(a, b) {
-    const ra = this.find(a), rb = this.find(b);
+    const ra = this.find(a),
+      rb = this.find(b);
     if (ra === rb) return;
-    const aHad = this.values.has(ra), aVal = this.values.get(ra);
-    const bHad = this.values.has(rb), bVal = this.values.get(rb);
+    const aHad = this.values.has(ra),
+      aVal = this.values.get(ra);
+    const bHad = this.values.has(rb),
+      bVal = this.values.get(rb);
     this.parent.set(ra, rb);
     if (aHad && !bHad) this.values.set(rb, aVal);
     if (aHad) this.values.delete(ra);
     this.journal.push(() => {
       this.parent.delete(ra);
-      if (aHad) this.values.set(ra, aVal); else this.values.delete(ra);
-      if (bHad) this.values.set(rb, bVal); else this.values.delete(rb);
+      if (aHad) this.values.set(ra, aVal);
+      else this.values.delete(ra);
+      if (bHad) this.values.set(rb, bVal);
+      else this.values.delete(rb);
     });
   }
-  *entries() {                  // freshest visible name → value
-    for (const name of this.parent.keys())
-      if (this.values.has(this.find(name))) yield [name, this.get(name)];
-    for (const root of this.values.keys())
-      if (!this.parent.has(root)) yield [root, this.values.get(root)];
+  *entries() {
+    // freshest visible name → value
+    for (const name of this.parent.keys()) if (this.values.has(this.find(name))) yield [name, this.get(name)];
+    for (const root of this.values.keys()) if (!this.parent.has(root)) yield [root, this.values.get(root)];
   }
 }
 ```
@@ -163,22 +175,25 @@ About **60 lines** vs the current ~140.
 class Frame {
   constructor(parent) {
     this.parent = parent;
-    this.values = null;     // Map<name, val>, lazy
-    this.aliases = null;    // Map<name, root>, lazy — for bindVar
+    this.values = null; // Map<name, val>, lazy
+    this.aliases = null; // Map<name, root>, lazy — for bindVar
     this.depth = parent ? parent.depth + 1 : 0;
   }
 }
 
 class Env {
-  constructor() { this.top = new Frame(null); }
-  push() { this.top = new Frame(this.top); }
+  constructor() {
+    this.top = new Frame(null);
+  }
+  push() {
+    this.top = new Frame(this.top);
+  }
   pop() {
     if (!this.top.parent) throw new Error('empty stack');
     this.top = this.top.parent;
   }
   get(name) {
-    for (let f = this.top; f; f = f.parent)
-      if (f.values && f.values.has(name)) return f.values.get(name);
+    for (let f = this.top; f; f = f.parent) if (f.values && f.values.has(name)) return f.values.get(name);
     return undefined;
   }
   bindVal(name, val) {
@@ -214,20 +229,20 @@ class Env {
 
 ## Tradeoff table
 
-| Op | Current (proto-chain) | Alt A (DSU + journal) | Alt B (frame list + Map) |
-|---|---|---|---|
-| push | `++depth` (O(1), no alloc) | array push of int (O(1), 1 slot) | `new Frame()` (O(1), small alloc) |
-| pop empty frame | O(0) — chain not extended | O(1) — `frames.pop()` | O(1) — pointer set |
-| pop with N writes | O(chain-len since target) ≈ O(1) typical | O(N) thunk calls | O(0) — pointer set, writes lost via GC |
-| bindVal | O(\|alias-set\|) replication into `values` | O(α) find + O(1) set + journal alloc | O(1) `Map.set` on top |
-| bindVar | O(\|smaller-set\|) member copy | O(α) find + O(1) `parent.set` + journal alloc | depends on alias strategy chosen |
-| get | O(1) native lookup; deopts to dict-mode | O(α) find + O(1) `Map.get` | **O(frames)** worst case |
-| isAlias | O(1) | O(α) two finds | O(frames) |
-| iterate freshest | `for…in` + `collectSymbols` (allocates) | `parent.keys()` + `values.keys()` | walk frames, dedupe (allocates Set) |
-| revert(d) | O(chain-len) on both chains | O(N-mutations) thunks | O(d-difference) pointer hops |
-| code size | ~140 lines | ~60 lines | ~50 lines without aliasing; ~100 with |
-| engine optimization | dict-mode after enough mutations | hidden-class stable | hidden-class stable |
-| GC pressure | bounded by frames alive | scales with mutation count | bounded by frames + per-frame Maps |
+| Op                  | Current (proto-chain)                      | Alt A (DSU + journal)                         | Alt B (frame list + Map)               |
+| ------------------- | ------------------------------------------ | --------------------------------------------- | -------------------------------------- |
+| push                | `++depth` (O(1), no alloc)                 | array push of int (O(1), 1 slot)              | `new Frame()` (O(1), small alloc)      |
+| pop empty frame     | O(0) — chain not extended                  | O(1) — `frames.pop()`                         | O(1) — pointer set                     |
+| pop with N writes   | O(chain-len since target) ≈ O(1) typical   | O(N) thunk calls                              | O(0) — pointer set, writes lost via GC |
+| bindVal             | O(\|alias-set\|) replication into `values` | O(α) find + O(1) set + journal alloc          | O(1) `Map.set` on top                  |
+| bindVar             | O(\|smaller-set\|) member copy             | O(α) find + O(1) `parent.set` + journal alloc | depends on alias strategy chosen       |
+| get                 | O(1) native lookup; deopts to dict-mode    | O(α) find + O(1) `Map.get`                    | **O(frames)** worst case               |
+| isAlias             | O(1)                                       | O(α) two finds                                | O(frames)                              |
+| iterate freshest    | `for…in` + `collectSymbols` (allocates)    | `parent.keys()` + `values.keys()`             | walk frames, dedupe (allocates Set)    |
+| revert(d)           | O(chain-len) on both chains                | O(N-mutations) thunks                         | O(d-difference) pointer hops           |
+| code size           | ~140 lines                                 | ~60 lines                                     | ~50 lines without aliasing; ~100 with  |
+| engine optimization | dict-mode after enough mutations           | hidden-class stable                           | hidden-class stable                    |
+| GC pressure         | bounded by frames alive                    | scales with mutation count                    | bounded by frames + per-frame Maps     |
 
 ## Recommendation
 

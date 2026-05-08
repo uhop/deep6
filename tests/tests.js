@@ -7,5 +7,6 @@ import registryTests from './test-registry.js';
 import unifierTests from './test-unifiers.js';
 import traverseTests from './test-traverse.js';
 import indexTests from './test-index.js';
+import edgeCaseTests from './test-edge-cases.js';
 
-runAllTests([...envTests, ...unifyTests, ...matchTests, ...registryTests, ...unifierTests, ...traverseTests, ...indexTests]);
+runAllTests([...envTests, ...unifyTests, ...matchTests, ...registryTests, ...unifierTests, ...traverseTests, ...indexTests, ...edgeCaseTests]);

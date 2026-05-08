@@ -29,6 +29,16 @@ const setObject = (seen, source, value) => {
   seen.set(source, {value});
 };
 
+// types whose handlers recurse via children (and thus need cycle tracking).
+// Atomic-leaf values reused at multiple positions must NOT seen-track or they
+// get spuriously rewritten as Circular placeholders by the second visit.
+const isRecursable = o => {
+  if (!o || typeof o != 'object') return false;
+  if (o instanceof Map) return true;
+  const p = Object.getPrototypeOf(o);
+  return p === Object.prototype || p === null || p === Array.prototype;
+};
+
 const processOther = (value, context) => context.stackOut.push(value);
 
 const processCircular = (value, context) => context.stackOut.push(new Circular(value));
@@ -156,7 +166,7 @@ const buildNewObject = (source, descriptors, keys, stackOut, wrap) => {
 
 const processVariable = (val, context) => {
   const env = context.env;
-  if (val.isBound(env)) {
+  if (env && val.isBound(env)) {
     context.stack.push(val.get(env));
   } else {
     context.stackOut.push(val);
@@ -219,8 +229,8 @@ const walk = (o, options) => {
       doOther(o, context);
       continue;
     }
-    // process circular dependencies
-    if (seen) {
+    // process circular dependencies — only for types that recurse via children
+    if (seen && isRecursable(o)) {
       if (seen.has(o)) {
         doCircular(o, context);
         continue;
