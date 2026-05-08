@@ -1,5 +1,5 @@
 import equal, {match, clone} from '../src/index.js';
-import unify, {variable as v} from '../src/unify.js';
+import unify, {open, variable as v} from '../src/unify.js';
 import {variable} from '../src/env.js';
 import matchString from '../src/unifiers/matchString.js';
 import matchInstanceOf from '../src/unifiers/matchInstanceOf.js';
