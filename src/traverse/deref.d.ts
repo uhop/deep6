@@ -44,14 +44,15 @@ export declare const filters: Array<(val: unknown, context: WalkContext) => bool
  * Replaces variables with bound values in-place
  *
  * Unlike assemble(), modifies the existing structure directly
- * rather than creating a new one.
+ * rather than creating a new one. The generic preserves the source's
+ * structural type for the caller.
  *
  * @param source - Value to dereference (modified in-place)
  * @param env - Env with bindings, or options object
  * @param options - Deref options (when env is provided separately)
  * @returns The same source value with variables replaced
  */
-export declare const deref: ((source: unknown, env?: Env | DerefOptions | null, options?: DerefOptions) => unknown) & {
+export declare const deref: (<T>(source: T, env?: Env | DerefOptions | null, options?: DerefOptions) => T) & {
   registry: unknown[];
   filters: Array<(val: unknown, context: WalkContext) => boolean>;
 };

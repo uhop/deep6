@@ -53,19 +53,37 @@ export declare const unify: ((l: unknown, r: unknown, env?: Env | UnifyOptions |
   filters: unknown[];
 };
 
-/**
- * Wraps a value for open matching (target may have extra properties)
- * @param o - Value to wrap
- * @returns Open-wrapped value
- */
-export declare const open: <T>(o: T) => T;
+declare const wrapBrand: unique symbol;
 
 /**
- * Wraps a value for soft matching (bidirectional open, updates both sides)
- * @param o - Value to wrap
- * @returns Soft-wrapped value
+ * A value transformed by `open()` or `soft()`. Carries a phantom brand so
+ * the type system distinguishes wrapped values from the original — `open(x)`
+ * is **not** assignable to `typeof x` and vice-versa, preventing the
+ * silent-no-op trap of `equal(a, open(a))`.
+ *
+ * The brand is purely type-level; at runtime a `Wrapped<T>` is a `Wrap`
+ * instance (an internal subclass of `Unifier`), not a `T`.
  */
-export declare const soft: <T>(o: T) => T;
+export type Wrapped<T> = T & {readonly [wrapBrand]: 'open' | 'soft'};
+
+/**
+ * Wraps a value for open matching (target may have extra properties).
+ * Only meaningful for plain objects, arrays, Maps, Sets, and typed arrays —
+ * wrapping atomic types (Date, RegExp, etc.) is rejected at unify time.
+ *
+ * @param o - Value to wrap
+ * @returns Branded `Wrapped<T>` (type-level: distinct from `T`; runtime: a `Wrap`)
+ */
+export declare const open: <T>(o: T) => Wrapped<T>;
+
+/**
+ * Wraps a value for soft matching (bidirectional open, updates both sides).
+ * Same kind constraints as `open()`.
+ *
+ * @param o - Value to wrap
+ * @returns Branded `Wrapped<T>` (type-level: distinct from `T`; runtime: a `Wrap`)
+ */
+export declare const soft: <T>(o: T) => Wrapped<T>;
 
 /**
  * Checks if a value is open-wrapped

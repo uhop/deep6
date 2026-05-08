@@ -82,7 +82,11 @@ export declare class Env {
 /**
  * Base class for custom unification behavior
  *
- * Subclasses must implement the `unify` method.
+ * Subclasses must implement the `unify` method. The return value is checked
+ * for truthiness by the dispatcher — any truthy value means success, any
+ * falsy value means failure. Built-in subclasses narrow the return to
+ * `boolean`; user-supplied predicates (e.g., via `matchCondition`) may
+ * return whatever they want.
  */
 export declare class Unifier {
   /**
@@ -91,9 +95,9 @@ export declare class Unifier {
    * @param ls - Left argument stack
    * @param rs - Right argument stack
    * @param env - Unification environment
-   * @returns True if unification succeeds
+   * @returns Truthy on success, falsy on failure
    */
-  unify(val: unknown, ls: unknown[], rs: unknown[], env: Env): boolean;
+  unify(val: unknown, ls: unknown[], rs: unknown[], env: Env): unknown;
 }
 
 /**

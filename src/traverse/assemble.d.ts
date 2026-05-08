@@ -44,14 +44,15 @@ export declare const filters: Array<(val: unknown, context: WalkContext) => bool
  * Replaces variables with their bound values from an environment
  *
  * Creates a new structure only when values differ from the source.
- * Unbound variables are kept as-is.
+ * Unbound variables are kept as-is. The returned shape mirrors the
+ * source shape; the generic preserves it for the caller.
  *
  * @param source - Value containing variables to resolve
  * @param env - Env with bindings, or options object
  * @param options - Assembly options (when env is provided separately)
- * @returns New value with variables replaced, or original if unchanged
+ * @returns Value with variables replaced (same structural type as source)
  */
-export declare const assemble: ((source: unknown, env?: Env | AssembleOptions | null, options?: AssembleOptions) => unknown) & {
+export declare const assemble: (<T>(source: T, env?: Env | AssembleOptions | null, options?: AssembleOptions) => T) & {
   registry: unknown[];
   filters: Array<(val: unknown, context: WalkContext) => boolean>;
 };
