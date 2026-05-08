@@ -6,7 +6,7 @@ Micro-benchmarks for deep6, run with [nano-benchmark](https://www.npmjs.com/pack
 
 ```bash
 npm run bench -- bench/bench-collect-symbols.js
-npx nano-watch bench/bench-collect-symbols.js genSet
+npx nano-watch -- bench/bench-collect-symbols.js genSet
 ```
 
 `nano-bench` runs all variants in a file and prints a comparison table with bootstrap confidence intervals. `nano-watch` streams live stats for a single variant.
