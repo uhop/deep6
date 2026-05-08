@@ -23,24 +23,42 @@ class Wrap extends Unifier {
   unify(val, ls, rs, env) {
     const isWrapped = val instanceof Wrap,
       value = isWrapped ? val.object : val;
-    if (!value || typeof value != 'object' || Array.isArray(this.object) !== Array.isArray(value)) return false;
+    // type parity: array/Map/Set must match on both sides. The fall-through
+    // (plain objects) is gated separately below.
+    if (
+      !value ||
+      typeof value != 'object' ||
+      Array.isArray(this.object) !== Array.isArray(value) ||
+      this.object instanceof Map !== value instanceof Map ||
+      this.object instanceof Set !== value instanceof Set
+    )
+      return false;
     if (Array.isArray(this.object)) {
       return isWrapped
         ? unifyObjects(this.object, this.type, this, val.object, val.type, val, ls, rs, env)
         : unifyObjects(this.object, this.type, this, val, env.openArrays ? 'open' : 'exact', null, ls, rs, env);
     }
     if (this.object instanceof Map) {
-      if (!(value instanceof Map)) return false;
       return isWrapped
         ? unifyMaps(this.object, this.type, this, val.object, val.type, val, ls, rs, env)
         : unifyMaps(this.object, this.type, this, val, env.openMaps ? 'open' : 'exact', null, ls, rs, env);
     }
     if (this.object instanceof Set) {
-      if (!(value instanceof Set)) return false;
       return isWrapped
         ? unifySets(this.object, this.type, this, val.object, val.type, val, ls, rs, env)
         : unifySets(this.object, this.type, this, val, env.openSets ? 'open' : 'exact', null, ls, rs, env);
     }
+    // fall-through: both sides must be the same kind of "key-iterable"
+    // object — either both plain (Object.prototype/null) or both with the
+    // same non-plain prototype (e.g., two Uint8Arrays). Without this guard
+    // an empty pattern ({}) would trivially match any object whose own
+    // enumerable keys are empty (Date, RegExp, Promise, etc.) because
+    // unifyObjects's compare iterates pattern keys.
+    const tp = Object.getPrototypeOf(this.object),
+      vp = Object.getPrototypeOf(value);
+    const tIsPlain = tp === Object.prototype || tp === null,
+      vIsPlain = vp === Object.prototype || vp === null;
+    if (tIsPlain !== vIsPlain || (!tIsPlain && tp !== vp)) return false;
     return isWrapped
       ? unifyObjects(this.object, this.type, this, val.object, val.type, val, ls, rs, env)
       : unifyObjects(this.object, this.type, this, val, env.openObjects ? 'open' : 'exact', null, ls, rs, env);

@@ -85,5 +85,35 @@ export default [
     eval(TEST('isDate.unify(null, [], []) === false'));
     eval(TEST('isDate.unify(0, [], []) === false'));
     eval(TEST('isDate.unify("", [], []) === false'));
+  },
+  function test_wrap_object_fallthrough_type_parity() {
+    // Wrap.unify falls through to unifyObjects for non-array/Map/Set inputs.
+    // An empty pattern ({}) used to trivially match any object whose own
+    // enumerable keys are empty (Map, Set, Date, RegExp, Promise, ...) because
+    // Object.keys returned [] and the compare loop never ran.
+    eval(TEST('!match(new Map(), {})'));
+    eval(TEST('!match({}, new Map())'));
+    eval(TEST('!match(new Set(), {})'));
+    eval(TEST('!match({}, new Set())'));
+    eval(TEST('!match(new Date(), {})'));
+    eval(TEST('!match({}, new Date())'));
+    eval(TEST('!match(/abc/, {})'));
+    eval(TEST('!match({}, /abc/)'));
+    eval(TEST('!match(Promise.resolve(), {})'));
+
+    // class instances of the same prototype still match when wrapped with open()
+    class Foo {
+      constructor(a) {
+        this.a = a;
+      }
+    }
+    const f1 = new Foo(1),
+      f2 = new Foo(1),
+      g = new Foo(2);
+    eval(TEST('!!unify(open(f1), f2)'));
+    eval(TEST('!unify(open(f1), g)'));
+    // mixed class vs plain — kinds don't match, reject
+    eval(TEST('!unify(open(f1), {a: 1})'));
+    eval(TEST('!unify(open({a: 1}), f1)'));
   }
 ];
