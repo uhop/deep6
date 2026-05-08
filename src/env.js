@@ -3,14 +3,14 @@
 
 const keyDepth = Symbol.for('deep6.env.depth');
 
-const collectSymbols = object => {
+const collectSymbols = function* (object) {
   const symbols = new Set();
   while (object && typeof object == 'object') {
     Object.getOwnPropertySymbols(object).forEach(symbol => symbols.add(symbol));
     object = Object.getPrototypeOf(object);
   }
   symbols.delete(keyDepth);
-  return Array.from(symbols);
+  yield* symbols;
 };
 
 const ensure = (object, depth) => {
@@ -56,7 +56,10 @@ class Env {
           vars[k] = u1;
           u1[k] = 1;
         }
-        collectSymbols(u2).forEach(k => ((vars[k] = u1), (u1[k] = 1)));
+        for (const k of collectSymbols(u2)) {
+          vars[k] = u1;
+          u1[k] = 1;
+        }
       } else {
         vars[name2] = u1;
         u1[name2] = 1;
@@ -84,7 +87,10 @@ class Env {
         values[k] = val;
         vars[k] = null;
       }
-      collectSymbols(u).forEach(k => ((values[k] = val), (vars[k] = null)));
+      for (const k of collectSymbols(u)) {
+        values[k] = val;
+        vars[k] = null;
+      }
     } else {
       values[name] = val;
     }
@@ -103,7 +109,7 @@ class Env {
   // debugging
   getAllValues() {
     const values = this.values,
-      result = collectSymbols(values).map(k => ({name: k, value: values[k]}));
+      result = Array.from(collectSymbols(values), k => ({name: k, value: values[k]}));
     for (const k in values) {
       result.push({name: k, value: values[k]});
     }
