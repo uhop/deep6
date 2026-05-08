@@ -102,6 +102,7 @@ BSD-3-Clause
 
 ## Release History
 
+- 1.2.2 _bugfixes (cycle detection with reused unifiers / atomic types, array-vs-object equality, `Wrap` fall-through type-parity, `clone()` with unbound variables); `match()` now opens arrays by default; `Ref` named export; Node 22+ floor._
 - 1.2.1 _AI-friendliness: added shippable `use-deep6` skill, `bugs`/`homepage`/`llms`/`llmsFull` fields in `package.json`, ship `AGENTS.md` and `ARCHITECTURE.md` to npm._
 - 1.2.0 _added `URL` support, bug fixes (RegExp flag comparison, Map assembly/deref, `env.ensure()`), performance optimizations, improved TypeScript typings, expanded tests (~573)._
 - 1.1.4 _updated dev deps._
@@ -111,3 +112,5 @@ BSD-3-Clause
 - 1.1.0 _separated from [yopl](https://npmjs.org/package/yopl), extensive refactoring._
 - 1.0.1 _added the exports statement._
 - 1.0.0 _the first 1.0 release._
+
+> The full release notes are in the wiki: [Release notes](https://github.com/uhop/deep6/wiki/Release-notes).

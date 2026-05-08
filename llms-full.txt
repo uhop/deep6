@@ -11,11 +11,8 @@ npm i deep6
 ## Quick start
 
 ```js
-// ESM
+// ESM only (project is "type": "module"). Requires Node 22+.
 import equal, {clone, match, any} from 'deep6';
-
-// CommonJS
-const {equal, clone, match, any} = require('deep6');
 
 const x = {a: 1, b: 2, c: ['hi!', 42, null, {}]};
 
@@ -56,7 +53,7 @@ Options:
 Deep cloning with circular reference support.
 
 ```js
-const x = {a: new Map(), b: Buffer.from([1, 2, 3])};
+const x = {a: new Map(), b: new Uint8Array([1, 2, 3])};
 const y = clone(x);
 equal(x, y);  // true
 ```
@@ -76,7 +73,7 @@ match({a: 1, b: 2}, {a: 1, c: any});   // false (c missing)
 match({a: 1, b: 2}, {a: 1, b: any});   // true
 ```
 
-Default options: `openObjects: true`, `openMaps: true`, `openSets: true`, `circular: true`
+Default options: `openObjects: true`, `openArrays: true`, `openMaps: true`, `openSets: true`, `circular: true`
 
 ### unify(a, b, env, options)
 

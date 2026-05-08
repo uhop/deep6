@@ -38,7 +38,7 @@ Unification is the heart of deep6. It's the process of determining if two values
 - **Bidirectional** — either side can have variables
 - **Extensible** — registry system for custom types
 
-The main unification loop (`src/unify.js:346-438`) processes pairs of values from two stacks:
+The main unification loop (the `unify` function in `src/unify.js`) processes pairs of values from two stacks:
 
 1. **Direct equality** — same reference
 2. **Wildcard match** — `any`/`_` matches anything
@@ -62,7 +62,7 @@ match({a: 1, b: 2}, open({a: 1})); // true (b is ignored)
 
 ### Pattern matching
 
-`match(object, pattern)` uses unification with `openObjects: true`:
+`match(object, pattern)` uses unification with all container kinds open by default (`openObjects`, `openArrays`, `openMaps`, `openSets`, `circular`):
 
 ```js
 import {match, any} from 'deep6';
