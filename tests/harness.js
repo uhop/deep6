@@ -27,7 +27,7 @@ export const TEST = condition => "submit('" + quoteString(condition) + "', (" + 
 
 export const runAllTests = async tests => {
   _total = _errors = 0;
-  let exceptionFlag = false;
+  let exceptions = 0;
   console.log('Starting tests...');
   for (let i = 0, l = tests.length; i < l; ++i) {
     _current = tests[i].name;
@@ -35,7 +35,7 @@ export const runAllTests = async tests => {
     try {
       await tests[i]();
     } catch (e) {
-      exceptionFlag = true;
+      ++exceptions;
       console.log('Unhandled exception in test #' + i + ' (' + tests[i].name + '): ' + e.message);
       if (e.stack) {
         console.log('Stack: ', e.stack);
@@ -45,12 +45,18 @@ export const runAllTests = async tests => {
       }
     }
   }
-  console.log(_errors ? 'Failed ' + _errors + ' out of ' + _total + ' tests.' : 'Finished ' + _total + ' tests.');
+  if (_errors || exceptions) {
+    console.log(
+      'Failed: ' + _errors + ' assertion error(s)' + (exceptions ? ', ' + exceptions + ' unhandled exception(s)' : '') + ' out of ' + _total + ' tests.'
+    );
+  } else {
+    console.log('Finished ' + _total + ' tests.');
+  }
   if (typeof process != 'undefined') {
-    process.exit(_errors || exceptionFlag ? 1 : 0);
+    process.exit(_errors || exceptions ? 1 : 0);
   } else if (typeof window != 'undefined' && window) {
     if (typeof window.callPhantom == 'function') {
-      window.callPhantom(_errors || exceptionFlag ? 'failure' : 'success');
+      window.callPhantom(_errors || exceptions ? 'failure' : 'success');
     }
   }
 };
