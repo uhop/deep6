@@ -7,7 +7,9 @@ const buildU = symCount => {
   return u;
 };
 
-const us = Array.from({length: 32}, () => buildU(2));
+const us1 = Array.from({length: 32}, () => buildU(1));
+const us2 = Array.from({length: 32}, () => buildU(2));
+const us4 = Array.from({length: 32}, () => buildU(4));
 
 const collectOriginal = object => {
   const symbols = new Set();
@@ -39,29 +41,41 @@ const collectGenNoSet = function* (object) {
   }
 };
 
-export default {
-  original: n => {
-    const sink = Object.create(null);
-    for (let i = 0; i < n; ++i) {
-      const u = us[i & 31];
-      collectOriginal(u).forEach(k => (sink[k] = 1));
-    }
-    return sink;
-  },
-  genSet: n => {
-    const sink = Object.create(null);
-    for (let i = 0; i < n; ++i) {
-      const u = us[i & 31];
-      for (const k of collectGenSet(u)) sink[k] = 1;
-    }
-    return sink;
-  },
-  genNoSet: n => {
-    const sink = Object.create(null);
-    for (let i = 0; i < n; ++i) {
-      const u = us[i & 31];
-      for (const k of collectGenNoSet(u)) sink[k] = 1;
-    }
-    return sink;
+const runOriginal = (n, us) => {
+  const sink = Object.create(null);
+  for (let i = 0; i < n; ++i) {
+    const u = us[i & 31];
+    collectOriginal(u).forEach(k => (sink[k] = 1));
   }
+  return sink;
+};
+
+const runGenSet = (n, us) => {
+  const sink = Object.create(null);
+  for (let i = 0; i < n; ++i) {
+    const u = us[i & 31];
+    for (const k of collectGenSet(u)) sink[k] = 1;
+  }
+  return sink;
+};
+
+const runGenNoSet = (n, us) => {
+  const sink = Object.create(null);
+  for (let i = 0; i < n; ++i) {
+    const u = us[i & 31];
+    for (const k of collectGenNoSet(u)) sink[k] = 1;
+  }
+  return sink;
+};
+
+export default {
+  original_n1: n => runOriginal(n, us1),
+  genSet_n1: n => runGenSet(n, us1),
+  genNoSet_n1: n => runGenNoSet(n, us1),
+  original_n2: n => runOriginal(n, us2),
+  genSet_n2: n => runGenSet(n, us2),
+  genNoSet_n2: n => runGenNoSet(n, us2),
+  original_n4: n => runOriginal(n, us4),
+  genSet_n4: n => runGenSet(n, us4),
+  genNoSet_n4: n => runGenNoSet(n, us4)
 };
