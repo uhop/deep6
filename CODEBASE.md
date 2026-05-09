@@ -6,13 +6,13 @@ No-dependency ES6 library for deep equivalence, unification, and cloning with ci
 
 ## Entry Points
 
-| Module              | Exports                                                                | Purpose                                                |
-| ------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------ |
-| `src/index.js`      | `equal`, `clone`, `match`, `isShape`, `any`, `_`                       | Main public API                                        |
-| `src/unify.js`      | `unify` (default), `Env`, `Variable`, `Unifier`, `open`, `soft`        | Core unification algorithm                             |
-| `src/env-shared.js` | `Unifier`, `Variable`, `variable`, `isUnifier`, `isVariable`, `any`, `_` | Implementation-agnostic primitives                   |
-| `src/env.js`        | `Env` + re-exports of `env-shared`                                     | Default proto-chain environment                        |
-| `src/env-map.js`    | `EnvMap` + re-exports of `env-shared`                                  | Map-stack sibling environment (perf opt-in)            |
+| Module              | Exports                                                                  | Purpose                                     |
+| ------------------- | ------------------------------------------------------------------------ | ------------------------------------------- |
+| `src/index.js`      | `equal`, `clone`, `match`, `isShape`, `any`, `_`                         | Main public API                             |
+| `src/unify.js`      | `unify` (default), `Env`, `Variable`, `Unifier`, `open`, `soft`          | Core unification algorithm                  |
+| `src/env-shared.js` | `Unifier`, `Variable`, `variable`, `isUnifier`, `isVariable`, `any`, `_` | Implementation-agnostic primitives          |
+| `src/env.js`        | `Env` + re-exports of `env-shared`                                       | Default proto-chain environment             |
+| `src/env-map.js`    | `EnvMap` + re-exports of `env-shared`                                    | Map-stack sibling environment (perf opt-in) |
 
 ## Key Algorithms
 

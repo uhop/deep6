@@ -102,6 +102,7 @@ BSD-3-Clause
 
 ## Release History
 
+- 1.3.0 _Significantly improved perf, added `EnvMap`._
 - 1.2.2 _bugfixes (cycle detection with reused unifiers / atomic types, array-vs-object equality, `Wrap` fall-through type-parity, `clone()` with unbound variables); `match()` now opens arrays by default; `Ref` named export; Node 22+ floor._
 - 1.2.1 _AI-friendliness: added shippable `use-deep6` skill, `bugs`/`homepage`/`llms`/`llmsFull` fields in `package.json`, ship `AGENTS.md` and `ARCHITECTURE.md` to npm._
 - 1.2.0 _added `URL` support, bug fixes (RegExp flag comparison, Map assembly/deref, `env.ensure()`), performance optimizations, improved TypeScript typings, expanded tests (~573)._
