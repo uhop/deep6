@@ -8,7 +8,9 @@
 package.json              # Package config
 src/                      # ES6 source code
 ├── index.js              # Main entry: exports equal, clone, match, any, _
-├── env.js                # Env, Variable, Unifier classes for unification
+├── env-shared.js         # Implementation-agnostic primitives: Unifier, Variable, any, _
+├── env.js                # Env class (proto-chain implementation) + re-exports
+├── env-map.js            # EnvMap class (Map-stack sibling implementation) + re-exports
 ├── unify.js              # Core unification algorithm (non-recursive stack-based)
 ├── traverse/             # Object traversal and cloning
 │   ├── walk.js           # Generic non-recursive object walker
@@ -47,6 +49,17 @@ The main unification loop (the `unify` function in `src/unify.js`) processes pai
 5. **Custom unifiers** — `Unifier` subclasses
 6. **Registered types** — Date, RegExp, typed arrays, etc.
 7. **Generic objects** — compare properties recursively
+
+### Environments
+
+A unification environment carries variable bindings and a stack of generation frames so the solver can backtrack. Two interchangeable implementations conform to the `EnvLike` method contract:
+
+- **`Env`** (`src/env.js`) — the default. Two parallel `null`-prototype objects walked through `Object.create()` chains; one frame per `push()`. Cheap for shallow workloads, pays a dict-mode-deopt tax once enough symbol-named bindings accumulate.
+- **`EnvMap`** (`src/env-map.js`) — a sibling implementation. Two parallel `Map`-stacks (one entry per depth, lazily allocated). Identity-hashed lookup avoids the deopt; measures 4–8× faster on accumulating-symbol / alias-binding workloads (typical of solver-style consumers).
+
+Both classes expose the same methods (`push`/`pop`/`revert`/`bindVar`/`bindVal`/`isBound`/`isAlias`/`get`/`getAllValues`) and the same public `depth` and `options` fields. Behavioural flags (`openObjects`, `circular`, `symbols`, etc.) live on `env.options` — `unify()` merges any per-call options into that bag, so chaining accumulates.
+
+The shared primitives (`Unifier`, `Variable`, the `any`/`_` wildcard) live in `src/env-shared.js` and are environment-agnostic — they only use the public method API. Both `env.js` and `env-map.js` re-export them so existing imports from either entry continue working.
 
 ### Wrap types
 
@@ -116,7 +129,10 @@ src/index.js ── src/unify.js, src/traverse/clone.js, src/traverse/preprocess
                     │
 src/unify.js ── src/env.js (Env, Variable, Unifier, any, _)
                     │
-src/env.js ── (standalone, no imports)
+src/env.js ── src/env-shared.js (Unifier, Variable, isUnifier, isVariable, variable, _, any)
+src/env-map.js ── src/env-shared.js (same set)
+
+src/env-shared.js ── (standalone, no imports)
 
 src/traverse/walk.js ── src/env.js (_ only)
 
@@ -141,6 +157,8 @@ src/unifiers/ref.js ── src/env.js (Unifier, isVariable)
 src/utils/replaceVars.js ── src/env.js (isVariable)
 ```
 
+Both `src/env.js` and `src/env-map.js` re-export the full shared surface so callers can keep using `import {...} from 'deep6/env.js'` for the proto-chain default, or import directly from `deep6/env-map.js` (which doubles as a single import point covering EnvMap + the shared primitives) for the Map-stack alternative.
+
 ## Import paths
 
 ```js
@@ -150,8 +168,15 @@ import equal, {clone, match, any} from 'deep6';
 // Core unification
 import unify, {Variable, variable, Unifier, any, _} from 'deep6/unify.js';
 
-// Environment
+// Environment (proto-chain — default)
 import {Env, Variable, Unifier, any, _} from 'deep6/env.js';
+import type {EnvLike} from 'deep6/env.js';
+
+// Environment (Map-stack sibling — opt in)
+import {EnvMap} from 'deep6/env-map.js';
+
+// Implementation-agnostic primitives (also re-exported by env.js / env-map.js)
+import {Unifier, Variable, variable, isUnifier, isVariable, _, any} from 'deep6/env-shared.js';
 
 // Cloning
 import clone from 'deep6/traverse/clone.js';

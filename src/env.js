@@ -1,5 +1,7 @@
 // @ts-self-types="./env.d.ts"
-// Env
+// Env — proto-chain implementation
+
+import {Unifier, isUnifier, Variable, variable, isVariable, _, any} from './env-shared.js';
 
 const keyDepth = Symbol.for('deep6.env.depth');
 
@@ -32,6 +34,7 @@ class Env {
     this.values = Object.create(null);
     this.variables[keyDepth] = this.values[keyDepth] = 0;
     this.depth = this.varsDepth = this.valsDepth = 0;
+    this.options = {};
   }
   push() {
     ++this.depth;
@@ -149,66 +152,5 @@ class Env {
     return result;
   }
 }
-
-// Custom unifier
-
-class Unifier {}
-
-const isUnifier = x => x instanceof Unifier;
-
-// Unifier should define a method:
-// unify(val, ls, rs, env):
-// val is a value we are unifying with
-// ls is a stack of left arguments
-// rs is a stack of right arguments corresponding to ls
-// env is an environment
-// the result should be true/false for success/failure
-
-// AnyVar
-
-const _ = Symbol.for('deep6.any'),
-  any = _;
-
-// Variable
-
-class Variable extends Unifier {
-  constructor(name) {
-    super();
-    this.name = name || Symbol();
-  }
-  isBound(env) {
-    return this.name in env.values;
-  }
-  isAlias(name, env) {
-    const u = env.variables[this.name];
-    return u && u[name instanceof Variable ? name.name : name] === 1;
-  }
-  get(env) {
-    return env.values[this.name];
-  }
-  unify(val, ls, rs, env) {
-    if (this.name in env.values) {
-      // isBound
-      ls.push(env.values[this.name]);
-      rs.push(val);
-      return true;
-    }
-    if (val === _ || val === this) return true;
-    if (val instanceof Variable) {
-      if (val.name in env.values) {
-        // isBound
-        env.bindVal(this.name, env.values[val.name]);
-        return true;
-      }
-      env.bindVar(this.name, val.name);
-      return true;
-    }
-    env.bindVal(this.name, val);
-    return true;
-  }
-}
-
-const isVariable = x => x instanceof Variable,
-  variable = name => new Variable(name);
 
 export {Env, Unifier, isUnifier, Variable, variable, isVariable, _, any};

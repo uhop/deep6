@@ -14,7 +14,7 @@ const replaceVars =
           case 'string':
           case 'number':
           case 'symbol':
-            buffer += env.values[v];
+            buffer += env.get(v);
             break;
           default:
             buffer += v;

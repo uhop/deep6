@@ -74,7 +74,7 @@ Pattern features:
 
 ### unify(a, b, env, options)
 
-Core unification algorithm. Returns `Env` on success, `null` on failure.
+Core unification algorithm. Returns the environment on success, `null` on failure.
 
 ```js
 import unify, {Variable, variable} from 'deep6/unify.js';
@@ -83,6 +83,26 @@ const v = variable();
 const env = unify({a: 1, b: v}, {a: 1, b: 2});
 // env.get(v) === 2
 ```
+
+The third argument can be either an environment instance or an options bag — `unify()` detects which by duck-typing on the `isBound` method.
+
+### Environments
+
+Two interchangeable implementations of the `EnvLike` contract:
+
+- `Env` (`deep6/env.js`) — proto-chain, the default created when no env is passed.
+- `EnvMap` (`deep6/env-map.js`) — `Map`-stack sibling; ~4–8× faster on accumulating-symbol/alias workloads (solver-style use). Opt in by passing `new EnvMap()` to `unify()`.
+
+```js
+import unify, {variable} from 'deep6/unify.js';
+import {EnvMap} from 'deep6/env-map.js';
+
+const x = variable('x');
+const env = unify({a: x}, {a: 1}, new EnvMap());
+// x.get(env) === 1
+```
+
+Both expose the same method API: `push()`, `pop()`, `revert(d)`, `bindVar(n1, n2)`, `bindVal(n, v)`, `isBound(n)`, `isAlias(n1, n2)`, `get(n)`, `getAllValues()`. Behavioural flags live on `env.options` (a plain bag) — never on the env instance itself.
 
 ### Unifiers
 

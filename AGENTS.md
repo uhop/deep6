@@ -54,7 +54,9 @@ deep6/
 ├── package.json          # Package config
 ├── src/                  # ES6 source code
 │   ├── index.js          # Main entry: exports equal, clone, match, any, _
-│   ├── env.js            # Env, Variable, Unifier classes for unification
+│   ├── env-shared.js     # Implementation-agnostic primitives: Unifier, Variable, any, _
+│   ├── env.js            # Env class (proto-chain implementation) + re-exports
+│   ├── env-map.js        # EnvMap class (Map-stack sibling) + re-exports
 │   ├── unify.js          # Core unification algorithm (non-recursive stack-based)
 │   ├── traverse/         # Object traversal and cloning
 │   │   ├── walk.js       # Generic non-recursive object walker
@@ -71,9 +73,9 @@ deep6/
 │   └── utils/
 │       └── replaceVars.js   # Variable replacement utility
 ├── tests/                # Test files
-│   ├── tests.js          # Test dispatcher (~550 tests)
+│   ├── tests.js          # Test dispatcher (~675 tests)
 │   ├── harness.js        # Shared test harness
-│   ├── test-*.js         # Test groups (env, unify, match, registry, unifiers, traverse, index)
+│   ├── test-*.js         # Test groups (env, env-map, unify, match, registry, unifiers, traverse, index, edge-cases)
 │   └── server.js         # Browser test server
 ├── .github/              # CI workflows, funding, dependabot
 ```
@@ -102,11 +104,16 @@ deep6/
   - Handle circular references
   - Support open/soft object matching
 
-- **Environment** (`src/env.js`) manages unification state:
-  - `Env` — unification environment with variable bindings and stack frames
-  - `Variable` — named logical variable that can be bound during unification
-  - `Unifier` — base class for custom unification behavior
-  - `any`/`_` — well-known symbol wildcard that matches anything
+- **Environment** — two interchangeable implementations of the `EnvLike` method contract:
+  - `Env` (`src/env.js`) — proto-chain implementation; the default created by `unify()` when no env is passed.
+  - `EnvMap` (`src/env-map.js`) — `Map`-stack sibling; ~4–8× faster on accumulating-symbol/alias workloads (solver-style use). Opt in by passing `new EnvMap()` to `unify()`.
+  - Behavioural flags (`openObjects`, `circular`, `symbols`, …) live on `env.options` — never on the env instance directly.
+  - `EnvLike` (`src/env-shared.d.ts`, TS-only) — the method contract both classes implement.
+- **Shared primitives** (`src/env-shared.js`) — implementation-agnostic, work with any `EnvLike`:
+  - `Variable` — named logical variable that can be bound during unification.
+  - `Unifier` — base class for custom unification behavior.
+  - `any`/`_` — well-known symbol wildcard that matches anything.
+  - Both `env.js` and `env-map.js` re-export this whole set, so legacy imports from `'deep6/env.js'` keep working.
 
 - **Walker** (`src/traverse/walk.js`) is the foundation for all traversal:
   - Non-recursive stack-based walking
@@ -227,7 +234,7 @@ clone.registry.push(MyClass, (val, context) => /* clone */);
 
 - **Zero dependencies.** Do not add runtime dependencies.
 - All public API is in `src/`.
-- Tests verify correctness against ~550 assertions.
+- Tests verify correctness against ~675 assertions.
 - The project supports modern environments: Node.js, browsers, Deno, Bun.
 
 ## When reading the codebase
@@ -242,6 +249,8 @@ clone.registry.push(MyClass, (val, context) => /* clone */);
 ### Core files to understand
 
 - `src/unify.js` — Core unification algorithm (non-recursive stack-based)
-- `src/env.js` — Unification environment and variable classes
+- `src/env-shared.js` — Implementation-agnostic primitives: Unifier, Variable, any/_
+- `src/env.js` — Default proto-chain `Env` implementation
+- `src/env-map.js` — Map-stack `EnvMap` sibling (perf opt-in for solver workloads)
 - `src/traverse/walk.js` — Foundation for all traversal operations
 - `src/index.js` — Main entry point and public API

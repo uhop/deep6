@@ -7,7 +7,7 @@ import type {Env, Variable} from '../env.js';
  * Creates a tagged template function that substitutes variables from an environment
  *
  * Template interpolations can be Variable instances (resolved via `.get(env)`),
- * strings/numbers/symbols (looked up in `env.values`), or other values (coerced to string).
+ * strings/numbers/symbols (looked up via `env.get(name)`), or other values (coerced to string).
  *
  * @param env - Unification environment with variable bindings
  * @returns A tagged template literal function

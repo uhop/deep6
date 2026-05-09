@@ -136,19 +136,29 @@ v.isBound(env);     // true
 v.get(env);        // 2
 ```
 
-### Env
+### Env / EnvMap / EnvLike
 
-Unification environment managing variable bindings:
+Two interchangeable environment implementations conform to the `EnvLike` contract; either can be passed to `unify()` as its third argument.
 
 ```js
-import {Env} from 'deep6/env.js';
+import {Env} from 'deep6/env.js';            // proto-chain (default)
+import {EnvMap} from 'deep6/env-map.js';     // Map-stack (4–8× faster on
+                                             // accumulating-symbol workloads)
+import type {EnvLike} from 'deep6/env.js';   // method contract (TS only)
 
-const env = new Env();
-// env.depth, env.variables, env.values
-// env.push(), env.pop(), env.revert(depth)
-// env.bindVar(name1, name2), env.bindVal(name, val)
-// env.get(name), env.isBound(name), env.isAlias(name1, name2)
+const env = new Env();    // or new EnvMap();
+// public surface (identical across implementations):
+//   env.depth                                  number, generation counter
+//   env.options                                bag of unify() flags
+//   env.push(), env.pop(), env.revert(depth)
+//   env.bindVar(name1, name2), env.bindVal(name, val)
+//   env.get(name), env.isBound(name), env.isAlias(name1, name2)
+//   env.getAllValues()
 ```
+
+Behavioural flags (`openObjects`, `circular`, etc.) live on `env.options` — `unify()` merges any options it receives into that bag, so chained `unify(a, b, env, opts)` calls accumulate flags. Internal storage (`Env.variables`/`Env.values`, `EnvMap.valuesStack`/`EnvMap.variablesStack`) is implementation-specific and not part of the public surface — use the methods above.
+
+The shared primitives (`Unifier`, `Variable`, `_`, `any` and their helpers) live in `deep6/env-shared.js` and are re-exported by both `env.js` and `env-map.js`. Existing imports from `deep6/env.js` keep working unchanged.
 
 ### Unifier
 
@@ -275,7 +285,9 @@ const processed = preprocess({a: 1}, {openObjects: true});
 ```
 src/
 ├── index.js          # Main entry: equal, clone, match, any, _
-├── env.js            # Env, Variable, Unifier, any, _
+├── env-shared.js     # Unifier, Variable, _, any (impl-agnostic primitives)
+├── env.js            # Env (proto-chain) + re-exports of shared
+├── env-map.js        # EnvMap (Map-stack sibling) + re-exports of shared
 ├── unify.js          # Core unification algorithm
 ├── traverse/
 │   ├── walk.js       # Generic walker

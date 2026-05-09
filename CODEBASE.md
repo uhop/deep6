@@ -6,11 +6,13 @@ No-dependency ES6 library for deep equivalence, unification, and cloning with ci
 
 ## Entry Points
 
-| Module         | Exports                                                         | Purpose                      |
-| -------------- | --------------------------------------------------------------- | ---------------------------- |
-| `src/index.js` | `equal`, `clone`, `match`, `isShape`, `any`, `_`                | Main public API              |
-| `src/unify.js` | `unify` (default), `Env`, `Variable`, `Unifier`, `open`, `soft` | Core unification algorithm   |
-| `src/env.js`   | `Env`, `Variable`, `Unifier`, `variable`, `any`, `_`            | Unification state management |
+| Module              | Exports                                                                | Purpose                                                |
+| ------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------ |
+| `src/index.js`      | `equal`, `clone`, `match`, `isShape`, `any`, `_`                       | Main public API                                        |
+| `src/unify.js`      | `unify` (default), `Env`, `Variable`, `Unifier`, `open`, `soft`        | Core unification algorithm                             |
+| `src/env-shared.js` | `Unifier`, `Variable`, `variable`, `isUnifier`, `isVariable`, `any`, `_` | Implementation-agnostic primitives                   |
+| `src/env.js`        | `Env` + re-exports of `env-shared`                                     | Default proto-chain environment                        |
+| `src/env-map.js`    | `EnvMap` + re-exports of `env-shared`                                  | Map-stack sibling environment (perf opt-in)            |
 
 ## Key Algorithms
 
@@ -48,7 +50,9 @@ Walker-based deep cloning:
 ```
 index.js → unify.js, clone.js, preprocess.js
 unify.js → env.js
-env.js → (none, standalone)
+env.js → env-shared.js
+env-map.js → env-shared.js
+env-shared.js → (none, standalone)
 walk.js → env.js (_)
 clone.js → unify.js, walk.js
 preprocess.js → unify.js, env.js
@@ -63,7 +67,9 @@ utils/* → env.js
 ```
 src/
 ├── index.js              # Main entry
-├── env.js                # Env, Variable, Unifier
+├── env-shared.js         # Implementation-agnostic primitives
+├── env.js                # Env (proto-chain) + re-exports of shared
+├── env-map.js            # EnvMap (Map-stack sibling) + re-exports of shared
 ├── unify.js              # Core algorithm
 ├── traverse/
 │   ├── walk.js           # Generic walker
@@ -83,7 +89,7 @@ src/
 
 ## Testing
 
-- **Files:** `tests/test-*.js` (~550 assertions), dispatched by `tests/tests.js`
+- **Files:** `tests/test-*.js` (~675 assertions), dispatched by `tests/tests.js`
 - **Run:** `npm test`
 - **Debug:** `npm run debug` (Node inspector)
 - **Browser:** `npm start` (opens test server)

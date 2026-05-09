@@ -36,17 +36,17 @@ class Wrap extends Unifier {
     if (Array.isArray(this.object)) {
       return isWrapped
         ? unifyObjects(this.object, this.type, this, val.object, val.type, val, ls, rs, env)
-        : unifyObjects(this.object, this.type, this, val, env.openArrays ? 'open' : 'exact', null, ls, rs, env);
+        : unifyObjects(this.object, this.type, this, val, env.options.openArrays ? 'open' : 'exact', null, ls, rs, env);
     }
     if (this.object instanceof Map) {
       return isWrapped
         ? unifyMaps(this.object, this.type, this, val.object, val.type, val, ls, rs, env)
-        : unifyMaps(this.object, this.type, this, val, env.openMaps ? 'open' : 'exact', null, ls, rs, env);
+        : unifyMaps(this.object, this.type, this, val, env.options.openMaps ? 'open' : 'exact', null, ls, rs, env);
     }
     if (this.object instanceof Set) {
       return isWrapped
         ? unifySets(this.object, this.type, this, val.object, val.type, val, ls, rs, env)
-        : unifySets(this.object, this.type, this, val, env.openSets ? 'open' : 'exact', null, ls, rs, env);
+        : unifySets(this.object, this.type, this, val, env.options.openSets ? 'open' : 'exact', null, ls, rs, env);
     }
     // fall-through: both sides must be the same kind of "key-iterable"
     // object — either both plain (Object.prototype/null) or both with the
@@ -61,7 +61,7 @@ class Wrap extends Unifier {
     if (tIsPlain !== vIsPlain || (!tIsPlain && tp !== vp)) return false;
     return isWrapped
       ? unifyObjects(this.object, this.type, this, val.object, val.type, val, ls, rs, env)
-      : unifyObjects(this.object, this.type, this, val, env.openObjects ? 'open' : 'exact', null, ls, rs, env);
+      : unifyObjects(this.object, this.type, this, val, env.options.openObjects ? 'open' : 'exact', null, ls, rs, env);
   }
 }
 
@@ -325,7 +325,7 @@ const objectOps = {
         let lKeys = Object.keys(l),
           rKeys = Object.keys(r);
         if (lKeys.length != rKeys.length) return false;
-        if (env.symbols) {
+        if (env.options.symbols) {
           lKeys = lKeys.concat(Object.getOwnPropertySymbols(l));
           rKeys = rKeys.concat(Object.getOwnPropertySymbols(r));
         }
@@ -351,12 +351,12 @@ const objectOps = {
     soft: {
       update: function () {
         let keys = Object.keys(this.l);
-        if (this.e.symbols) keys = keys.concat(Object.getOwnPropertySymbols(this.l));
+        if (this.e.options.symbols) keys = keys.concat(Object.getOwnPropertySymbols(this.l));
         for (const k of keys) {
           !hasOwnProperty.call(this.r, k) && Object.defineProperty(this.r, k, Object.getOwnPropertyDescriptor(this.l, k));
         }
         keys = Object.keys(this.r);
-        if (this.e.symbols) keys = keys.concat(Object.getOwnPropertySymbols(this.r));
+        if (this.e.options.symbols) keys = keys.concat(Object.getOwnPropertySymbols(this.r));
         for (const k of keys) {
           !hasOwnProperty.call(this.l, k) && Object.defineProperty(this.l, k, Object.getOwnPropertyDescriptor(this.r, k));
         }
@@ -369,7 +369,7 @@ objectOps.exact.exact.compare =
   objectOps.exact.soft.compare =
     (l, r, ls, rs, env) => {
       let keys = Object.keys(r);
-      if (env.symbols) keys = keys.concat(Object.getOwnPropertySymbols(r));
+      if (env.options.symbols) keys = keys.concat(Object.getOwnPropertySymbols(r));
       for (let i = 0; i < keys.length; ++i) {
         const k = keys[i];
         if (!hasOwnProperty.call(l, k)) return false;
@@ -383,7 +383,7 @@ objectOps.open.open.compare =
   objectOps.soft.soft.compare =
     (l, r, ls, rs, env) => {
       let keys = Object.keys(r);
-      if (env.symbols) keys = keys.concat(Object.getOwnPropertySymbols(r));
+      if (env.options.symbols) keys = keys.concat(Object.getOwnPropertySymbols(r));
       for (const k of keys) {
         if (hasOwnProperty.call(l, k)) {
           ls.push(l[k]);
@@ -394,7 +394,7 @@ objectOps.open.open.compare =
     };
 objectOps.exact.soft.update = objectOps.open.soft.update = function () {
   let keys = Object.keys(this.l);
-  if (this.e.symbols) keys = keys.concat(Object.getOwnPropertySymbols(this.l));
+  if (this.e.options.symbols) keys = keys.concat(Object.getOwnPropertySymbols(this.l));
   for (const k of keys) {
     !hasOwnProperty.call(this.r, k) && Object.defineProperty(this.r, k, Object.getOwnPropertyDescriptor(this.l, k));
   }
@@ -426,20 +426,22 @@ const unifyObjects = (l, lt, lm, r, rt, rm, ls, rs, env) => {
 
 // unification
 
+const isEnvLike = e => e && typeof e == 'object' && typeof e.isBound == 'function';
+
 const unify = (l, r, env, options) => {
-  if (env && !(env instanceof Env)) {
+  if (env && !isEnvLike(env)) {
     options = env;
     env = null;
   }
   if (!env) {
     env = new Env();
   }
-  env = Object.assign(env, options);
+  env.options = options ? {...env.options, ...options} : env.options;
   // options: openObjects, openArrays, openMaps, openSets, circular, loose, ignoreFunctions, signedZero, symbols.
   const ls = [l],
     rs = [r];
   let lSeen, rSeen;
-  if (env.circular) {
+  if (env.options.circular) {
     lSeen = new Map();
     rSeen = new Map();
   }
@@ -454,7 +456,7 @@ const unify = (l, r, env, options) => {
     // direct equality
     if (l === r) {
       if (lSeen && l && typeof l == 'object' && lSeen.has(l) ^ rSeen.has(r)) return null;
-      if (env.signedZero && l === 0 && 1 / l !== 1 / r) return null;
+      if (env.options.signedZero && l === 0 && 1 / l !== 1 / r) return null;
       continue;
     }
     // anyvar
@@ -491,11 +493,11 @@ const unify = (l, r, env, options) => {
       return null;
     }
     // process loose equality for non-objects and nulls
-    if (env.loose && !(l && r && typeof l == 'object' && typeof r == 'object') && l == r) continue main;
+    if (env.options.loose && !(l && r && typeof l == 'object' && typeof r == 'object') && l == r) continue main;
     // check rough types
     if (typeof l != typeof r) return null;
     // reject unequal functions
-    if (typeof l == 'function' && env.ignoreFunctions) continue;
+    if (typeof l == 'function' && env.options.ignoreFunctions) continue;
     // special case: NaN
     if (typeof l == 'number' && isNaN(l) && isNaN(r)) continue;
     // cut off impossible combinations
@@ -524,7 +526,7 @@ const unify = (l, r, env, options) => {
     // reject mixed array/object before falling through to unifyObjects
     if (Array.isArray(l) !== Array.isArray(r)) return null;
     // process naked objects and arrays
-    const objectType = (Array.isArray(l) ? env.openArrays : env.openObjects) ? 'open' : 'exact';
+    const objectType = (Array.isArray(l) ? env.options.openArrays : env.options.openObjects) ? 'open' : 'exact';
     if (!unifyObjects(l, objectType, null, r, objectType, null, ls, rs, env)) return null;
   }
   return env;
