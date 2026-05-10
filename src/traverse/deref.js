@@ -1,8 +1,9 @@
 // @ts-self-types="./deref.d.ts"
-import {Env, Unifier, Variable} from '../unify.js';
+import {Unifier, Variable} from '../unify.js';
 import walk, {processOther, processMap, replaceObject, processObject, getObjectData, processVariable, processCommand} from './walk.js';
 
 const empty = {};
+const isEnvLike = e => e && typeof e == 'object' && typeof e.isBound == 'function';
 
 function postProcess(context) {
   const stackOut = context.stackOut,
@@ -73,7 +74,7 @@ typeof ArrayBuffer == 'function' && addType(ArrayBuffer);
 // main
 
 const deref = (source, env, options) => {
-  if (env && !(env instanceof Env)) {
+  if (env && !isEnvLike(env)) {
     options = env;
     env = null;
   }

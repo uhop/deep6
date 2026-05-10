@@ -250,7 +250,7 @@ clone.registry.push(MyClass, (val, context) => /* clone */);
 ### Core files to understand
 
 - `src/unify.js` — Core unification algorithm (non-recursive stack-based)
-- `src/env-shared.js` — Implementation-agnostic primitives: Unifier, Variable, any/_
+- `src/env-shared.js` — Implementation-agnostic primitives: Unifier, Variable, any/\_
 - `src/env.js` — Default proto-chain `Env` implementation
 - `src/env-map.js` — Map-stack `EnvMap` sibling (perf opt-in for solver workloads)
 - `src/traverse/walk.js` — Foundation for all traversal operations

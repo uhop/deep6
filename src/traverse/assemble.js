@@ -1,5 +1,5 @@
 // @ts-self-types="./assemble.d.ts"
-import {Env, Unifier, Variable} from '../unify.js';
+import {Unifier, Variable} from '../unify.js';
 import walk, {
   processOther,
   processCircular,
@@ -16,6 +16,7 @@ import walk, {
 } from './walk.js';
 
 const empty = {};
+const isEnvLike = e => e && typeof e == 'object' && typeof e.isBound == 'function';
 
 function postProcess(context) {
   const stackOut = context.stackOut,
@@ -127,7 +128,7 @@ typeof ArrayBuffer == 'function' && addType(ArrayBuffer);
 // main
 
 const assemble = (source, env, options) => {
-  if (env && !(env instanceof Env)) {
+  if (env && !isEnvLike(env)) {
     options = env;
     env = null;
   }
