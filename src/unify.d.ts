@@ -7,8 +7,14 @@ import {Env} from './env.js';
  * Options for unification
  */
 export interface UnifyOptions {
-  /** Handle circular references (default: false) */
-  circular?: boolean;
+  /**
+   * Handle circular references (default: false). `true` picks the cheapest
+   * algorithm (currently `'bisimulation'`). Named modes: `'bisimulation'` —
+   * only unfolded values count; `'closure'` — cycles must also close at the
+   * same depths on both sides; `'graph'` — pointer structure must match,
+   * sharing included.
+   */
+  circular?: boolean | 'bisimulation' | 'closure' | 'graph';
   /** Include symbol properties (default: false) */
   symbols?: boolean;
   /** Use loose equality for primitives (default: false) */

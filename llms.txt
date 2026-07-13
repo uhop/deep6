@@ -47,7 +47,7 @@ const q = clone(r, {allProps: true});
 Deep equivalence check. Returns `true` if structures are deeply equal.
 
 Options:
-- `circular: true` — handle circular references (default: true)
+- `circular: true | 'bisimulation' | 'closure' | 'graph'` — cycle-safe comparison; `true` picks the cheapest algorithm (currently `'bisimulation'`: only unfolded values count); `'closure'` also requires cycles to close at the same depths on both sides; `'graph'` requires matching pointer structure, sharing included (default: true)
 - `symbols: true` — compare symbol properties
 - `loose: true` — use loose equality for primitives (`==`)
 - `ignoreFunctions: true` — ignore function properties

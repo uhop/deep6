@@ -440,19 +440,36 @@ const unify = (l, r, env, options) => {
   // options: openObjects, openArrays, openMaps, openSets, circular, loose, ignoreFunctions, signedZero, symbols.
   const ls = [l],
     rs = [r];
-  let lPath, rPath, done, exitPair;
-  if (env.options.circular) {
-    lPath = new Map();
-    rPath = new Map();
-    done = new Map();
-    exitPair = function () {
-      lPath.delete(this.l);
-      rPath.delete(this.r);
-      const mate = done.get(this.l);
-      if (mate === undefined) done.set(this.l, this.r);
-      else if (mate instanceof Set) mate.add(this.r);
-      else if (mate !== this.r) done.set(this.l, new Set([mate, this.r]));
-    };
+  // circular modes: 1 = 'bisimulation' (also true or any unrecognized truthy — the
+  // cheapest algorithm), 2 = 'closure', 3 = 'graph'
+  const circular = env.options.circular;
+  let mode = 0,
+    lSeen,
+    rSeen,
+    done,
+    exitPair;
+  if (circular) {
+    if (circular === 'closure') {
+      mode = 2;
+      lSeen = new Map();
+      rSeen = new Map();
+      done = new Map();
+      exitPair = function () {
+        lSeen.delete(this.l);
+        rSeen.delete(this.r);
+        const mate = done.get(this.l);
+        if (mate === undefined) done.set(this.l, this.r);
+        else if (mate instanceof Set) mate.add(this.r);
+        else if (mate !== this.r) done.set(this.l, new Set([mate, this.r]));
+      };
+    } else if (circular === 'graph') {
+      mode = 3;
+      lSeen = new Map();
+      rSeen = new Map();
+    } else {
+      mode = 1;
+      lSeen = new Map();
+    }
   }
   main: while (ls.length) {
     // perform a command, or extract a pair
@@ -464,8 +481,8 @@ const unify = (l, r, env, options) => {
     r = rs.pop();
     // direct equality
     if (l === r) {
-      // same node, but only one side closes a cycle here (or at another depth) — geometry differs
-      if (lPath && l && typeof l == 'object' && lPath.get(l) !== rPath.get(r)) return null;
+      // same node reached with different cycle status — geometry-sensitive modes reject
+      if (mode > 1 && l && typeof l == 'object' && (mode === 2 ? lSeen.get(l) !== rSeen.get(r) : lSeen.has(l) ^ rSeen.has(r))) return null;
       if (env.options.signedZero && l === 0 && 1 / l !== 1 / r) return null;
       continue;
     }
@@ -484,21 +501,43 @@ const unify = (l, r, env, options) => {
     // (plain objects, arrays, Maps). Atomic registered types (Date, RegExp, Set,
     // typed arrays, ...) and Unifiers are leaf-like; tracking them would spuriously
     // reject reuse of the same instance at multiple positions.
-    // Cycle geometry must match: back-edges on the active path must close at the
-    // same depth on both sides. Sharing of finished subgraphs is not a mismatch —
-    // `done` memoizes verified pairs (a pair exits only after every child
-    // comparison passed; any failure aborts the whole walk).
-    if (lPath && isRecursable(l) && isRecursable(r)) {
-      const dl = lPath.get(l),
-        dr = rPath.get(r);
-      if (dl !== dr) return null;
-      if (typeof dl == 'number') continue main;
-      const mate = done.get(l);
-      // single-mate slot upgrades to a Set of mates; safe while Set is not recursable
-      if (mate === r || (mate instanceof Set && mate.has(r))) continue main;
-      lPath.set(l, lPath.size);
-      rPath.set(r, rPath.size);
-      ls.push(new Command(exitPair, l, r));
+    if (mode && isRecursable(l) && isRecursable(r)) {
+      if (mode === 1) {
+        // bisimulation: a revisited pair is covered by pending or finished child
+        // comparisons — only unfolded values count.
+        // Single-mate slot upgrades to a Set of mates (also in 'closure' below);
+        // safe while Set is not recursable.
+        const mate = lSeen.get(l);
+        if (mate === r || (mate instanceof Set && mate.has(r))) continue main;
+        if (mate === undefined) lSeen.set(l, r);
+        else if (mate instanceof Set) mate.add(r);
+        else lSeen.set(l, new Set([mate, r]));
+      } else if (mode === 2) {
+        // closure geometry: back-edges on the active path must close at the same
+        // depth on both sides; `done` forgives sharing of finished subgraphs (a
+        // pair exits only after every child comparison passed — any failure
+        // aborts the whole walk)
+        const dl = lSeen.get(l),
+          dr = rSeen.get(r);
+        if (dl !== dr) return null;
+        if (typeof dl == 'number') continue main;
+        const mate = done.get(l);
+        if (mate === r || (mate instanceof Set && mate.has(r))) continue main;
+        lSeen.set(l, lSeen.size);
+        rSeen.set(r, rSeen.size);
+        ls.push(new Command(exitPair, l, r));
+      } else {
+        // graph isomorphism: nodes must be revisited in lockstep — pointer
+        // structure counts, sharing included
+        const lIndex = lSeen.get(l);
+        if (typeof lIndex == 'number') {
+          if (lIndex === rSeen.get(r)) continue main;
+          return null;
+        }
+        if (rSeen.has(r)) return null;
+        lSeen.set(l, lSeen.size);
+        rSeen.set(r, rSeen.size);
+      }
     }
     // invoke custom unifiers
     if (typeof l == 'object' && l instanceof Unifier) {

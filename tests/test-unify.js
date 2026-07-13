@@ -109,6 +109,8 @@ export default [
     eval(TEST('unify(diamond1, diamond2, null, {circular: true})'));
     diamond2.b = {};
     eval(TEST('unify(diamond1, diamond2, null, {circular: true})'));
+    eval(TEST("unify(diamond1, diamond2, null, {circular: 'closure'})"));
+    eval(TEST("!unify(diamond1, diamond2, null, {circular: 'graph'})"));
 
     const circle1 = {},
       circle2 = {};
@@ -117,7 +119,9 @@ export default [
     eval(TEST('unify(circle1, circle2, null, {circular: true})'));
 
     circle2.a = circle1;
-    eval(TEST('!unify(circle1, circle2, null, {circular: true})'));
+    eval(TEST('unify(circle1, circle2, null, {circular: true})'));
+    eval(TEST("!unify(circle1, circle2, null, {circular: 'closure'})"));
+    eval(TEST("!unify(circle1, circle2, null, {circular: 'graph'})"));
     circle2.a = circle2;
 
     circle1.b = {c: circle1};
@@ -138,6 +142,8 @@ export default [
     const deep = {a: {b: {c: 42}}};
     eval(TEST('unify({x: deep, y: deep}, {x: {a: {b: {c: 42}}}, y: {a: {b: {c: 42}}}}, null, {circular: true})'));
     eval(TEST('!unify({x: deep, y: deep}, {x: {a: {b: {c: 42}}}, y: {a: {b: {c: 43}}}}, null, {circular: true})'));
+    eval(TEST("unify([t, t], [{v: 1}, {v: 1}], null, {circular: 'closure'})"));
+    eval(TEST("!unify([t, t], [{v: 1}, {v: 1}], null, {circular: 'graph'})"));
   },
   function test_unify_cycle_geometry() {
     const cycle1 = {};
@@ -148,12 +154,24 @@ export default [
     cycle2.x.x = cycle2;
     const cycle2too = {x: {}};
     cycle2too.x.x = cycle2too;
+    const cycle1three = {};
+    cycle1three.x = cycle1three;
     eval(TEST('unify(cycle1, cycle1too, null, {circular: true})'));
     eval(TEST('unify(cycle2, cycle2too, null, {circular: true})'));
-    eval(TEST('!unify(cycle1, cycle2, null, {circular: true})'));
-    eval(TEST('!unify(cycle2, cycle1, null, {circular: true})'));
+    eval(TEST('unify(cycle1, cycle2, null, {circular: true})'));
+    eval(TEST("unify(cycle1, cycle2, null, {circular: 'bisimulation'})"));
+    eval(TEST("!unify(cycle1, cycle2, null, {circular: 'closure'})"));
+    eval(TEST("!unify(cycle2, cycle1, null, {circular: 'closure'})"));
+    eval(TEST("!unify(cycle1, cycle2, null, {circular: 'graph'})"));
     eval(TEST('unify(cycle1, cycle1, null, {circular: true})'));
     eval(TEST('!unify(cycle1, {x: {x: {}}}, null, {circular: true})'));
+    eval(TEST("!unify(cycle1, {x: {x: {}}}, null, {circular: 'closure'})"));
+    eval(TEST("!unify(cycle1, {x: {x: {}}}, null, {circular: 'graph'})"));
+    const shared = {a: cycle1, b: cycle1},
+      copies = {a: cycle1too, b: cycle1three};
+    eval(TEST('unify(shared, copies, null, {circular: true})'));
+    eval(TEST("unify(shared, copies, null, {circular: 'closure'})"));
+    eval(TEST("!unify(shared, copies, null, {circular: 'graph'})"));
     let l = {v: 1},
       r = {v: 1},
       bad = {v: 2};
@@ -163,6 +181,7 @@ export default [
       bad = {a: bad, b: bad};
     }
     eval(TEST('unify(l, r, null, {circular: true})'));
+    eval(TEST("unify(l, r, null, {circular: 'closure'})"));
     eval(TEST('!unify(l, bad, null, {circular: true})'));
   },
   function test_unify_flags() {

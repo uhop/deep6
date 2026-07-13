@@ -89,7 +89,7 @@ src/
 
 ## Testing
 
-- **Files:** `tests/test-*.js` (~691 assertions), dispatched by `tests/tests.js`
+- **Files:** `tests/test-*.js` (~706 assertions), dispatched by `tests/tests.js`
 - **Run:** `npm test`
 - **Debug:** `npm run debug` (Node inspector)
 - **Browser:** `npm start` (opens test server)

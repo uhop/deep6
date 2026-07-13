@@ -5,8 +5,12 @@
  * Options for deep equality comparison
  */
 export interface EqualOptions {
-  /** Handle circular references (default: true) */
-  circular?: boolean;
+  /**
+   * Handle circular references (default: true). `true` picks the cheapest
+   * algorithm (currently `'bisimulation'`); see `UnifyOptions.circular` in
+   * `deep6/unify.js` for the named-mode semantics.
+   */
+  circular?: boolean | 'bisimulation' | 'closure' | 'graph';
   /** Include symbol properties (default: false) */
   symbols?: boolean;
   /** Use loose equality for primitives (default: false) */
@@ -29,8 +33,8 @@ export interface MatchOptions {
   openSets?: boolean;
   /** Allow extra elements in target arrays (default: false) */
   openArrays?: boolean;
-  /** Handle circular references (default: true) */
-  circular?: boolean;
+  /** Handle circular references (default: true); see `UnifyOptions.circular` in `deep6/unify.js` for the named-mode semantics */
+  circular?: boolean | 'bisimulation' | 'closure' | 'graph';
   /** Include symbol properties (default: false) */
   symbols?: boolean;
   /** Use loose equality for primitives (default: false) */

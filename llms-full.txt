@@ -42,7 +42,7 @@ equal(/abc/gi, /abc/gi);                   // true
 ```
 
 Options:
-- `circular: true` — handle circular references (default: true)
+- `circular: true | 'bisimulation' | 'closure' | 'graph'` — cycle-safe comparison; `true` = cheapest algorithm (currently `'bisimulation'`); see `unify()` below for the mode semantics (default: true)
 - `symbols: true` — compare symbol properties
 - `loose: true` — use loose equality (`==`) for primitives
 - `ignoreFunctions: true` — ignore function properties
@@ -92,7 +92,7 @@ Options:
 - `openMaps: true` — maps can have extra entries
 - `openSets: true` — sets can have extra entries
 - `openArrays: true` — arrays can have extra elements
-- `circular: true` — handle circular references
+- `circular: true | 'bisimulation' | 'closure' | 'graph'` — cycle-safe comparison; `true` picks the cheapest algorithm (currently `'bisimulation'`: only unfolded values count — shared references equal fresh copies, cycles equal whenever their infinite unfoldings match); `'closure'` also requires cycles to close at the same depths on both sides; `'graph'` requires matching pointer structure, sharing included
 - `loose: true` — use loose equality
 - `ignoreFunctions: true` — ignore functions
 - `symbols: true` — process symbol properties
