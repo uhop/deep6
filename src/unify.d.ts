@@ -1,7 +1,7 @@
 // Type definitions for deep6 unification
 // Generated from src/unify.js
 
-import {Env} from './env.js';
+import type {EnvLike} from './env.js';
 
 /**
  * Options for unification
@@ -37,7 +37,9 @@ export interface UnifyOptions {
  * Core unification algorithm
  *
  * Attempts to unify two values, optionally binding variables.
- * Returns an Env with bindings on success, or null on failure.
+ * Returns the environment with bindings on success (the one passed in, or a
+ * new `EnvMap` — the default implementation — when none was given), or null
+ * on failure.
  *
  * `unify.registry` is a flat array of type-specific unifier pairs:
  * `[Constructor, handler, Constructor, handler, ...]`. Push pairs to
@@ -54,7 +56,7 @@ export interface UnifyOptions {
  * @param options - Unification options (when env is provided separately)
  * @returns Environment with bindings, or null on failure
  */
-export declare const unify: ((l: unknown, r: unknown, env?: Env | UnifyOptions | null, options?: UnifyOptions) => Env | null) & {
+export declare const unify: ((l: unknown, r: unknown, env?: EnvLike | UnifyOptions | null, options?: UnifyOptions) => EnvLike | null) & {
   registry: unknown[];
   filters: unknown[];
 };
@@ -109,8 +111,7 @@ export declare const isSoft: (o: unknown) => boolean;
  */
 export declare const isWrapped: (o: unknown) => boolean;
 
-// Re-exports from env.js (value exports, usable as constructors)
-export {Env, Unifier, Variable} from './env.js';
-export {_, any, isUnifier, isVariable, variable} from './env.js';
+// Re-exports from env.js (values usable as constructors, plus the EnvLike contract)
+export {Env, Unifier, Variable, _, any, isUnifier, isVariable, variable, type EnvLike} from './env.js';
 
 export default unify;

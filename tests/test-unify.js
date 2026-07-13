@@ -61,19 +61,23 @@ export default [
     eval(TEST('!unify({a: {a: 1}, b: 2}, {a: {a: 1}, b: 3})'));
   },
   function test_variables() {
+    const values = env => {
+      const all = {};
+      for (const {name, value} of env.getAllValues()) all[name] = value;
+      return all;
+    };
     let result = unify(1, 1);
-    eval(TEST('result && unify(result.values, {})'));
+    eval(TEST('result && unify(values(result), {})'));
     result = unify(1, _);
-    eval(TEST('result && unify(result.values, {})'));
+    eval(TEST('result && unify(values(result), {})'));
     result = unify(1, v('x'));
     eval(TEST('result'));
-    eval(TEST('unify(result.values, {x: 1})'));
+    eval(TEST('unify(values(result), {x: 1})'));
     eval(TEST("v('x').isBound(result)"));
     eval(TEST("v('x').get(result) === 1"));
     result = unify(v('y'), v('x'));
     eval(TEST('result'));
-    eval(TEST('unify(result.values, {})'));
-    eval(TEST('unify(result.variables, {x: {x: 1, y: 1}, y: {x: 1, y: 1}})'));
+    eval(TEST('unify(values(result), {})'));
     eval(TEST("!v('x').isBound(result)"));
     eval(TEST("!v('y').isBound(result)"));
     eval(TEST("v('x').isAlias('y', result)"));
@@ -81,17 +85,17 @@ export default [
     eval(TEST("!v('x').isAlias('z', result)"));
     eval(TEST("!v('y').isAlias('z', result)"));
     result = unify(v('y'), _);
-    eval(TEST('result && unify(result.values, {})'));
+    eval(TEST('result && unify(values(result), {})'));
     result = unify([1, v('x')], [v('y'), 2]);
     eval(TEST('result'));
-    eval(TEST('unify(result.values, {x: 2, y: 1})'));
+    eval(TEST('unify(values(result), {x: 2, y: 1})'));
     eval(TEST("v('x').isBound(result)"));
     eval(TEST("v('x').get(result) === 2"));
     eval(TEST("v('y').isBound(result)"));
     eval(TEST("v('y').get(result) === 1"));
     result = unify({a: 1, b: v('x')}, {a: v('y'), b: 2});
     eval(TEST('result'));
-    eval(TEST('unify(result.values, {x: 2, y: 1})'));
+    eval(TEST('unify(values(result), {x: 2, y: 1})'));
     eval(TEST("v('x').isBound(result)"));
     eval(TEST("v('x').get(result) === 2"));
     eval(TEST("v('y').isBound(result)"));

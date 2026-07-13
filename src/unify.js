@@ -1,5 +1,6 @@
 // @ts-self-types="./unify.d.ts"
 import {_, Env, Variable, variable, isVariable, Unifier, isUnifier} from './env.js';
+import {EnvMap} from './env-map.js';
 
 // Command
 
@@ -434,7 +435,7 @@ const unify = (l, r, env, options) => {
     env = null;
   }
   if (!env) {
-    env = new Env();
+    env = new EnvMap();
   }
   env.options = options ? {...env.options, ...options} : env.options;
   // options: openObjects, openArrays, openMaps, openSets, circular, loose, ignoreFunctions, signedZero, symbols.

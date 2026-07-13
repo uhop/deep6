@@ -71,7 +71,7 @@ deep6/
 │   └── utils/
 │       └── replaceVars.js   # Variable replacement utility
 ├── tests/                # Test files
-│   ├── tests.js          # Test dispatcher (~706 tests)
+│   ├── tests.js          # Test dispatcher (~705 tests)
 │   ├── harness.js        # Shared test harness
 │   ├── test-*.js         # Test groups (env, env-map, unify, match, registry, unifiers, traverse, index, edge-cases)
 │   └── server.js         # Browser test server
@@ -103,8 +103,8 @@ deep6/
   - Support open/soft object matching
 
 - **Environment** — two interchangeable implementations of the `EnvLike` method contract:
-  - `Env` (`src/env.js`) — proto-chain implementation; the default created by `unify()` when no env is passed.
-  - `EnvMap` (`src/env-map.js`) — `Map`-stack sibling; ~4–8× faster on accumulating-symbol/alias workloads (solver-style use). Opt in by passing `new EnvMap()` to `unify()`.
+  - `EnvMap` (`src/env-map.js`) — `Map`-stack implementation; the default created by `unify()` when no env is passed. ~4–8× faster on accumulating-symbol/alias workloads (solver-style use).
+  - `Env` (`src/env.js`) — proto-chain sibling; opt in by passing `new Env()` to `unify()`.
   - Behavioural flags (`openObjects`, `circular`, `symbols`, …) live on `env.options` — never on the env instance directly.
   - `EnvLike` (`src/env-shared.d.ts`, TS-only) — the method contract both classes implement.
 - **Shared primitives** (`src/env-shared.js`) — implementation-agnostic, work with any `EnvLike`:
@@ -232,7 +232,7 @@ clone.registry.push(MyClass, (val, context) => /* clone */);
 
 - **Zero dependencies.** Do not add runtime dependencies.
 - All public API is in `src/`.
-- Tests verify correctness against ~706 assertions.
+- Tests verify correctness against ~705 assertions.
 - The project supports modern environments: Node.js, browsers, Deno, Bun.
 
 ## When reading the codebase
@@ -248,7 +248,7 @@ clone.registry.push(MyClass, (val, context) => /* clone */);
 
 - `src/unify.js` — Core unification algorithm (non-recursive stack-based)
 - `src/env-shared.js` — Implementation-agnostic primitives: Unifier, Variable, any/\_
-- `src/env.js` — Default proto-chain `Env` implementation
-- `src/env-map.js` — Map-stack `EnvMap` sibling (perf opt-in for solver workloads)
+- `src/env-map.js` — Map-stack `EnvMap` implementation (the default)
+- `src/env.js` — Proto-chain `Env` sibling (opt-in)
 - `src/traverse/walk.js` — Foundation for all traversal operations
 - `src/index.js` — Main entry point and public API

@@ -141,12 +141,12 @@ v.get(env);        // 2
 Two interchangeable environment implementations conform to the `EnvLike` contract; either can be passed to `unify()` as its third argument.
 
 ```js
-import {Env} from 'deep6/env.js';            // proto-chain (default)
-import {EnvMap} from 'deep6/env-map.js';     // Map-stack (4–8× faster on
-                                             // accumulating-symbol workloads)
+import {EnvMap} from 'deep6/env-map.js';     // Map-stack (default; 4–8× faster
+                                             // on accumulating-symbol workloads)
+import {Env} from 'deep6/env.js';            // proto-chain (opt-in sibling)
 import type {EnvLike} from 'deep6/env.js';   // method contract (TS only)
 
-const env = new Env();    // or new EnvMap();
+const env = new EnvMap();    // or new Env();
 // public surface (identical across implementations):
 //   env.depth                                  number, generation counter
 //   env.options                                bag of unify() flags

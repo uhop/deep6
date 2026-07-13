@@ -54,8 +54,8 @@ The main unification loop (the `unify` function in `src/unify.js`) processes pai
 
 A unification environment carries variable bindings and a stack of generation frames so the solver can backtrack. Two interchangeable implementations conform to the `EnvLike` method contract:
 
-- **`Env`** (`src/env.js`) — the default. Two parallel `null`-prototype objects walked through `Object.create()` chains; one frame per `push()`. Cheap for shallow workloads, pays a dict-mode-deopt tax once enough symbol-named bindings accumulate.
-- **`EnvMap`** (`src/env-map.js`) — a sibling implementation. Two parallel `Map`-stacks (one entry per depth, lazily allocated). Identity-hashed lookup avoids the deopt; measures 4–8× faster on accumulating-symbol / alias-binding workloads (typical of solver-style consumers).
+- **`EnvMap`** (`src/env-map.js`) — the default. Two parallel `Map`-stacks (one entry per depth, lazily allocated). Identity-hashed lookup avoids dict-mode deopts; measures 4–8× faster on accumulating-symbol / alias-binding workloads (typical of solver-style consumers).
+- **`Env`** (`src/env.js`) — a sibling implementation. Two parallel `null`-prototype objects walked through `Object.create()` chains; one frame per `push()`. Cheap for shallow workloads, pays a dict-mode-deopt tax once enough symbol-named bindings accumulate.
 
 Both classes expose the same methods (`push`/`pop`/`revert`/`bindVar`/`bindVal`/`isBound`/`isAlias`/`get`/`getAllValues`) and the same public `depth` and `options` fields. Behavioural flags (`openObjects`, `circular`, `symbols`, etc.) live on `env.options` — `unify()` merges any per-call options into that bag, so chaining accumulates.
 
@@ -157,7 +157,7 @@ src/unifiers/ref.js ── src/env.js (Unifier, isVariable)
 src/utils/replaceVars.js ── src/env.js (isVariable)
 ```
 
-Both `src/env.js` and `src/env-map.js` re-export the full shared surface so callers can keep using `import {...} from 'deep6/env.js'` for the proto-chain default, or import directly from `deep6/env-map.js` (which doubles as a single import point covering EnvMap + the shared primitives) for the Map-stack alternative.
+Both `src/env.js` and `src/env-map.js` re-export the full shared surface so callers can keep using `import {...} from 'deep6/env.js'` for the proto-chain sibling, or import directly from `deep6/env-map.js` (which doubles as a single import point covering EnvMap + the shared primitives) for the Map-stack default.
 
 ## Import paths
 
@@ -168,12 +168,12 @@ import {equal, clone, match, any} from 'deep6';
 // Core unification
 import {unify, Variable, variable, Unifier, any, _} from 'deep6/unify.js';
 
-// Environment (proto-chain — default)
+// Environment (Map-stack — default)
+import {EnvMap} from 'deep6/env-map.js';
+
+// Environment (proto-chain — opt in)
 import {Env, Variable, Unifier, any, _} from 'deep6/env.js';
 import type {EnvLike} from 'deep6/env.js';
-
-// Environment (Map-stack sibling — opt in)
-import {EnvMap} from 'deep6/env-map.js';
 
 // Implementation-agnostic primitives (also re-exported by env.js / env-map.js)
 import {Unifier, Variable, variable, isUnifier, isVariable, _, any} from 'deep6/env-shared.js';

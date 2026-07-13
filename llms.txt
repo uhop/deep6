@@ -90,15 +90,15 @@ The third argument can be either an environment instance or an options bag — `
 
 Two interchangeable implementations of the `EnvLike` contract:
 
-- `Env` (`deep6/env.js`) — proto-chain, the default created when no env is passed.
-- `EnvMap` (`deep6/env-map.js`) — `Map`-stack sibling; ~4–8× faster on accumulating-symbol/alias workloads (solver-style use). Opt in by passing `new EnvMap()` to `unify()`.
+- `EnvMap` (`deep6/env-map.js`) — `Map`-stack, the default created when no env is passed; ~4–8× faster on accumulating-symbol/alias workloads (solver-style use).
+- `Env` (`deep6/env.js`) — proto-chain sibling; opt in by passing `new Env()` to `unify()`.
 
 ```js
 import {unify, variable} from 'deep6/unify.js';
-import {EnvMap} from 'deep6/env-map.js';
+import {Env} from 'deep6/env.js';
 
 const x = variable('x');
-const env = unify({a: x}, {a: 1}, new EnvMap());
+const env = unify({a: x}, {a: 1}, new Env());
 // x.get(env) === 1
 ```
 
