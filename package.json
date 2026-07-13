@@ -61,8 +61,8 @@
     "llms-full.txt"
   ],
   "devDependencies": {
-    "nano-benchmark": "^1.0.16",
-    "prettier": "^3.8.3",
+    "nano-benchmark": "^1.2.0",
+    "prettier": "^3.9.5",
     "typescript": "^7.0.2"
   }
 }
