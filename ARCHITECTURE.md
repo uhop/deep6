@@ -45,7 +45,7 @@ The main unification loop (the `unify` function in `src/unify.js`) processes pai
 1. **Direct equality** — same reference
 2. **Wildcard match** — `any`/`_` matches anything
 3. **Variable binding** — bind or check existing binding
-4. **Circular detection** — track seen objects
+4. **Circular detection** — mode-dependent (`circular: 'bisimulation' | 'closure' | 'graph'`, `true` = cheapest): pair memo, path-scoped depth pairing + completed-pairs memo, or lockstep index pairing
 5. **Custom unifiers** — `Unifier` subclasses
 6. **Registered types** — Date, RegExp, typed arrays, etc.
 7. **Generic objects** — compare properties recursively

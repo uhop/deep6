@@ -102,6 +102,7 @@ BSD-3-Clause
 
 ## Release History
 
+- 1.4.0 _Fixed shared-reference equality, added `circular` semantic modes, `EnvMap` is the default environment now._
 - 1.3.1 _bugfix: `EnvMap` now works with `assemble()`, `clone()`, and `deref()`._
 - 1.3.0 _Significantly improved perf, added `EnvMap`._
 - 1.2.2 _bugfixes (cycle detection with reused unifiers / atomic types, array-vs-object equality, `Wrap` fall-through type-parity, `clone()` with unbound variables); `match()` now opens arrays by default; `Ref` named export; Node 22+ floor._

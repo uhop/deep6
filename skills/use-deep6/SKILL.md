@@ -43,8 +43,9 @@ cases where `structuredClone` is sufficient.
 npm install deep6
 ```
 
-`deep6` requires Node 18+ (or modern Deno / Bun) and `"type": "module"` (or
-`.mjs` files). It has zero runtime dependencies.
+`deep6` is ESM-only (`"type": "module"` or `.mjs` files) and is tested on
+Node 22+, Bun, Deno, and modern browsers. It has zero runtime dependencies
+and declares no engine floor.
 
 ## Imports
 
@@ -89,11 +90,18 @@ a.self = a;
 const b = {};
 b.self = b;
 equal(a, b); // true
+
+// Shared references equal fresh copies — only unfolded values count
+const T = {v: 1};
+equal([T, T], [{v: 1}, {v: 1}]); // true
 ```
 
 Useful options:
 
-- `circular: true` — handle cycles (default `true`).
+- `circular: true` — handle cycles (default `true`); `true` picks the cheapest
+  algorithm (currently `'bisimulation'`: only unfolded values count). Named
+  modes `'bisimulation'` | `'closure'` | `'graph'` select exact cyclic
+  semantics — see the `unify()` wiki page.
 - `symbols: true` — also compare symbol-keyed properties.
 - `loose: true` — use `==` for primitives.
 - `ignoreFunctions: true` — ignore function-valued properties.
@@ -155,9 +163,10 @@ if (env) {
 }
 ```
 
-`unify` returns an `Env` (a binding environment) on success and `null` on
-failure. Use `assemble(variable, env)` to walk the bindings and produce a
-plain JavaScript value (deeply, including nested terms).
+`unify` returns a binding environment (`EnvLike` — an `EnvMap` when none was
+passed in) on success and `null` on failure. Use `assemble(variable, env)` to
+walk the bindings and produce a plain JavaScript value (deeply, including
+nested terms).
 
 Variables can appear on **either** side and can be unified against each
 other:
@@ -200,9 +209,11 @@ class Money {
   }
 }
 
-unify.registry.push(Money, (l, r, env) => (l.currency === r.currency && l.amount === r.amount ? env : null));
+// unify handlers: (l, r, ls, rs, env) => boolean
+unify.registry.push(Money, (l, r, ls, rs, env) => l.currency === r.currency && l.amount === r.amount);
 
-clone.registry.push(Money, (val, ctx) => new Money(val.amount, val.currency));
+// clone handlers: push the clone onto ctx.stackOut (return values are ignored)
+clone.registry.push(Money, (val, ctx) => ctx.stackOut.push(new Money(val.amount, val.currency)));
 ```
 
 Register once at startup. Both registries fall through in insertion order, so
@@ -227,8 +238,10 @@ catch-all).
 - **`match` is open by default.** Missing pattern keys are not failures.
   Use full `unify` (without `open`) when you need strict shape matching.
 - **Circular references are on by default.** That's almost always what you
-  want, but it costs a `WeakMap`. Disable with `{circular: false}` for hot
-  paths over known-acyclic data.
+  want, but it costs a `Map` per call. Disable with `{circular: false}` for
+  hot paths over known-acyclic data. Cyclic _semantics_ is selectable —
+  `'bisimulation'` (default via `true`), `'closure'`, or `'graph'` — when the
+  distinction between unfolded values and pointer structure matters.
 - **Symbols are off by default** in both `equal` and `clone`. Pass
   `{symbols: true}` if symbol keys are part of identity.
 - **Variables are not values.** A bare `Variable` instance is a placeholder;
@@ -257,6 +270,7 @@ catch-all).
 
 - `node_modules/deep6/llms.txt` — concise API reference.
 - `node_modules/deep6/llms-full.txt` — full API reference with examples.
-- `node_modules/deep6/AGENTS.md` — rules, conventions, architecture quick ref.
-- `node_modules/deep6/ARCHITECTURE.md` — module map and algorithm details.
-- [Wiki](https://github.com/uhop/deep6/wiki) — per-module documentation.
+- [Wiki](https://github.com/uhop/deep6/wiki) — per-module documentation,
+  [searchable](https://uhop.github.io/wiki-search/app/?wiki=uhop/deep6).
+- [Repo](https://github.com/uhop/deep6) — `AGENTS.md` / `ARCHITECTURE.md`
+  (authoring-side docs; not shipped in the tarball).
