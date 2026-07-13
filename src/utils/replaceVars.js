@@ -5,7 +5,7 @@ const replaceVars =
   env =>
   (strings, ...vars) => {
     let buffer = strings[0];
-    for (let i = 0; i < vars.length; ) {
+    for (let i = 0; i < vars.length;) {
       const v = vars[i];
       if (isVariable(v)) {
         buffer += v.get(env);
