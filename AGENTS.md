@@ -71,7 +71,7 @@ deep6/
 │   └── utils/
 │       └── replaceVars.js   # Variable replacement utility
 ├── tests/                # Test files
-│   ├── tests.js          # Test dispatcher (~675 tests)
+│   ├── tests.js          # Test dispatcher (~691 tests)
 │   ├── harness.js        # Shared test harness
 │   ├── test-*.js         # Test groups (env, env-map, unify, match, registry, unifiers, traverse, index, edge-cases)
 │   └── server.js         # Browser test server
@@ -170,7 +170,7 @@ import {unify, Variable, variable} from 'deep6/unify.js';
 
 const v = variable();
 const env = unify({a: 1, b: v}, {a: 1, b: 2});
-// env.get(v) === 2
+// env.get(v.name) === 2
 ```
 
 ### Wildcards
@@ -232,7 +232,7 @@ clone.registry.push(MyClass, (val, context) => /* clone */);
 
 - **Zero dependencies.** Do not add runtime dependencies.
 - All public API is in `src/`.
-- Tests verify correctness against ~675 assertions.
+- Tests verify correctness against ~691 assertions.
 - The project supports modern environments: Node.js, browsers, Deno, Bun.
 
 ## When reading the codebase

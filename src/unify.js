@@ -440,10 +440,19 @@ const unify = (l, r, env, options) => {
   // options: openObjects, openArrays, openMaps, openSets, circular, loose, ignoreFunctions, signedZero, symbols.
   const ls = [l],
     rs = [r];
-  let lSeen, rSeen;
+  let lPath, rPath, done, exitPair;
   if (env.options.circular) {
-    lSeen = new Map();
-    rSeen = new Map();
+    lPath = new Map();
+    rPath = new Map();
+    done = new Map();
+    exitPair = function () {
+      lPath.delete(this.l);
+      rPath.delete(this.r);
+      const mate = done.get(this.l);
+      if (mate === undefined) done.set(this.l, this.r);
+      else if (mate instanceof Set) mate.add(this.r);
+      else if (mate !== this.r) done.set(this.l, new Set([mate, this.r]));
+    };
   }
   main: while (ls.length) {
     // perform a command, or extract a pair
@@ -455,7 +464,8 @@ const unify = (l, r, env, options) => {
     r = rs.pop();
     // direct equality
     if (l === r) {
-      if (lSeen && l && typeof l == 'object' && lSeen.has(l) ^ rSeen.has(r)) return null;
+      // same node, but only one side closes a cycle here (or at another depth) — geometry differs
+      if (lPath && l && typeof l == 'object' && lPath.get(l) !== rPath.get(r)) return null;
       if (env.options.signedZero && l === 0 && 1 / l !== 1 / r) return null;
       continue;
     }
@@ -474,14 +484,21 @@ const unify = (l, r, env, options) => {
     // (plain objects, arrays, Maps). Atomic registered types (Date, RegExp, Set,
     // typed arrays, ...) and Unifiers are leaf-like; tracking them would spuriously
     // reject reuse of the same instance at multiple positions.
-    if (lSeen && isRecursable(l) && isRecursable(r)) {
-      const lIndex = lSeen.get(l);
-      if (typeof lIndex == 'number') {
-        if (lIndex === rSeen.get(r)) continue main;
-        return null;
-      } else if (rSeen.has(r)) return null;
-      lSeen.set(l, lSeen.size);
-      rSeen.set(r, rSeen.size);
+    // Cycle geometry must match: back-edges on the active path must close at the
+    // same depth on both sides. Sharing of finished subgraphs is not a mismatch —
+    // `done` memoizes verified pairs (a pair exits only after every child
+    // comparison passed; any failure aborts the whole walk).
+    if (lPath && isRecursable(l) && isRecursable(r)) {
+      const dl = lPath.get(l),
+        dr = rPath.get(r);
+      if (dl !== dr) return null;
+      if (typeof dl == 'number') continue main;
+      const mate = done.get(l);
+      // single-mate slot upgrades to a Set of mates; safe while Set is not recursable
+      if (mate === r || (mate instanceof Set && mate.has(r))) continue main;
+      lPath.set(l, lPath.size);
+      rPath.set(r, rPath.size);
+      ls.push(new Command(exitPair, l, r));
     }
     // invoke custom unifiers
     if (typeof l == 'object' && l instanceof Unifier) {

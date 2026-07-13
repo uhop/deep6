@@ -84,7 +84,7 @@ import {unify, Variable, variable, any, _} from 'deep6/unify.js';
 
 const v = variable();
 const env = unify({a: 1, b: v}, {a: 1, b: 2});
-// env.get(v) === 2
+// env.get(v.name) === 2
 ```
 
 Options:

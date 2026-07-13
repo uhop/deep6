@@ -108,7 +108,7 @@ export default [
     diamond2.a = diamond2.b = {};
     eval(TEST('unify(diamond1, diamond2, null, {circular: true})'));
     diamond2.b = {};
-    eval(TEST('!unify(diamond1, diamond2, null, {circular: true})'));
+    eval(TEST('unify(diamond1, diamond2, null, {circular: true})'));
 
     const circle1 = {},
       circle2 = {};
@@ -125,6 +125,45 @@ export default [
     eval(TEST('unify(circle1, circle2, null, {circular: true})'));
     circle2.a = {a: 1};
     eval(TEST('!unify(circle1, circle2, null, {circular: true})'));
+  },
+  function test_unify_shared_references() {
+    const t = {v: 1};
+    eval(TEST('unify([t, t], [{v: 1}, {v: 1}], null, {circular: true})'));
+    eval(TEST('unify([{v: 1}, {v: 1}], [t, t], null, {circular: true})'));
+    eval(TEST('unify([t, t], [t, {v: 1}], null, {circular: true})'));
+    const e = {v: 1};
+    eval(TEST('unify([t, t], [e, e], null, {circular: true})'));
+    eval(TEST('!unify([t, t], [{v: 1}, {v: 2}], null, {circular: true})'));
+    eval(TEST('!unify([t, t], [{v: 2}, {v: 1}], null, {circular: true})'));
+    const deep = {a: {b: {c: 42}}};
+    eval(TEST('unify({x: deep, y: deep}, {x: {a: {b: {c: 42}}}, y: {a: {b: {c: 42}}}}, null, {circular: true})'));
+    eval(TEST('!unify({x: deep, y: deep}, {x: {a: {b: {c: 42}}}, y: {a: {b: {c: 43}}}}, null, {circular: true})'));
+  },
+  function test_unify_cycle_geometry() {
+    const cycle1 = {};
+    cycle1.x = cycle1;
+    const cycle1too = {};
+    cycle1too.x = cycle1too;
+    const cycle2 = {x: {}};
+    cycle2.x.x = cycle2;
+    const cycle2too = {x: {}};
+    cycle2too.x.x = cycle2too;
+    eval(TEST('unify(cycle1, cycle1too, null, {circular: true})'));
+    eval(TEST('unify(cycle2, cycle2too, null, {circular: true})'));
+    eval(TEST('!unify(cycle1, cycle2, null, {circular: true})'));
+    eval(TEST('!unify(cycle2, cycle1, null, {circular: true})'));
+    eval(TEST('unify(cycle1, cycle1, null, {circular: true})'));
+    eval(TEST('!unify(cycle1, {x: {x: {}}}, null, {circular: true})'));
+    let l = {v: 1},
+      r = {v: 1},
+      bad = {v: 2};
+    for (let i = 0; i < 30; ++i) {
+      l = {a: l, b: l};
+      r = {a: r, b: r};
+      bad = {a: bad, b: bad};
+    }
+    eval(TEST('unify(l, r, null, {circular: true})'));
+    eval(TEST('!unify(l, bad, null, {circular: true})'));
   },
   function test_unify_flags() {
     eval(TEST('unify(0, -0)'));

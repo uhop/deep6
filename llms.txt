@@ -81,7 +81,7 @@ import {unify, Variable, variable} from 'deep6/unify.js';
 
 const v = variable();
 const env = unify({a: 1, b: v}, {a: 1, b: 2});
-// env.get(v) === 2
+// env.get(v.name) === 2
 ```
 
 The third argument can be either an environment instance or an options bag — `unify()` detects which by duck-typing on the `isBound` method.
