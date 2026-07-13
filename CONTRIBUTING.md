@@ -5,7 +5,7 @@ Thank you for your interest in contributing!
 ## Getting started
 
 ```bash
-git clone git@github.com:uhop/deep6.git
+git clone https://github.com/uhop/deep6.git
 cd deep6
 npm install
 ```
@@ -24,6 +24,13 @@ See [ARCHITECTURE.md](./ARCHITECTURE.md) for the module map and dependency graph
 - ES6 modules (`import`/`export`) in source.
 - Formatted with Prettier — see `.prettierrc` for settings.
 - Zero runtime dependencies. Do not add packages to `dependencies`.
+
+## License
+
+This project is distributed under the [BSD-3-Clause license](./LICENSE).
+External contributions are accepted only under licenses compatible with
+BSD-3-Clause; submissions under fundamentally incompatible licenses cannot
+be merged.
 
 ## AI agents
 

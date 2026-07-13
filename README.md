@@ -24,7 +24,7 @@
 ## Intro
 
 ```js
-import equal, {match, clone, any} from 'deep6';
+import {equal, match, clone, any} from 'deep6';
 
 const x = {a: 1, b: 2, c: ['hi!', 42, null, {}]};
 
@@ -80,7 +80,7 @@ r.b === q.b; // true
 
 ## Docs
 
-All pertinent information is in the [wiki](https://github.com/uhop/deep6/wiki).
+Full documentation is in the **[wiki](https://github.com/uhop/deep6/wiki)** &mdash; browse the [index](https://github.com/uhop/deep6/wiki/Home), or [search it](https://uhop.github.io/wiki-search/app/?wiki=uhop/deep6) by name.
 
 ## Installation and use
 
@@ -90,11 +90,11 @@ npm install --save deep6
 
 ```js
 // ES modules
-import equal, {clone} from 'deep6';
+import {equal, clone} from 'deep6';
 import matchString from 'deep6/unifiers/matchString.js';
 ```
 
-deep6 is ESM-only (`"type": "module"` in `package.json`). Requires Node 22+ or any modern browser; from CommonJS use a dynamic `import()`.
+deep6 is ESM-only (`"type": "module"` in `package.json`). Tested on Node 22+, Bun, Deno, and modern browsers; from CommonJS use a dynamic `import()`.
 
 ## License
 

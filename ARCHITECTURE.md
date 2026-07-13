@@ -163,10 +163,10 @@ Both `src/env.js` and `src/env-map.js` re-export the full shared surface so call
 
 ```js
 // Main API
-import equal, {clone, match, any} from 'deep6';
+import {equal, clone, match, any} from 'deep6';
 
 // Core unification
-import unify, {Variable, variable, Unifier, any, _} from 'deep6/unify.js';
+import {unify, Variable, variable, Unifier, any, _} from 'deep6/unify.js';
 
 // Environment (proto-chain — default)
 import {Env, Variable, Unifier, any, _} from 'deep6/env.js';

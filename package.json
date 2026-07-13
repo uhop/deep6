@@ -54,18 +54,11 @@
     "url": "https://github.com/uhop/deep6/issues"
   },
   "homepage": "https://github.com/uhop/deep6#readme",
-  "engines": {
-    "node": ">=22"
-  },
-  "llms": "https://raw.githubusercontent.com/uhop/deep6/master/llms.txt",
-  "llmsFull": "https://raw.githubusercontent.com/uhop/deep6/master/llms-full.txt",
   "files": [
     "src",
     "skills",
     "llms.txt",
-    "llms-full.txt",
-    "AGENTS.md",
-    "ARCHITECTURE.md"
+    "llms-full.txt"
   ],
   "devDependencies": {
     "nano-benchmark": "^1.0.16",

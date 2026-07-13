@@ -11,7 +11,7 @@ npm i deep6
 ## Quick start
 
 ```js
-import equal, {clone, match, any} from 'deep6';
+import {equal, clone, match, any} from 'deep6';
 
 const x = {a: 1, b: 2, c: ['hi!', 42, null, {}]};
 
@@ -77,7 +77,7 @@ Pattern features:
 Core unification algorithm. Returns the environment on success, `null` on failure.
 
 ```js
-import unify, {Variable, variable} from 'deep6/unify.js';
+import {unify, Variable, variable} from 'deep6/unify.js';
 
 const v = variable();
 const env = unify({a: 1, b: v}, {a: 1, b: 2});
@@ -94,7 +94,7 @@ Two interchangeable implementations of the `EnvLike` contract:
 - `EnvMap` (`deep6/env-map.js`) — `Map`-stack sibling; ~4–8× faster on accumulating-symbol/alias workloads (solver-style use). Opt in by passing `new EnvMap()` to `unify()`.
 
 ```js
-import unify, {variable} from 'deep6/unify.js';
+import {unify, variable} from 'deep6/unify.js';
 import {EnvMap} from 'deep6/env-map.js';
 
 const x = variable('x');
@@ -119,10 +119,10 @@ import matchString from 'deep6/unifiers/matchString.js';
 import matchTypeOf from 'deep6/unifiers/matchTypeOf.js';
 import matchInstanceOf from 'deep6/unifiers/matchInstanceOf.js';
 import matchCondition from 'deep6/unifiers/matchCondition.js';
-import ref, {Ref} from 'deep6/unifiers/ref.js';
+import {ref, Ref} from 'deep6/unifiers/ref.js';
 ```
 
-deep6 is ESM-only (`"type": "module"`). Requires Node 22+. From CommonJS callers use a dynamic `import()`.
+deep6 is ESM-only (`"type": "module"`). Tested on Node 22+, Bun, Deno, and modern browsers. From CommonJS callers use a dynamic `import()`.
 
 ## Registry and filters
 

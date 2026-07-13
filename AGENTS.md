@@ -12,15 +12,13 @@
 
 ## Workflows
 
-Available in `.windsurf/workflows/`:
+Available in `.claude/commands/` and `.windsurf/workflows/`:
 
 - **`add-module.md`** — Checklist for adding new unifiers, utilities, or traverse modules
-- **`ai-docs-update.md`** — Update all AI-facing docs after API changes
-- **`release-check.md`** — Pre-release verification checklist
 
 ## Skills
 
-Domain-specific knowledge in `.windsurf/skills/` and `.cursor/skills/`:
+Domain-specific knowledge in `.claude/commands/`, `.windsurf/skills/`, and `.cursor/skills/`:
 
 - **`write-tests/`** — How to write tests for deep6 modules
 - **`add-unifier/`** — How to create new unifier modules
@@ -92,7 +90,7 @@ deep6/
 - **ES6 modules.** Use `import`/`export` syntax in source.
 - **Zero runtime dependencies.** Do not add packages to `dependencies`.
 - **Do not modify or delete test expectations** without understanding why they changed.
-- **Do not add comments or remove comments** unless explicitly asked.
+- **Comments are _why_-markers only** — a non-trivial decision/constraint or an algorithm reference; never narration of _what_ the code does. Type docs live in the `.d.ts`, not as JSDoc in `.js`. Strip narrating comments opportunistically in files you're already editing.
 - **Keep `src/` in sync.** Run `npm test` and `npm run lint:fix` after changes.
 
 ## Architecture
@@ -141,7 +139,7 @@ deep6/
 ## Writing tests
 
 ```js
-import equal, {clone, match, any} from '../src/index.js';
+import {equal, clone, match, any} from '../src/index.js';
 
 const x = {a: 1, b: 2, c: ['hi!', 42, null, {}]};
 
@@ -168,7 +166,7 @@ equal(x, y); // true
 Unification is the process of determining if two values can be made equal by binding variables. It's bidirectional — either side can have variables.
 
 ```js
-import unify, {Variable, variable} from 'deep6/unify.js';
+import {unify, Variable, variable} from 'deep6/unify.js';
 
 const v = variable();
 const env = unify({a: 1, b: v}, {a: 1, b: 2});
@@ -243,7 +241,7 @@ clone.registry.push(MyClass, (val, context) => /* clone */);
 - Consult [ARCHITECTURE.md](./ARCHITECTURE.md) for module relationships
 - Use [llms.txt](./llms.txt) for quick API lookup
 - Reference [CODEBASE.md](./CODEBASE.md) for algorithm details
-- Follow workflows in `.windsurf/workflows/` for common tasks
+- Follow workflows in `.claude/commands/` or `.windsurf/workflows/` for common tasks
 - Run `npm test` and `npm run lint:fix` after any changes
 
 ### Core files to understand

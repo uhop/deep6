@@ -1,4 +1,4 @@
-import equal, {match, clone, any} from 'deep6';
+import {equal, match, clone, any} from 'deep6';
 
 const x = {a: 1, b: 2, c: ['hi!', 42, null, {}]};
 

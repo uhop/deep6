@@ -11,8 +11,8 @@ npm i deep6
 ## Quick start
 
 ```js
-// ESM only (project is "type": "module"). Requires Node 22+.
-import equal, {clone, match, any} from 'deep6';
+// ESM only (project is "type": "module"). Tested on Node 22+.
+import {equal, clone, match, any} from 'deep6';
 
 const x = {a: 1, b: 2, c: ['hi!', 42, null, {}]};
 
@@ -80,7 +80,7 @@ Default options: `openObjects: true`, `openArrays: true`, `openMaps: true`, `ope
 Core unification algorithm. Returns `Env` on success, `null` on failure.
 
 ```js
-import unify, {Variable, variable, any, _} from 'deep6/unify.js';
+import {unify, Variable, variable, any, _} from 'deep6/unify.js';
 
 const v = variable();
 const env = unify({a: 1, b: v}, {a: 1, b: 2});

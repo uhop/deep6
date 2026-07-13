@@ -50,10 +50,10 @@ npm install deep6
 
 ```js
 // Main API — default export is `equal`
-import equal, {clone, match, any, _} from 'deep6';
+import {equal, clone, match, any, _} from 'deep6';
 
 // Core unification
-import unify, {Variable, variable, Unifier, open, soft} from 'deep6/unify.js';
+import {unify, Variable, variable, Unifier, open, soft} from 'deep6/unify.js';
 
 // Traversal helpers
 import walk from 'deep6/traverse/walk.js';
@@ -141,7 +141,7 @@ regex-based, type-based, instance-based, or predicate-based matching.
 When you need to **extract** values from a match, drop down to `unify`.
 
 ```js
-import unify, {variable} from 'deep6/unify.js';
+import {unify, variable} from 'deep6/unify.js';
 import assemble from 'deep6/traverse/assemble.js';
 
 const X = variable('X');
@@ -176,7 +176,7 @@ By default `unify` does strict structural matching. For pattern-style
 matching where extra keys are allowed:
 
 ```js
-import unify, {open, soft} from 'deep6/unify.js';
+import {unify, open, soft} from 'deep6/unify.js';
 
 unify(open({a: 1}), {a: 1, b: 2}); // success — extra `b` ignored
 unify(soft({a: 1}), {a: 1, b: 2}); // soft = bidirectional open

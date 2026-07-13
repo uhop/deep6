@@ -134,7 +134,7 @@ match(soft({a: 1}), {a: 1, b: 2}); // true (bidirectional)
 ### Variable Binding
 
 ```js
-import unify, {variable} from 'deep6/unify.js';
+import {unify, variable} from 'deep6/unify.js';
 const v = variable();
 const env = unify({a: 1, b: v}, {a: 1, b: 2});
 v.get(env); // 2
