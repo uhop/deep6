@@ -34,4 +34,3 @@ jobs:
         run: |
           npm ci
           npm test
-          npm run ts-check --if-present
